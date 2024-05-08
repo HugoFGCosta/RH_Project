@@ -18,5 +18,15 @@ class RoleSeeder extends Seeder
             'id' => 1,
             'role' => 'Worker'
         ]);
+
+        \DB::table('roles')->insert([
+            'id' => 2,
+            'role' => 'Manager'
+        ]);
+
+        \DB::table('roles')->insert([
+            'id' => 3,
+            'role' => 'Administrator'
+        ]);
     }
 }
