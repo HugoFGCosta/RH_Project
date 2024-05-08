@@ -14,9 +14,18 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/menu', [App\Http\Controllers\ButtonController::class, 'index']);
+
+Route::get('/register-schedule', [App\Http\Controllers\ButtonController::class, 'registerSchedule']);
+Route::get('/dashboard-statistics', [App\Http\Controllers\ButtonController::class, 'dashboardStatistics']);
+Route::get('/view-absences', [App\Http\Controllers\ButtonController::class, 'viewAbsences']);
+Route::get('/manage-data', [App\Http\Controllers\ButtonController::class, 'manageData']);
+Route::get('/vacation-plans', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
+Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
+
