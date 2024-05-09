@@ -46,6 +46,10 @@ class ButtonController extends Controller
         return view('pages.approve-absence.approve-absence');
     }
 
+    public function importExportData(){
+        return view('pages.import-export-data.import-export-data');
+    }
+
     /**
      * Show the form for creating a new resource.
      */

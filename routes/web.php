@@ -28,4 +28,5 @@ Route::get('/view-absences', [App\Http\Controllers\ButtonController::class, 'vie
 Route::get('/manage-data', [App\Http\Controllers\ButtonController::class, 'manageData']);
 Route::get('/vacation-plans', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
 Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
+Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData']);
 

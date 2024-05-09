@@ -19,6 +19,10 @@
 </head>
 <body>
 
+<div c>
+
+</div>
+
 @component('master.header')
 @endcomponent
 
