@@ -20,3 +20,20 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+Route::resource('users', 'UserController');
+Route::get('/users/create', [App\Http\Controllers\UserController::class, 'create']);
+Route::get('/users/{user}/edit', [App\Http\Controllers\UserController::class, 'edit']);
+Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
+
+
+
+
+/* Route::get('/users', 'UserController@index');
+Route::get('/users/create', 'UserController@create');
+Route::post('/users', 'UserController@store');
+Route::get('/users/{user}', 'UserController@show');
+Route::get('/users/{user}/edit', 'UserController@edit');
+Route::put('/users/{user}', 'UserController@update');
+Route::delete('/users/{users}', 'UserController@destroy'); */
