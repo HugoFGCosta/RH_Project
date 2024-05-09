@@ -9,10 +9,11 @@ class Work_Shift extends Model
 {
     use HasFactory;
 
+    protected $table = 'work_shifts';
 
 
     public function user_shift()
     {
-        return $this->hasOne('App\User_Shift');
+        return $this->hasMany('App\User_Shift');
     }
 }
