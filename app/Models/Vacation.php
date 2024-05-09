@@ -13,4 +13,9 @@ class Vacation extends Model
     {
         return $this->belongsTo('App\Vacation_Approval_state');
     }
+
+    public function user()
+    {
+        return $this->belongsTo('App\User');
+    }
 }

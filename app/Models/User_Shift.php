@@ -9,6 +9,7 @@ class User_Shift extends Model
 {
     use HasFactory;
 
+    protected $table = 'user_shifts';
     public function work_shift()
     {
         return $this->belongsTo('App\Work_Shift');

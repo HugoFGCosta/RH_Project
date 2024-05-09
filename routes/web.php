@@ -30,3 +30,9 @@ Route::get('/vacation-plans', [App\Http\Controllers\ButtonController::class, 'va
 Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
 Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData']);
 
+
+Route::resource('users', 'UserController');
+Route::get('/users/create', [App\Http\Controllers\UserController::class, 'create']);
+Route::get('/users/{user}/edit', [App\Http\Controllers\UserController::class, 'edit']);
+Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
+
