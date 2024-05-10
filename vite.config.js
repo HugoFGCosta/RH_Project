@@ -25,4 +25,7 @@ export default defineConfig({
             vue: 'vue/dist/vue.esm-bundler.js',
         },
     },
+    build: {
+        outDir: 'public/build',  // Add this line to direct the output to public/build
+    },
 });
