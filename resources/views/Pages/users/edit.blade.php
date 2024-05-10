@@ -1,6 +1,6 @@
 {{-- NAO ESTA PRONTO --}}
 
-{{-- @extends('master.main')
+@extends('master.main')
 
 @section('content')
     <div class="container">
@@ -14,4 +14,4 @@
         </div>
     </div>
     </div>
-@endsection --}}
+@endsection

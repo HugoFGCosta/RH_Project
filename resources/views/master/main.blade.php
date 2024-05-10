@@ -1,38 +1,47 @@
-<!doctype html>
-<html lang="en">
-
+<!DOCTYPE html>
+<html lang="{{app()->getLocale() }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Project</title>
 
-    <link href="{{ asset('css/app.css') }}" media="all" rel="stylesheet" type="text/css">
-    @yield('styles')
+    <title>{{ config('app.name', 'Laravel') }}</title>
+
+    <!-- Fonts -->
+    <link rel="dns-prefetch" href="//fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+
+    <!-- Scripts -->
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+
 </head>
-
 <body>
 
+<div c>
 
-    @component('master.header')
-    @endcomponent
+</div>
 
+@component('master.header')
+@endcomponent
 
-    <main>
-        @yield('content')
-    </main>
+<main>
+    @yield('content')
+</main>
 
+@component('master.footer')
+@endcomponent
 
-    @component('master.footer')
-    @endcomponent
+<script src="{!! asset('js/app.js') !!}" type="text/javascript"></script>
 
+<!-- jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <script src="{{ asset('js/app.js') }}" type="text/javascript"></script>
-    @yield('scripts')
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+@yield('scripts')
 
 </body>
-
 </html>

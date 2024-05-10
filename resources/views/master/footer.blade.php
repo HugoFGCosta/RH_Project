@@ -1,3 +1,3 @@
-<footer>
-    <h1>Caue Furayama</h1>
+<footer class="text-center">
+    Website developed with bootstrap
 </footer>
