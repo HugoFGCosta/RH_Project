@@ -76,27 +76,54 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $user)
+    public function show()
     {
+        $user = auth()->user();
         return view('pages.users.show', ['user' => $user]);
     }
+
+
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $user)
+    public function edit()
     {
-        return view('pages.users.edit', ['user' => $user]);
+
+        $work_shifts = Work_Shift::all();
+        $roles = Role::all();
+
+        $user = auth()->user();
+        $user_shift = User_Shift::where('user_id', $user->id)->first();
+        return view('pages.users.edit', ['user' => $user, 'user_shift' => $user_shift, 'work_shifts' => $work_shifts, 'roles' => $roles]);
     }
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $user)
+    public function update(Request $request)
     {
-        $user->update($request->all());
-        return redirect('users')->with('status', 'User edited successfully!');
+
+        $user = auth()->user();
+        $user->name = $request->input('name');
+        $user->save();
+        /*  $user->address = $request->input('address');
+         $user->nif = $request->input('nif');
+         $user->tel = $request->input('tel');
+         $user->role_id = $request->input('role_id');
+         $user->birth_date = $request->input('birth_date');
+         $user->email = $request->input('email');
+         $user->password = $request->input('password');
+
+         $user_shift = User_Shift::where('user_id', $user->id)->first();
+         $user_shift->work_shift_id = $request->input('work_shift_id');
+         $user_shift->save(); */
+
+        return redirect('/menu');
     }
+
+
 
     /**
      * Remove the specified resource from storage.
