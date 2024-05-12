@@ -38,7 +38,14 @@ Route::put('/user/edit', [App\Http\Controllers\UserController::class, 'update'])
 Route::get('/user/show', [App\Http\Controllers\UserController::class, 'show']);
 
 
-
-
 Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
+
+
+/*Rotas Export*/
+Route::get('export-csv', [\App\Http\Controllers\UserController::class, 'exportCSV'])->name('exportUsers');
+Route::get('exportCSVAbsences', [\App\Http\Controllers\AbsenceController::class, 'exportCSVAbsences'])->name('exportAbsences');
+Route::get('exportCSVVacations', [\App\Http\Controllers\VacationController::class, 'exportCSVVacations'])->name('exportVacations');
+Route::get('exportCSVPresences', [\App\Http\Controllers\PresenceController::class, 'exportCSVPresences'])->name('exportPresences');
+
+Route::post('import-csv', [\App\Http\Controllers\UserController::class, 'importCSV'])->name('import');
 

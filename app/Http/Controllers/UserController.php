@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\User_Shift;
 use App\Models\Work_Shift;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 
 class UserController extends Controller
@@ -133,6 +134,72 @@ class UserController extends Controller
         $user->softDelete();
         return redirect('users')->with('status', 'User deleted successfully!');
     }
+
+    public function exportCSVAbsences() //exporta os dados dos utilizadores para um ficheiro CSV
+    {
+        $filename = 'user-data.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        return response()->stream(function () {
+            $handle = fopen('php://output', 'w');
+
+            // Add CSV headers
+            fputcsv($handle, [
+                'id',
+                'role_id',
+                'name',
+                'address',
+                'nif',
+                'tel',
+                'birth_date',
+                'email',
+                'email_verified_at',
+                'password',
+                'rememberToken',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ]);
+
+            // Fetch and process data in chunks
+            User::chunk(25, function ($users) use ($handle) {
+                foreach ($users as $user) {
+                    // Extract data from each employee.
+                    $data = [
+                        isset($user->id)? $user->id : '',
+                        isset($user->role_id)? $user->role_id : '',
+                        isset($user->name)? $user->name : '',
+                        isset($user->address)? $user->address : '',
+                        isset($user->nif)? $user->nif : '',
+                        isset($user->tel)? $user->tel : '',
+                        isset($user->birth_date)? $user->birth_date : '',
+                        isset($user->email)? $user->email : '',
+                        isset($user->email_verified_at)? $user->email_verified_at : '',
+                        isset($user->password)? $user->password : '',
+                        isset($user->rememberToken)? $user->rememberToken : '',
+                        isset($user->created_at)? $user->created_at : '',
+                        isset($user->updated_at)? $user->updated_at : '',
+                        isset($user->deleted_at)? $user->deleted_at : '',
+                    ];
+
+                    // Write data to a CSV file.
+                    fputcsv($handle, $data);
+                }
+            });
+
+            // Close CSV file handle
+            fclose($handle);
+        }, 200, $headers);
+    }
+
+
 
 }
 
