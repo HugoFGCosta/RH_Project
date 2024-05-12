@@ -13,33 +13,32 @@
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
-    <!-- Scripts -->
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    <!-- Styles -->
+    <link href="{{ asset('css/mainPage.css') }}" rel="stylesheet">
 
 </head>
 <body>
 
-<div c>
-
-</div>
 
 @component('master.header')
 @endcomponent
 
 <main>
-    @yield('content')
 </main>
 
 @component('master.footer')
 @endcomponent
 
-<script src="{!! asset('js/app.js') !!}" type="text/javascript"></script>
+<script src="{{ asset('js/menu.js') }}"></script>
 
 <!-- jQuery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <!-- Bootstrap JS -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Icons -->
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
 @yield('scripts')
 
