@@ -19,11 +19,30 @@
 </head>
 <body>
 
-
 @component('master.header')
 @endcomponent
 
 <main>
+    <div class="main">
+        <div class="topbar">
+            <div class="toggle">
+                <ion-icon name="menu-outline"></ion-icon>
+            </div>
+            <div class="search">
+                <label>
+                    <input type="text" placeholder="Procure">
+                    <ion-icon name="search-outline"></ion-icon>
+                </label>
+            </div>
+            <div class="user">
+                @if (Auth::check())
+                <li class="nav-item">
+                    {{ Auth::user()->name }}
+                </li>
+                @endif
+            </div>
+        </div>
+    </div>
 </main>
 
 @component('master.footer')
@@ -31,11 +50,6 @@
 
 <script src="{{ asset('js/menu.js') }}"></script>
 
-<!-- jQuery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-<!-- Bootstrap JS -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <!-- Icons -->
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
