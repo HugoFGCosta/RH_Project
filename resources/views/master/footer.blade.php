@@ -1,3 +1,3 @@
-<footer class="text-center">
+{{--<footer class="text-center">
     Website developed with bootstrap
-</footer>
+</footer>--}}
