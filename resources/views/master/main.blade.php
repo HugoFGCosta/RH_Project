@@ -15,6 +15,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/mainPage.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/daily-tasks.css') }}" rel="stylesheet">
 
 </head>
 <body>
@@ -43,6 +44,11 @@
             </div>
         </div>
     </div>
+
+    <div class="content-area">
+        @yield('content')
+    </div>
+
 </main>
 
 @component('master.footer')
