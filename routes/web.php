@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,6 +20,10 @@ Route::get('/', function () {
 });
 
 Auth::routes();
+Route::get('/logout', function () {
+    Auth::logout();
+    return redirect('/login');
+})->middleware('auth');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -31,6 +36,9 @@ Route::get('/manage-data', [App\Http\Controllers\ButtonController::class, 'manag
 Route::get('/vacation-plans', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
 Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
 Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData']);
+Route::get('/daily-tasks', [App\Http\Controllers\ButtonController::class, 'dailyTasks']);
+Route::get('/requests', [App\Http\Controllers\ButtonController::class, 'requests']);
+Route::get('/settings', [App\Http\Controllers\ButtonController::class, 'settings']);
 
 /*Rotas Users*/
 Route::get('/users/create', [UserController::class, 'create']);

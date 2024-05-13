@@ -463,13 +463,14 @@ class UserController extends Controller
 
         $user = auth()->user();
         $user->name = $request->input('name');
+        $user->email = $request->input('email');
         $user->save();
         /*  $user->address = $request->input('address');
          $user->nif = $request->input('nif');
          $user->tel = $request->input('tel');
          $user->role_id = $request->input('role_id');
          $user->birth_date = $request->input('birth_date');
-         $user->email = $request->input('email');
+
          $user->password = $request->input('password');
          $user->save();
          $user_shift = User_Shift::where('user_id', $user->id)->first();
