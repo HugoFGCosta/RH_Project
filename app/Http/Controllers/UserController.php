@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Absence;
+use App\Models\Presence;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\User_Shift;
+use App\Models\Vacation;
 use App\Models\Work_Shift;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -135,7 +138,7 @@ class UserController extends Controller
         return redirect('users')->with('status', 'User deleted successfully!');
     }
 
-    public function exportCSVAbsences() //exporta os dados dos utilizadores para um ficheiro CSV
+    public function exportCSVUsers() //exporta os dados dos utilizadores para um ficheiro CSV
     {
         $filename = 'user-data.csv';
 
@@ -198,6 +201,83 @@ class UserController extends Controller
             fclose($handle);
         }, 200, $headers);
     }
+
+    public function importCSV(Request $request)
+    {
+        $this->validate($request, [
+            'import_csv' => 'required|mimes:csv,txt',
+        ]);
+
+        $file = $request->file('import_csv');
+        $filePath = $file->getRealPath();
+        $file = fopen($filePath, 'r');
+
+        $header = fgetcsv($file);
+        $escapedHeader = [];
+
+        foreach ($header as $key => $value) {
+            $lowercaseHeader = strtolower($value);
+            $escapedItem = preg_replace('/[^a-z]/', '', $lowercaseHeader);
+            array_push($escapedHeader, $escapedItem);
+        }
+
+        // Import new data
+        while ($columns = fgetcsv($file)) {
+            if ($columns[0] == "") {
+                continue;
+            }
+
+            // Adjusting the columns to ensure all fields are present
+            $data = [
+                'id' => $columns[0],
+                'role_id' => $columns[1],
+                'name' => $columns[2],
+                'address' => $columns[3],
+                'nif' => $columns[4],
+                'tel' => $columns[5],
+                'birth_date' => $columns[6],
+                'email' => $columns[7],
+                'email_verified_at' => $columns[8] ?? null,
+                'password' => $columns[9],
+                'rememberToken' => $columns[10] ?? null,
+                'created_at' => $columns[11] ?? now(),
+                'updated_at' => $columns[12] ?? now(),
+                'deleted_at' => ($columns[13] !== '' && $columns[13] !== null) ? $columns[13] : null,
+            ];
+
+            $this->insertUser($data);
+        }
+
+        fclose($file);
+
+        // Delete related records
+        Absence::truncate();
+        Vacation::truncate();
+        Presence::truncate();
+        User_Shift::truncate();
+
+        return redirect()->route('importExportData')->with('success', 'Data has been added successfully.');
+    }
+
+
+    public function insertUser($data)
+    {
+        $user = new User();
+        $user->role_id = $data['role_id'];
+        $user->name = $data['name'];
+        $user->address = $data['address'];
+        $user->nif = $data['nif'];
+        $user->tel = $data['tel'];
+        $user->birth_date = $data['birth_date'];
+        $user->email = $data['email'];
+        $user->password = $data['password'];
+        $user->created_at = $data['created_at'];
+        $user->updated_at = $data['updated_at'];
+        $user->deleted_at = $data['deleted_at'];
+
+        $user->save();
+    }
+
 
 
 

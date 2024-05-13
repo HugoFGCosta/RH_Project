@@ -29,7 +29,7 @@ Route::get('/view-absences', [App\Http\Controllers\ButtonController::class, 'vie
 Route::get('/manage-data', [App\Http\Controllers\ButtonController::class, 'manageData']);
 Route::get('/vacation-plans', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
 Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
-Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData']);
+Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData'])->name('importExportData');
 
 /*Rotas Users*/
 Route::get('/users/create', [App\Http\Controllers\UserController::class, 'create']);
@@ -42,10 +42,10 @@ Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
 
 
 /*Rotas Export*/
-Route::get('export-csv', [\App\Http\Controllers\UserController::class, 'exportCSV'])->name('exportUsers');
+Route::get('export-csv', [\App\Http\Controllers\UserController::class, 'exportCSVUsers'])->name('exportUsers');
 Route::get('exportCSVAbsences', [\App\Http\Controllers\AbsenceController::class, 'exportCSVAbsences'])->name('exportAbsences');
 Route::get('exportCSVVacations', [\App\Http\Controllers\VacationController::class, 'exportCSVVacations'])->name('exportVacations');
 Route::get('exportCSVPresences', [\App\Http\Controllers\PresenceController::class, 'exportCSVPresences'])->name('exportPresences');
 
-Route::post('import-csv', [\App\Http\Controllers\UserController::class, 'importCSV'])->name('import');
+Route::post('import', [\App\Http\Controllers\UserController::class, 'importCSV'])->name('import');
 
