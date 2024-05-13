@@ -1,4 +1,5 @@
 {{-- NAO ESTA PRONTO O FRONT END, FALTA INFORMAÇOES A SER MODIFICADAS E SUBMIT  --}}
+{{-- para funcionar o resto das informaçoes deve-se: apagar linha 82 e desomentar o bloco #83 ~ #93 no UserController @UPDATE --}}
 
 
 <form method="POST" action="{{ url('user/edit') }}" enctype="multipart/form-data">

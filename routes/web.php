@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,13 +33,17 @@ Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'a
 Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData']);
 
 /*Rotas Users*/
-Route::get('/users/create', [App\Http\Controllers\UserController::class, 'create']);
-Route::get('/user/edit', [App\Http\Controllers\UserController::class, 'edit']);
-Route::put('/user/edit', [App\Http\Controllers\UserController::class, 'update']);
-Route::get('/user/show', [App\Http\Controllers\UserController::class, 'show']);
+Route::get('/users/create', [UserController::class, 'create']);
+Route::get('/user/edit', [UserController::class, 'edit']);
+Route::put('/user/edit', [UserController::class, 'update']);
+Route::get('/user/show', [UserController::class, 'show']);
+Route::post('/user/presence', [UserController::class, 'presence']);
+Route::post('/user/presence/store', [UserController::class, 'store']);
+Route::get('/user/presence', [UserController::class, 'getPresence']);
+
+Route::post('user/presence/storeSimulated', [UserController::class, 'storeSimulated']); //ROTA SIMULADA
 
 
 
 
 Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
-
