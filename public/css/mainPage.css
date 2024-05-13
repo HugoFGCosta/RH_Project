@@ -28,6 +28,36 @@ body {
     width: 100%;
 }
 
+h1 {
+    font-size: 1.5rem;
+    color: var(--blue);
+    font-weight: 1000;
+}
+
+
+/* botões globais*/
+.div-button {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.div-button button {
+    border: 1px solid var(--blue);
+    margin-top: 10px;
+    border-radius: 15px;
+    padding: 10px;
+    background-color: var(--white);
+    color: var(--blue);
+    cursor: pointer;
+}
+
+.div-button button:hover {
+    transform: scale(1.1);
+    transition: 0.5s;
+}
+
+
 /*Menu*/
 .menu {
     position: fixed;
@@ -235,6 +265,12 @@ body {
     padding: 0 20px;
     display: flex;
     justify-content: flex-end;
+}
+
+.user li a {
+    text-decoration: none;
+    color: var(--blue);
+    font-size: 1.2rem;
 }
 
 /*Content*/

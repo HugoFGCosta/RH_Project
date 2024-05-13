@@ -11,9 +11,7 @@ function leaveLink() {
 }
 
 function selectLink() {
-    list.forEach((item) => {
-        item.classList.remove("selected");
-    });
+    clearSelected();
     this.classList.add("selected");
     localStorage.setItem('selectedMenuItem', this.id);
 }
@@ -28,11 +26,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedId = localStorage.getItem('selectedMenuItem');
     if (selectedId) {
         const selectedItem = document.getElementById(selectedId);
-        if (selectedItem) {
-            selectedItem.classList.add("selected");
-        }
+        selectedItem?.classList.add("selected");
     }
 });
+
+function clearSelected() {
+    list.forEach((item) => {
+        item.classList.remove("selected");
+    });
+    localStorage.removeItem('selectedMenuItem');
+}
 
 let toggle = document.querySelector('.toggle');
 let menu = document.querySelector('.menu');
@@ -43,4 +46,11 @@ toggle.onclick = function() {
     menu.classList.toggle('active');
     main.classList.toggle('active');
     content.classList.toggle('active');
+};
+
+const userLink = document.querySelector('.user a');
+if (userLink) {
+    userLink.addEventListener('click', function(event) {
+        clearSelected();
+    });
 }
