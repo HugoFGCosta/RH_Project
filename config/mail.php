@@ -35,9 +35,9 @@ return [
 
     'mailers' => [
         'smtp' => [
-            'transport' => 'smtp',
+            'transport' => 'mail',
             'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
-            'port' => env('MAIL_PORT', 587),
+            'port' => env('MAIL_PORT', 587), // trocar caso n dé
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
@@ -99,7 +99,11 @@ return [
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'roronoazorot0623@gmail.com'),
+<<<<<<< Updated upstream
         'name' => env('MAIL_FROM_NAME', 'test'),
+=======
+        'name' => env('MAIL_FROM_NAME', 'Test'),
+>>>>>>> Stashed changes
     ],
 
     /*
