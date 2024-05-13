@@ -39,7 +39,7 @@
             <div class="user">
                 @if (Auth::check())
                     <li class="nav-item">
-                        <a href="/user/edit">{{ Auth::user()->name }}</a>
+                        <a href="/user/show">{{ Auth::user()->name }}</a>
                     </li>
                 @endif
             </div>
