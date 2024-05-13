@@ -13,12 +13,12 @@ return new class extends Migration {
         Schema::create('presences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->date('first_start');
-            $table->date('first_end');
-            $table->date('second_start');
-            $table->date('second_end');
-            $table->decimal('extra_hour');
-            $table->decimal('effective_hour');
+            $table->dateTime('first_start');
+            $table->dateTime('first_end')->nullable();
+            $table->dateTime('second_start')->nullable();
+            $table->dateTime('second_end')->nullable();
+            $table->float('extra_hour')->default(0);
+            $table->float('effective_hour')->default(0);
             $table->timestamps();
         });
     }

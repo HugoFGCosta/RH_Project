@@ -50,6 +50,18 @@ class ButtonController extends Controller
         return view('pages.import-export-data.import-export-data');
     }
 
+    public function dailyTasks(){
+        return view('pages.daily-tasks.daily-tasks');
+    }
+
+    public function requests(){
+        return view('pages.requests.requests');
+    }
+
+    public function settings(){
+        return view('pages.settings.settings');
+    }
+
     /**
      * Show the form for creating a new resource.
      */
