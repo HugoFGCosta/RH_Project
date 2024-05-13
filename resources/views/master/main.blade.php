@@ -16,6 +16,7 @@
     <!-- Styles -->
     <link href="{{ asset('css/mainPage.css') }}" rel="stylesheet">
     <link href="{{ asset('css/daily-tasks.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/users-edit.css') }}" rel="stylesheet">
 
 </head>
 <body>
@@ -37,9 +38,9 @@
             </div>
             <div class="user">
                 @if (Auth::check())
-                <li class="nav-item">
-                    {{ Auth::user()->name }}
-                </li>
+                    <li class="nav-item">
+                        <a href="/user/edit">{{ Auth::user()->name }}</a>
+                    </li>
                 @endif
             </div>
         </div>
