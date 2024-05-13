@@ -43,34 +43,34 @@
                     <span class="title">Recursos Humanos</span>
                 </a>
             </li>
-            <li>
-                <a href="#">
+            <li id="home">
+                <a href="/menu">
                     <span class="icon">
                         <ion-icon name="home-outline"></ion-icon>
                     </span>
                     <span class="title">Home</span>
                 </a>
             </li>
-            <li>
-                <a href="#">
+            <li id="daily-tasks">
+                <a href="/daily-tasks">
                     <span class="icon"><ion-icon name="list-outline"></ion-icon></span>
                     <span class="title">Tarefas Diárias</span>
                 </a>
             </li>
-            <li>
-                <a href="#">
+            <li id="requests">
+                <a href="/requests">
                     <span class="icon"><ion-icon name="arrow-redo-outline"></ion-icon></span>
                     <span class="title">Pedidos</span>
                 </a>
             </li>
-            <li>
-                <a href="#">
+            <li id="settings">
+                <a href="/settings">
                     <span class="icon"><ion-icon name="settings-outline"></ion-icon></span>
-                    <span class="title">Settings</span>
+                    <span class="title">Definições</span>
                 </a>
             </li>
-            <li>
-                <a href="#">
+            <li id="logout">
+                <a href="/logout">
                     <span class="icon"><ion-icon name="log-out-outline"></ion-icon></ion-icon></span>
                     <span class="title">Log Out</span>
                 </a>

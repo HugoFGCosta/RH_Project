@@ -39,6 +39,11 @@ body {
     overflow:hidden;
 }
 
+.main.active {
+    width: calc(100% - 80px);
+    left: 80px;
+}
+
 .menu.active {
     width: 80px;
 }
@@ -133,6 +138,38 @@ body {
     pointer-events: none;
 }
 
+/*selecionado*/
+.menu ul li.selected a::before,
+.menu ul li.selected a::after {
+    content: "";
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: transparent;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.menu ul li.selected a::before {
+    right: 0;
+    top: -50px;
+    box-shadow: 35px 35px 0 10px var(--white);
+}
+
+.menu ul li.selected a::after {
+    right: 0;
+    bottom: -50px;
+    box-shadow: 35px -35px 0 10px var(--white);
+}
+
+.selected {
+    background-color: var(--white);
+}
+
+.menu ul li.selected a {
+    color: var(--blue);
+}
+
 /*MainBlade*/
 .main {
     position: absolute;
@@ -196,6 +233,40 @@ body {
     list-style-type: none;
     font-weight: bold;
     padding: 0 20px;
+    display: flex;
+    justify-content: flex-end;
 }
+
+/*Content*/
+.content-area {
+    position: absolute;
+    margin-top: 40px;
+    margin-left: 300px;
+    padding: 20px;
+    overflow: auto;
+    transition: margin-left 0.5s, width 0.5s;
+}
+
+.content-area.active {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+}
+
+
+/*Footer*/
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 300px;
+    width: calc(100% - 300px);
+    text-align: center;
+    color: var(--black2);
+    padding: 20px 0;
+    font-size: 14px;
+    background-color: var(--white);
+    transition: 0.5s;
+    box-sizing: border-box;
+}
+
 
 

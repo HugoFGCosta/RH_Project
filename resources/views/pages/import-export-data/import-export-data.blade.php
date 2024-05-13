@@ -2,42 +2,37 @@
 
 @section('content')
 
-    <div class="container">
-        <div class="row text-center">
+    <div class="container div-button">
             <div class="col-md-6">
-                <a href="/register-schedule"><button>Importar Utilizadores</button></a>
+                <a href="/register-schedule"><button class="sub-menu">Importar Utilizadores</button></a>
             </div>
 
             <div class="col-md-6 mb-3">
-                <a href="/register-schedule"><button>Exportar Utilizadores</button></a>
+                <a href="/register-schedule"><button class="sub-menu">Exportar Utilizadores</button></a>
             </div>
 
             <div class="col-md-6">
-                <a href="/register-schedule"><button>Importar Faltas</button></a>
+                <a href="/register-schedule"><button class="sub-menu">Importar Faltas</button></a>
             </div>
 
             <div class="col-md-6 mb-3">
-                <a href="/register-schedule"><button>Exportar Faltas</button></a>
+                <a href="/register-schedule"><button class="sub-menu">Exportar Faltas</button></a>
             </div>
 
             <div class="col-md-6">
-                <a href="/register-schedule"><button>Importar Férias</button></a>
+                <a href="/register-schedule"><button class="sub-menu">Importar Férias</button></a>
             </div>
 
             <div class="col-md-6 mb-3">
-                <a href="/register-schedule"><button>Exportar Férias</button></a>
+                <a href="/register-schedule"><button class="sub-menu">Exportar Férias</button></a>
             </div>
 
             <div class="col-md-6">
-                <a href="/register-schedule"><button>Importar Presenças</button></a>
+                <a href="/register-schedule"><button class="sub-menu">Importar Presenças</button></a>
             </div>
 
             <div class="col-md-6">
-                <a href="/register-schedule"><button>Exportar Presenças</button></a>
+                <a href="/register-schedule"><button class="sub-menu">Exportar Presenças</button></a>
             </div>
-        </div>
     </div>
-
-
-
 @endsection
