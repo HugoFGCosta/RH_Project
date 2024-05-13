@@ -23,14 +23,14 @@
                     <button type="submit" class="btn btn-success">Import CSV</button>
                 </form>
             </div>
-        </div>
+         </div>
 
             <div class="col-md-6 mb-3">
                 <a href="{{ route('exportUsers') }}" class="btn btn-success">Exportar Utilizadores</a>
             </div>
 
             <div class="col-md-6">
-                <a href="/register-schedule"><button>Importar Faltas</button></a>
+                <a href="/register-schedule"><button class="sub-menu">Importar Faltas</button></a>
             </div>
 
             <div class="col-md-6 mb-3">
@@ -38,7 +38,7 @@
             </div>
 
             <div class="col-md-6">
-                <a href="/register-schedule"><button>Importar Férias</button></a>
+                <a href="/register-schedule"><button class="sub-menu">Importar Férias</button></a>
             </div>
 
             <div class="col-md-6 mb-3">
@@ -46,15 +46,11 @@
             </div>
 
             <div class="col-md-6">
-                <a href="/register-schedule"><button>Importar Presenças</button></a>
+                <a href="/register-schedule"><button class="sub-menu">Importar Presenças</button></a>
             </div>
 
             <div class="col-md-6 mb-3">
                 <a href="{{ route('exportPresences') }}" class="btn btn-success">Exportar Presenças</a>
             </div>
-        </div>
     </div>
-
-
-
 @endsection
