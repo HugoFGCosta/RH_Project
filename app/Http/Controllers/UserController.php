@@ -13,6 +13,9 @@ use App\Models\Work_Shift;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\UsersImport;
+use App\Exports\UsersExport;
 
 
 class UserController extends Controller
@@ -513,144 +516,30 @@ class UserController extends Controller
         return redirect('users')->with('status', 'User deleted successfully!');
     }
 
+<<<<<<< LuisBranch
+    public function import()
+=======
 
     public function exportCSVUsers() //exporta os dados dos utilizadores para um ficheiro CSV
+>>>>>>> MergeTeste
     {
-        $filename = 'user-data.csv';
+        try {
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
-        ];
-
-        return response()->stream(function () {
-            $handle = fopen('php://output', 'w');
-
-            // Add CSV headers
-            fputcsv($handle, [
-                'id',
-                'role_id',
-                'name',
-                'address',
-                'nif',
-                'tel',
-                'birth_date',
-                'email',
-                'email_verified_at',
-                'password',
-                'rememberToken',
-                'created_at',
-                'updated_at',
-                'deleted_at',
-            ]);
-
-            // Fetch and process data in chunks
-            User::chunk(25, function ($users) use ($handle) {
-                foreach ($users as $user) {
-                    // Extract data from each employee.
-                    $data = [
-                        isset($user->id)? $user->id : '',
-                        isset($user->role_id)? $user->role_id : '',
-                        isset($user->name)? $user->name : '',
-                        isset($user->address)? $user->address : '',
-                        isset($user->nif)? $user->nif : '',
-                        isset($user->tel)? $user->tel : '',
-                        isset($user->birth_date)? $user->birth_date : '',
-                        isset($user->email)? $user->email : '',
-                        isset($user->email_verified_at)? $user->email_verified_at : '',
-                        isset($user->password)? $user->password : '',
-                        isset($user->rememberToken)? $user->rememberToken : '',
-                        isset($user->created_at)? $user->created_at : '',
-                        isset($user->updated_at)? $user->updated_at : '',
-                        isset($user->deleted_at)? $user->deleted_at : '',
-                    ];
-
-                    // Write data to a CSV file.
-                    fputcsv($handle, $data);
-                }
-            });
-
-            // Close CSV file handle
-            fclose($handle);
-        }, 200, $headers);
-    }
-
-    public function importCSV(Request $request)
-    {
-        $this->validate($request, [
-            'import_csv' => 'required|mimes:csv,txt',
-        ]);
-
-        $file = $request->file('import_csv');
-        $filePath = $file->getRealPath();
-        $file = fopen($filePath, 'r');
-
-        $header = fgetcsv($file);
-        $escapedHeader = [];
-
-        foreach ($header as $key => $value) {
-            $lowercaseHeader = strtolower($value);
-            $escapedItem = preg_replace('/[^a-z]/', '', $lowercaseHeader);
-            array_push($escapedHeader, $escapedItem);
-        }
-
-        // Import new data
-        while ($columns = fgetcsv($file)) {
-            if ($columns[0] == "") {
-                continue;
+            //verifica se o ficheiro foi submetido no formulário
+            if (request()->has('file')) {  //se sim apaga os dados da tabela
+                DB::table('users')->delete();
             }
 
-            // Adjusting the columns to ensure all fields are present
-            $data = [
-                'id' => $columns[0],
-                'role_id' => $columns[1],
-                'name' => $columns[2],
-                'address' => $columns[3],
-                'nif' => $columns[4],
-                'tel' => $columns[5],
-                'birth_date' => $columns[6],
-                'email' => $columns[7],
-                'email_verified_at' => $columns[8] ?? null,
-                'password' => $columns[9],
-                'rememberToken' => $columns[10] ?? null,
-                'created_at' => $columns[11] ?? now(),
-                'updated_at' => $columns[12] ?? now(),
-                'deleted_at' => ($columns[13] !== '' && $columns[13] !== null) ? $columns[13] : null,
-            ];
+            Excel::import(new UsersImport(), request()->file('file'));
+            return redirect('/import-export-data')->with('success', 'Utilizadores importados com sucesso!');
 
-            $this->insertUser($data);
+        } catch (\Exception $e) {
+            return redirect('/import-export-data')->with('error', 'Error during import: ' . $e->getMessage());
         }
-
-        fclose($file);
-
-        // Delete related records
-        Absence::truncate();
-        Vacation::truncate();
-        Presence::truncate();
-        User_Shift::truncate();
-
-        return redirect()->route('importExportData')->with('success', 'Data has been added successfully.');
     }
 
-
-    public function insertUser($data)
+    public function export()
     {
-        $user = new User();
-        $user->role_id = $data['role_id'];
-        $user->name = $data['name'];
-        $user->address = $data['address'];
-        $user->nif = $data['nif'];
-        $user->tel = $data['tel'];
-        $user->birth_date = $data['birth_date'];
-        $user->email = $data['email'];
-        $user->password = $data['password'];
-        $user->created_at = $data['created_at'];
-        $user->updated_at = $data['updated_at'];
-        $user->deleted_at = $data['deleted_at'];
-
-        $user->save();
+        return Excel::download(new UsersExport(), 'users.xlsx');
     }
 }
