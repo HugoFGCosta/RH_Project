@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PresencesExport;
+use App\Imports\PresencesImport;
 use App\Models\Presence;
 use App\Http\Requests\StorePresenceRequest;
 use App\Http\Requests\UpdatePresenceRequest;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PresenceController extends Controller
 {
@@ -64,60 +68,26 @@ class PresenceController extends Controller
         //
     }
 
-    public function exportCSVPresences() //exporta os dados dos utilizadores para um ficheiro CSV
+    public function import()
     {
-        $filename = 'presence-data.csv';
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
-        ];
+        try {
+            //verifica se o ficheiro foi submetido no formulário
+            if (request()->has('file')) {  //se sim apaga os dados da tabela
+                DB::table('presences')->delete();
+            }
 
-        return response()->stream(function () {
-            $handle = fopen('php://output', 'w');
+            //importa os dados do ficheiro para a tabela
+            Excel::import(new PresencesImport(), request()->file('file'));
+            return redirect('/import-export-data')->with('success', 'Presenças importadas com sucesso!');
 
-            // Add CSV headers
-            fputcsv($handle, [
-                'id',
-                'user_id',
-                'first_start',
-                'first_end',
-                'second_start',
-                'second_end',
-                'extra_hour',
-                'effective_hour',
-                'created_at',
-                'updated_at',
-            ]);
+        } catch (\Exception $e) {
+            return redirect('/import-export-data')->with('error', 'Error during import: ' . $e->getMessage());
+        }
+    }
 
-            // Fetch and process data in chunks
-            Presence::chunk(25, function ($presences) use ($handle) {
-                foreach ($presences as $presence) {
-                    // Extract data from each employee.
-                    $data = [
-                        isset($presence->id)? $presence->id : '',
-                        isset($presence->user_id)? $presence->user_id : '',
-                        isset($presence->first_start)? $presence->first_start : '',
-                        isset($presence->first_end)? $presence->first_end : '',
-                        isset($presence->second_start)? $presence->second_start : '',
-                        isset($presence->second_end)? $presence->second_end : '',
-                        isset($presence->extra_hour)? $presence->extra_hour : '',
-                        isset($presence->effective_hour)? $presence->effective_hour : '',
-                        isset($presence->created_at)? $presence->created_at : '',
-                        isset($presence->updated_at)? $presence->updated_at : '',
-
-                    ];
-
-                    // Write data to a CSV file.
-                    fputcsv($handle, $data);
-                }
-            });
-
-            // Close CSV file handle
-            fclose($handle);
-        }, 200, $headers);
+    public function export()
+    {
+        return Excel::download(new PresencesExport(), 'presences.xlsx');
     }
 }
