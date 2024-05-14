@@ -16,14 +16,9 @@ class Presence extends Model
         'second_start',
         'second_end',
         'extra_hour',
-<<<<<<< LuisBranch
-        'effective_hour',
-    ];
-=======
         'effective_hour'
     ];
 
->>>>>>> MergeTeste
     public function user()
     {
         return $this->belongsTo('App\User');

@@ -516,12 +516,7 @@ class UserController extends Controller
         return redirect('users')->with('status', 'User deleted successfully!');
     }
 
-<<<<<<< LuisBranch
     public function import()
-=======
-
-    public function exportCSVUsers() //exporta os dados dos utilizadores para um ficheiro CSV
->>>>>>> MergeTeste
     {
         try {
 

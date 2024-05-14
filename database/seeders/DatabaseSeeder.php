@@ -16,9 +16,5 @@ class DatabaseSeeder extends Seeder
         $this->call(WorkShiftSeeder::class);
         $this->call(AbsenceStateSeeder::class);
         $this->call(VacationApprovalStateSeeder::class);
-        $this->call(UserSeeder::class);
-        $this->call(AbsenceSeeder::class);
-        $this->call(VacationSeeder::class);
-        $this->call(PresenceSeeder::class);
     }
 }
