@@ -4,11 +4,13 @@
 }
 
 form {
-    background-color: #f7f7f7;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    margin: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: var(--white);
 }
 
 .form-group {
@@ -21,16 +23,21 @@ form {
     margin-bottom: 0.5rem;
 }
 
-input[type="text"] {
+.form-group input {
+    position: absolute;
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    transition: border-color 0.3s;
+    outline: none;
+    font-size: 1em;
+    padding: 0 30px;
+    line-height: 40px;
+    border-radius: 10px;
+    border: 2px solid var(--blue);
+    background: transparent;
+    transition: 0.1s ease;
+    z-index: 1111;
 }
 
-input[type="text"]:focus {
+input:focus {
     border-color: var(--blue);
     outline: none;
 }
