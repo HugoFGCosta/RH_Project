@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AbsencesExport;
+use App\Imports\AbsencesImport;
 use App\Models\Absence;
 use App\Http\Requests\StoreAbsenceRequest;
 use App\Http\Requests\UpdateAbsenceRequest;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AbsenceController extends Controller
 {
@@ -64,55 +68,25 @@ class AbsenceController extends Controller
         //
     }
 
-    public function exportCSVAbsences() //exporta os dados dos utilizadores para um ficheiro CSV
+    public function import()
     {
-        $filename = 'absence-data.csv';
+        try {
+            //verifica se o ficheiro foi submetido no formulário
+            if (request()->has('absences')) {  //se sim apaga os dados da tabela
+                DB::table('presences')->delete();
+            }
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
-        ];
+            //importa os dados do ficheiro para a tabela
+            Excel::import(new AbsencesImport(), request()->file('file'));
+            return redirect('/import-export-data')->with('success', 'Faltas importadas com sucesso!');
 
-        return response()->stream(function () {
-            $handle = fopen('php://output', 'w');
+        } catch (\Exception $e) {
+            return redirect('/import-export-data')->with('error', 'Error during import: ' . $e->getMessage());
+        }
+    }
 
-            // Add CSV headers
-            fputcsv($handle, [
-                'id',
-                'user_id',
-                'absence_states_id',
-                'approved_by',
-                'absence_date',
-                'justification',
-                'created_at',
-                'updated_at',
-            ]);
-
-            // Fetch and process data in chunks
-            Absence::chunk(25, function ($absences) use ($handle) {
-                foreach ($absences as $absence) {
-                    // Extract data from each employee.
-                    $data = [
-                        isset($absence->id)? $absence->id : '',
-                        isset($absence->user_id)? $absence->user_id : '',
-                        isset($absence->absence_states_id)? $absence->absence_states_id : '',
-                        isset($absence->approved_by)? $absence->approved_by : '',
-                        isset($absence->absence_date)? $absence->absence_date : '',
-                        isset($absence->justification)? $absence->justification : '',
-                        isset($absence->created_at)? $absence->created_at : '',
-                        isset($absence->updated_at)? $absence->updated_at : '',
-                    ];
-
-                    // Write data to a CSV file.
-                    fputcsv($handle, $data);
-                }
-            });
-
-            // Close CSV file handle
-            fclose($handle);
-        }, 200, $headers);
+    public function export()
+    {
+        return Excel::download(new AbsencesExport(), 'absences.xlsx');
     }
 }
