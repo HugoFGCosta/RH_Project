@@ -42,10 +42,15 @@ Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
 
 
 /*Rotas Export*/
-Route::get('export-csv', [\App\Http\Controllers\UserController::class, 'exportCSVUsers'])->name('exportUsers');
-Route::get('exportCSVAbsences', [\App\Http\Controllers\AbsenceController::class, 'exportCSVAbsences'])->name('exportAbsences');
-Route::get('exportCSVVacations', [\App\Http\Controllers\VacationController::class, 'exportCSVVacations'])->name('exportVacations');
-Route::get('exportCSVPresences', [\App\Http\Controllers\PresenceController::class, 'exportCSVPresences'])->name('exportPresences');
+Route::get('users/export/', [\App\Http\Controllers\UserController::class, 'export'])->name('exportUsers');
+Route::get('absences/export/', [\App\Http\Controllers\AbsenceController::class, 'export'])->name('exportAbsences');
+Route::get('vacations/export/', [\App\Http\Controllers\VacationController::class, 'export'])->name('exportVacations');
+Route::get('presences/export/', [\App\Http\Controllers\PresenceController::class, 'export'])->name('exportPresences');
 
-Route::post('import', [\App\Http\Controllers\UserController::class, 'importCSV'])->name('import');
+
+/*Rotas Import*/
+Route::post('users/import/', [\App\Http\Controllers\UserController::class, 'import'])->name('importUsers');
+Route::post('absences/import/', [\App\Http\Controllers\AbsenceController::class, 'import'])->name('importAbsences');
+Route::post('vacations/import/', [\App\Http\Controllers\VacationController::class, 'import'])->name('importVacations');
+Route::post('presences/import/', [\App\Http\Controllers\PresenceController::class, 'import'])->name('importPresences');
 

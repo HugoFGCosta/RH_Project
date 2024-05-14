@@ -9,6 +9,14 @@ class Absence extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user_id',
+        'absence_states_id',
+        'approved_by',
+        'absence_date',
+        'justification',
+    ];
+
     public function absence_state()
     {
         return $this->belongsTo('App\Absence_State');
