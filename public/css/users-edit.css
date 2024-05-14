@@ -1,6 +1,4 @@
-.container form {
-    padding: 30px 0 0 0;
-}
+
 .container form .form-row {
     display: flex;
     margin: 32px 0;
@@ -40,7 +38,7 @@ form .form-row .input-data {
 .textarea label {
     width: 100%;
     bottom: 40px;
-    background: #fff;
+    background: var(--white);
 }
 .input-data .underline {
     position: absolute;
