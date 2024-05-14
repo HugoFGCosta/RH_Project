@@ -16,7 +16,11 @@ class Presence extends Model
         'second_start',
         'second_end',
         'extra_hour',
+<<<<<<< HEAD
         'effective_hour',
+=======
+        'effective_hour'
+>>>>>>> 7c5ede4a79865eb6065791e9fe4d9acd0749ad0c
     ];
 
     public function user()
