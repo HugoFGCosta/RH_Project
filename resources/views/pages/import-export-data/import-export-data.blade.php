@@ -59,6 +59,8 @@
                     @csrf
                     <button type="submit" class="btn btn-success mb-2">Exportar Férias</button>
                 </form>
+            <div class="col-md-6">
+                <a href="/register-schedule"><button class="sub-menu">Importar Presenças</button></a>
             </div>
             <div>
                 <form action="{{ route('importPresences') }}" method="POST" enctype="multipart/form-data">
@@ -71,7 +73,6 @@
                     <button type="submit" class="btn btn-success mb-2">Exportar Presenças</button>
                 </form>
             </div>
-        </div>
     </div>
 @endsection
 

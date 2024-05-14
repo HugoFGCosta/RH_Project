@@ -4,14 +4,10 @@
 
 @section('content')
     <div class="container">
-        <div class="row">
-            <div class="col-3"></div>
-            <div class="col-6">
-                <h1>EDIT USERS</h1>
-                @component('components.users.user-form-edit', ['user' => $user])
-                @endcomponent
-            </div>
+        <h1>Perfil de {{Auth::user()->name}}</h1>
+        <div class="form-container">
+            @component('components.users.user-form-edit', ['user' => $user])
+            @endcomponent
         </div>
-    </div>
     </div>
 @endsection
