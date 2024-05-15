@@ -22,8 +22,6 @@ class UserController extends Controller
      */
     public function index()
     {
-        /*  $players = User::orderBy('id', 'asc')->paginate(10);
-         return view('pages.players.index', ['players' => $players]); */
 
         $users = User::orderBy('id', 'desc')->get();
         return view('pages.users.index', ['users' => $users]);
@@ -436,8 +434,19 @@ class UserController extends Controller
     public function show()
     {
         $user = auth()->user();
-        return view('pages.users.show', ['user' => $user]);
+
+        $user_shift = User_Shift::where('user_id', $user->id)->first();
+
+
+
+        return view('pages.users.show', ['user' => $user, 'user_shift' => $user_shift]);
     }
+
+
+
+
+
+
 
 
 
