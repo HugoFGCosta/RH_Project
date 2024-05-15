@@ -17,6 +17,7 @@
     <link href="{{ asset('css/mainPage.css') }}" rel="stylesheet">
     <link href="{{ asset('css/daily-tasks.css') }}" rel="stylesheet">
     <link href="{{ asset('css/showform.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
 
 </head>
 <body>
