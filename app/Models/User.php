@@ -64,9 +64,9 @@ class User extends Authenticatable
         return $this->hasMany(Vacation::class);
     }
 
-    public function userShifts()
+    public function user_shift()
     {
-        return $this->hasMany(User_Shift::class);
+        return $this->hasOne(User_Shift::class);
     }
 
 }

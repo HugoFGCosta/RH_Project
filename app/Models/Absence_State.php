@@ -11,6 +11,6 @@ class Absence_State extends Model
 
     public function absences()
     {
-        return $this->hasMany('App\Absence');
+        return $this->hasMany(Absence::class);
     }
 }
