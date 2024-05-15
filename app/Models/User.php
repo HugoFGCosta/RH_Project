@@ -51,17 +51,22 @@ class User extends Authenticatable
 
     public function presences()
     {
-        return $this->hasMany('App\Presence');
+        return $this->hasMany(Presence::class);
     }
 
     public function role()
     {
-        return $this->belongsTo('App\Role');
+        return $this->belongsTo(Role::class);
     }
 
     public function vacations()
     {
-        return $this->hasMany('App\Vacation');
+        return $this->hasMany(Vacation::class);
+    }
+
+    public function user_shift()
+    {
+        return $this->hasOne(User_Shift::class);
     }
 
 }

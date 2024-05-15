@@ -14,6 +14,6 @@ class Work_Shift extends Model
 
     public function user_shift()
     {
-        return $this->hasMany('App\User_Shift');
+        return $this->hasMany(User_Shift::class);
     }
 }
