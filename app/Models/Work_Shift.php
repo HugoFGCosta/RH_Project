@@ -12,7 +12,7 @@ class Work_Shift extends Model
     protected $table = 'work_shifts';
 
 
-    public function user_shift()
+    public function user_shifts()
     {
         return $this->hasMany(User_Shift::class);
     }

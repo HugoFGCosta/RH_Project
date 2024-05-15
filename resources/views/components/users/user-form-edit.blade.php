@@ -1,31 +1,34 @@
-{{-- NAO ESTA PRONTO O FRONT END, FALTA INFORMAÇOES A SER MODIFICADAS E SUBMIT  --}}
-{{-- para funcionar o resto das informaçoes deve-se: apagar linha 82 e desomentar o bloco #83 ~ #93 no UserController @UPDATE --}}
-
-
 <form method="POST" action="{{ url('user/edit') }}" enctype="multipart/form-data">
     @csrf
     @method('PUT')
-    <div class="form-group">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" autocomplete="name" placeholder="Type your name"
-            class="form-control" value="{{ isset($user->name) ? $user->name : '' }}" required
-            aria-describedby="nameHelp">
-        <small id="nameHelp" class="form-text text-muted">Altere o seu nome</small>
+    <div class="form-row">
+        <div class="input-data">
+            <input type="text" id="name" name="name" autocomplete="name" value="{{ isset($user->name) ? $user->name : '' }}" required>
+            <div class="underline"></div>
+            <label for="name">Name</label>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="email">Email</label>
-        <input type="text" id="email" name="email" autocomplete="email" placeholder="Type your email"
-               class="form-control" value="{{ isset($user->email) ? $user->email : '' }}" required
-               aria-describedby="nameHelp">
-        <small id="nameHelp" class="form-text text-muted">Altere o seu email</small>
+    <div class="form-row">
+        <div class="input-data">
+            <input type="email" id="email" name="email" autocomplete="email" value="{{ isset($user->email) ? $user->email : '' }}" required>
+            <div class="underline"></div>
+            <label for="email">Email</label>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="email">Password</label>
-        <input type="password" id="password" name="password" autocomplete="password" placeholder="Type your password"
-               class="form-control" value="{{ isset($user->password) ? $user->password : '' }}" required
-               aria-describedby="nameHelp">
-        <small id="nameHelp" class="form-text text-muted">Altere a sua password</small>
+    <div class="form-row">
+        <div class="input-data">
+            <input type="password" id="password" name="password" autocomplete="new-password" required>
+            <div class="underline"></div>
+            <label for="password">Password</label>
+        </div>
     </div>
-    <button type="submit" class="mt-2 mb-5 btn btn-primary">Save</button>
-    <a href="/menu" class="mt-2 mb-5 btn btn-primary">Back</a>
+    <div class="form-row submit-btn">
+        <div class="input-data">
+            <div class="inner"></div>
+            <input type="submit" value="Save">
+        </div>
+    </div>
+    <div class="form-row">
+        <a href="/menu" class="btn btn-primary">Back</a>
+    </div>
 </form>
