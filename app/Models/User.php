@@ -66,7 +66,7 @@ class User extends Authenticatable
 
     public function user_shift()
     {
-        return $this->hasOne(User_Shift::class);
+        return $this->hasMany(User_Shift::class);
     }
 
 }
