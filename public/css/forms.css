@@ -1,93 +1,147 @@
-.form-container {
-    background-color: #fff;
-    padding: 20px 40px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 400px;
-}
 
-.form {
+.container form {
     display: flex;
     flex-direction: column;
+    flex-wrap: wrap;
+    background-color: var(--white);
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: max-content;
+    box-sizing: border-box;
+    margin-top: 20px;
 }
-
-.form-group {
-    margin-bottom: 15px;
+.container form .form-row {
+    display: flex;
+    margin: 32px 0;
 }
-
-.form-group label {
-    font-weight: bold;
-    color: #555;
-    margin-bottom: 5px;
-    display: block;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
+form .form-row .input-data {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    outline: none;
-    color: #333;
-    margin-top: 5px;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    border-color: #3498db;
-}
-
-.form-underline {
+    height: 40px;
+    margin: 0 20px;
     position: relative;
-    height: 2px;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.12);
-    margin-top: -10px;
 }
-
-.form-underline:before {
-    content: "";
+form .form-row .textarea {
+    height: 70px;
+}
+.input-data input,
+.textarea textarea,
+.input-data select {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+    font-size: 17px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.12);
+    outline: none;
+}
+.input-data input:focus ~ label,
+.textarea textarea:focus ~ label,
+.input-data input:valid ~ label,
+.textarea textarea:valid ~ label,
+.input-data select:focus ~ label,
+.input-data select:valid ~ label {
+    transform: translateY(-20px);
+    font-size: 14px;
+    color: var(--blue);
+}
+.textarea textarea {
+    resize: none;
+    padding-top: 10px;
+}
+.input-data label {
     position: absolute;
+    pointer-events: none;
+    bottom: 10px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+.textarea label {
+    width: 100%;
+    bottom: 40px;
+    background: var(--white);
+}
+.input-data .underline {
+    position: absolute;
+    bottom: 0;
     height: 2px;
     width: 100%;
-    background: #3498db;
+}
+.input-data .underline:before {
+    position: absolute;
+    content: "";
+    height: 2px;
+    width: 100%;
+    background: var(--blue);
     transform: scaleX(0);
     transform-origin: center;
     transition: transform 0.3s ease;
 }
-
-.form-group input:hover ~ .form-underline:before,
-.form-group input:focus ~ .form-underline:before,
-.form-group select:hover ~ .form-underline:before,
-.form-group select:focus ~ .form-underline:before,
-.form-group textarea:hover ~ .form-underline:before,
-.form-group textarea:focus ~ .form-underline:before {
-    transform: scaleX(1);
+.input-data input:focus ~ .underline:before,
+.input-data input:valid ~ .underline:before,
+.textarea textarea:focus ~ .underline:before,
+.textarea textarea:valid ~ .underline:before,
+.input-data select:focus ~ .underline:before,
+.input-data select:valid ~ .underline:before {
+    transform: scale(1);
 }
 
-/* Botão */
-.form-group .btn {
-    width: 100%;
-    padding: 10px;
+/* Estilos para o botão */
+.form-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn.showform-btn {
+    width: 150px;
+    height: 40px;
     cursor: pointer;
-    background: #3498db;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: 16px;
-    transition: background 0.3s ease;
+    background: var(--white);
+    border: 2px solid var(--blue);
+    border-radius: 15px;
+    outline: none;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out, border 0.3s ease-in-out;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.form-group .btn:hover {
-    background: #2980b9;
+.btn.showform-btn span {
+    color: var(--blue);
+    font-size: 18px;
+    font-weight: 100;
+    transition: color 0.3s ease-in-out;
+}
+
+.btn.showform-btn:hover {
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.7);
+    transform: scale(1.05);
+    transition: transform 0.6s ease-in-out;
+}
+
+.btn.showform-btn:hover span {
+    color: var(--white);
 }
 
 @media (max-width: 700px) {
-    .form-container {
-        width: 90%;
-        padding: 20px;
+    .container .text {
+        font-size: 30px;
+    }
+    .container form {
+        padding: 10px 0 0 0;
+    }
+    .container form .form-row {
+        display: block;
+    }
+    form .form-row .input-data {
+        margin: 35px 0 !important;
+    }
+    .submit-btn .input-data {
+        width: 40% !important;
     }
 }
