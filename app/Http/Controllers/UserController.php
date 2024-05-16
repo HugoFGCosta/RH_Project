@@ -99,7 +99,7 @@ class UserController extends Controller
     // GUARDA REGISTRO POR REGISTRO AO CLICKAR NO BOTAO - 100% , nao importa as horas efetivas compara com a saida do turno para definir horas extras
 
 
-    // TENTATIVA METODO STORE2 90% 
+    // TENTATIVA METODO STORE2 90%
     /*  public function store(Request $request)
      {
         // GUARDA REGISTRO POR REGISTRO AO CLICKAR NO BOTAO - 90% OQUE FOR MAIS DE 8 HORAS EFETIVAS PASSA A HORA EXTRA
@@ -359,7 +359,7 @@ class UserController extends Controller
         $effectiveHourLimit = 8 * 60;
 
         if ($totalMinutes > $workShiftMinutes || $totalMinutes > $effectiveHourLimit) {
-            $presence->effective_hour = min($workShiftMinutes, $effectiveHourLimit) / 60; 
+            $presence->effective_hour = min($workShiftMinutes, $effectiveHourLimit) / 60;
             $presence->extra_hour = ($totalMinutes - min($workShiftMinutes, $effectiveHourLimit)) / 60;
         } else {
 
@@ -476,20 +476,30 @@ class UserController extends Controller
         $user = auth()->user();
         $user->name = $request->input('name');
         $user->email = $request->input('email');
+        if ($request->has('role')) {
+            $role = Role::where('role', $request->input('role'))->first();
+            if ($role) {
+                $user->role_id = $role->id;
+            }
+        }
+        $user->address = $request->input('address');
+        $user->nif = $request->input('nif');
+        $user->tel = $request->input('tel');
+        $user->birth_date = $request->input('birth_date');
+        /*$user->work_shift_id = $request->input('work_shift_id');*/
         $user->save();
-        /*  $user->address = $request->input('address');
+        /*
          $user->nif = $request->input('nif');
          $user->tel = $request->input('tel');
-         $user->role_id = $request->input('role_id');
-         $user->birth_date = $request->input('birth_date');
+                $user->password = $request->input('password');
 
+         $user->birth_date = $request->input('birth_date');
          $user->password = $request->input('password');
-         $user->save();
          $user_shift = User_Shift::where('user_id', $user->id)->first();
          $user_shift->work_shift_id = $request->input('work_shift_id');
          $user_shift->save(); */
 
-        return redirect('/menu');
+        return redirect('/user/show');
     }
 
     public function presence(Request $request)

@@ -19,6 +19,15 @@
     <link href="{{ asset('css/showform.css') }}" rel="stylesheet">
     <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
 
+    <!-- Script de js para correr primeiro para resolver problema de expansão no recarregamento da página -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarState = localStorage.getItem('sidebarState');
+            if (sidebarState === 'collapsed') {
+                document.documentElement.classList.add('sidebar-collapsed');
+            }
+        });
+    </script>
 </head>
 <body>
 
@@ -47,7 +56,7 @@
         </div>
     </div>
 
-    <div class="content-area">
+    <div class="content-area hidden">
         @yield('content')
     </div>
 
