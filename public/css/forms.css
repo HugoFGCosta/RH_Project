@@ -2,7 +2,6 @@
 .container form {
     display: flex;
     flex-direction: column;
-    flex-wrap: wrap;
     background-color: var(--white);
     padding: 10px 20px;
     border-radius: 10px;

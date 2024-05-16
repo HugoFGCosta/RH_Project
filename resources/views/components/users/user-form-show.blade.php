@@ -1,3 +1,6 @@
+@php
+    use Carbon\Carbon;
+@endphp
 <div class="showform-restricted-container">
     <div class="showform-form-row">
         <div class="showform-input-data">
@@ -43,13 +46,17 @@
         </div>
         <div class="showform-input-data">
             <label for="work_schedule">Horário de Trabalho</label>
-            {{--<p id="work_schedule">{{'Das' . $user->user_shifts->work_shift->start_hour , 'às'  }}</p>--}}
+            @if ($user_shift)
+                <p id="user_shift">
+                    {{ 'Das ' . Carbon::parse($user_shift->work_shift->start_hour)->format('H:i') . ' às ' . Carbon::parse($user_shift->work_shift->end_hour)->format('H:i') }}
+                </p>
+            @else
+                <p>O usuário não tem um turno de trabalho atribuído.</p>
+            @endif
             <div class="showform-underline"></div>
         </div>
     </div>
     <div class="showform-form-row">
-        <form action="/user/edit" method="get">
-            <button type="submit" class="btn btn-primary showform-btn">Editar Dados</button>
-        </form>
+        <a href="/user/edit" class="btn btn-primary showform-btn">Editar Dados</a>
     </div>
 </div>

@@ -28,6 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedItem = document.getElementById(selectedId);
         selectedItem?.classList.add("selected");
     }
+
+    const sidebarState = localStorage.getItem('sidebarState');
+    if (sidebarState === 'collapsed') {
+        menu.classList.add('active');
+        main.classList.add('active');
+        content.classList.add('active');
+    }
 });
 
 function clearSelected() {
@@ -46,6 +53,9 @@ toggle.onclick = function() {
     menu.classList.toggle('active');
     main.classList.toggle('active');
     content.classList.toggle('active');
+
+    const isCollapsed = menu.classList.contains('active');
+    localStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
 };
 
 const userLink = document.querySelector('.user a');

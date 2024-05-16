@@ -3,7 +3,6 @@
 @section('content')
     <div class="container">
         <div class="row">
-            <div class="col-3"></div>
             <div class="col-6">
                 <h1>Registo de Usuário</h1>
                 @component('components.users.user-form-create', [
@@ -14,6 +13,5 @@
                 @endcomponent
             </div>
         </div>
-    </div>
     </div>
 @endsection
