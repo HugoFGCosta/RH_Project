@@ -40,6 +40,7 @@ Route::get('/daily-tasks', [App\Http\Controllers\ButtonController::class, 'daily
 Route::get('/requests', [App\Http\Controllers\ButtonController::class, 'requests']);
 Route::get('/settings', [App\Http\Controllers\ButtonController::class, 'settings']);
 
+
 /*Rotas Users*/
 Route::get('/users/create', [UserController::class, 'create']);
 Route::get('/user/edit', [UserController::class, 'edit']);

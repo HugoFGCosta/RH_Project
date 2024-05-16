@@ -14,11 +14,13 @@
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
     <!-- Scripts -->
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    @vite(['resources/sass/app.scss', 'public/js/login.js', 'public/js/recover.js'])
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+
+{{--        NAVBAR    --}}
+<!--        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
@@ -28,14 +30,14 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
+                    &lt;!&ndash; Left Side Of Navbar &ndash;&gt;
                     <ul class="navbar-nav me-auto">
 
                     </ul>
 
-                    <!-- Right Side Of Navbar -->
+                    &lt;!&ndash; Right Side Of Navbar &ndash;&gt;
                     <ul class="navbar-nav ms-auto">
-                        <!-- Authentication Links -->
+                        &lt;!&ndash; Authentication Links &ndash;&gt;
                         @guest
                             @if (Route::has('login'))
                                 <li class="nav-item">
@@ -70,7 +72,7 @@
                     </ul>
                 </div>
             </div>
-        </nav>
+        </nav>-->
 
         <main class="py-4">
             @yield('content')
