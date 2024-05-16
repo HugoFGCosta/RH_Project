@@ -13,6 +13,8 @@ use App\Models\Work_Shift;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Schema;
 
 
 class UserController extends Controller
@@ -533,125 +535,71 @@ class UserController extends Controller
     }
 
 
-    public function exportCSVUsers() //exporta os dados dos utilizadores para um ficheiro CSV
+    public function import(Request $request)
     {
-        $filename = 'user-data.csv';
+    $file = $request->file('file');
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
-        ];
-
-        return response()->stream(function () {
-            $handle = fopen('php://output', 'w');
-
-            // Add CSV headers
-            fputcsv($handle, [
-                'id',
-                'role_id',
-                'name',
-                'address',
-                'nif',
-                'tel',
-                'birth_date',
-                'email',
-                'email_verified_at',
-                'password',
-                'rememberToken',
-                'created_at',
-                'updated_at',
-                'deleted_at',
-            ]);
-
-            // Fetch and process data in chunks
-            User::chunk(25, function ($users) use ($handle) {
-                foreach ($users as $user) {
-                    // Extract data from each employee.
-                    $data = [
-                        isset($user->id)? $user->id : '',
-                        isset($user->role_id)? $user->role_id : '',
-                        isset($user->name)? $user->name : '',
-                        isset($user->address)? $user->address : '',
-                        isset($user->nif)? $user->nif : '',
-                        isset($user->tel)? $user->tel : '',
-                        isset($user->birth_date)? $user->birth_date : '',
-                        isset($user->email)? $user->email : '',
-                        isset($user->email_verified_at)? $user->email_verified_at : '',
-                        isset($user->password)? $user->password : '',
-                        isset($user->rememberToken)? $user->rememberToken : '',
-                        isset($user->created_at)? $user->created_at : '',
-                        isset($user->updated_at)? $user->updated_at : '',
-                        isset($user->deleted_at)? $user->deleted_at : '',
-                    ];
-
-                    // Write data to a CSV file.
-                    fputcsv($handle, $data);
-                }
-            });
-
-            // Close CSV file handle
-            fclose($handle);
-        }, 200, $headers);
+    if(!$file) {
+        return redirect()->back()->with('error', 'Please choose a file before importing.');
     }
 
-    public function importCSV(Request $request)
-    {
-        $this->validate($request, [
-            'import_csv' => 'required|mimes:csv,txt',
+    $handle = fopen($file->getPathname(), 'r');
+
+    
+    // Ignorar a primeira linha (cabeçalhos)
+    fgets($handle);
+
+    Schema::disableForeignKeyConstraints();
+
+    // Trunca as tabelas
+    DB::table('users')->truncate();
+    DB::table('presences')->truncate();
+    DB::table('absences')->truncate();
+    DB::table('vacations')->truncate();
+
+    // Reabilita as verificações de chave estrangeira
+    Schema::enableForeignKeyConstraints();
+
+
+
+    while (($line = fgets($handle)) !== false) {
+        $data = str_getcsv($line);
+
+        User::create([
+            'role_id' => $data[0],
+            'name' => $data[1],
+            'address' => $data[2],
+            'nif' => $data[3],
+            'tel' => $data[4],
+            'birth_date' => $data[5],
+            'email' => $data[6],
+            'password' => $data[7],  
         ]);
+    }
 
-        $file = $request->file('import_csv');
-        $filePath = $file->getRealPath();
-        $file = fopen($filePath, 'r');
+    fclose($handle);
 
-        $header = fgetcsv($file);
-        $escapedHeader = [];
+    return redirect()->back()->with('success', 'CSV file imported successfully.');
+    }
 
-        foreach ($header as $key => $value) {
-            $lowercaseHeader = strtolower($value);
-            $escapedItem = preg_replace('/[^a-z]/', '', $lowercaseHeader);
-            array_push($escapedHeader, $escapedItem);
+    public function export(){
+        $users = User::all();
+        $csvFileName = 'users.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
+        ];
+
+        $handle = fopen('php://output', 'w');
+        fputcsv($handle, ['Role_id','Name', 'Address','Nif','Tel','Birth_date','Email','Password']); // Add more headers as needed
+
+        foreach ($users as $user) {
+            fputcsv($handle, [$user->role_id,$user->name, $user->address,$user->nif,$user->tel,$user->birth_date,$user->email,$user->password]); // Add more fields as needed
         }
 
-        // Import new data
-        while ($columns = fgetcsv($file)) {
-            if ($columns[0] == "") {
-                continue;
-            }
+        fclose($handle);
 
-            // Adjusting the columns to ensure all fields are present
-            $data = [
-                'id' => $columns[0],
-                'role_id' => $columns[1],
-                'name' => $columns[2],
-                'address' => $columns[3],
-                'nif' => $columns[4],
-                'tel' => $columns[5],
-                'birth_date' => $columns[6],
-                'email' => $columns[7],
-                'email_verified_at' => $columns[8] ?? null,
-                'password' => $columns[9],
-                'rememberToken' => $columns[10] ?? null,
-                'created_at' => $columns[11] ?? now(),
-                'updated_at' => $columns[12] ?? now(),
-                'deleted_at' => ($columns[13] !== '' && $columns[13] !== null) ? $columns[13] : null,
-            ];
-
-            $this->insertUser($data);
-        }
-
-        fclose($file);
-
-        // Delete related records
-        Absence::truncate();
-        Vacation::truncate();
-        Presence::truncate();
-        User_Shift::truncate();
-
-        return redirect()->route('importExportData')->with('success', 'Data has been added successfully.');
+        return Response::make('', 200, $headers);
     }
 
 
