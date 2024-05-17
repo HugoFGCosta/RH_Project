@@ -9,6 +9,13 @@ class User_Shift extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user_id',
+        'work_shift_id',
+        'start_date',
+        'end_date',
+    ];
+
     protected $table = 'user_shifts';
     public function work_shift()
     {
