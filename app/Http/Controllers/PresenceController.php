@@ -70,50 +70,73 @@ class PresenceController extends Controller
 
     public function import(Request $request)
     {
-
-        // Se não for escolhido nenhum ficheiro mostra uma mensagem de erro
+        // Verifica se foi escolhido um arquivo
         $file = $request->file('file');
 
-        if(!$file) {
-            return redirect()->back()->with('error', 'Please choose a file before importing.');
+        if (!$file) {
+            return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
         }
 
         $handle = fopen($file->getPathname(), 'r');
 
+        if (!$handle) {
+            return redirect()->back()->with('error', 'Erro ao abrir o ficheiro.');
+        }
 
-        // Ignorar a primeira linha (cabeçalhos)
+        // Ignora a primeira linha (cabeçalhos)
         fgets($handle);
+
+        // Armazena mensagens de erro
+        $errors = [];
+
+        // Verifica os dados do arquivo antes de truncar a tabela
+        while (($line = fgets($handle)) !== false) {
+            $data = str_getcsv($line);
+
+            if (count($data) != 7) {
+                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de presenças.');
+            }
+
+            // Verifica se os IDs são inteiros
+            if (!is_integer($data[0])) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
+            }
+
+            if (!is_numeric($data[5]) || !is_numeric($data[6])) {
+                return redirect()->back()->with('error', 'Certifique-se que os campos de horas extra e efetivas são válidos.');
+            }
+
+            if(!strtotime($data[1]) || !strtotime($data[2]) || !strtotime($data[3]) || !strtotime($data[4])){
+                return redirect()->back()->with('error', 'Certifique-se que as datas estão no formato correto.');
+            }
+
+        }
+
+        fclose($handle);
+
+        // Se houver erros, redireciona de volta com as mensagens de erro
+        if (!empty($errors)) {
+            return redirect()->back()->with('error', $errors);
+        }
 
         // Desativa as verificações de chave estrangeira
         Schema::disableForeignKeyConstraints();
 
-        // Trunca as tabelas
+        // Trunca a tabela
         DB::table('presences')->truncate();
 
         // Reabilita as verificações de chave estrangeira
         Schema::enableForeignKeyConstraints();
 
-        // Ler o ficheiro linha a linha e insere na base de dados
+        // Abre novamente o arquivo para importar os dados
+        $handle = fopen($file->getPathname(), 'r');
+
+        // Ignora a primeira linha (cabeçalhos)
+        fgets($handle);
+
+        // Percorre o ficheiro e insere os dados na base de dados
         while (($line = fgets($handle)) !== false) {
             $data = str_getcsv($line);
-
-            if(count($data) != 7) {
-                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de presenças.');
-            }
-
-            // Verifica se os IDs são inteiros
-            if (!is_numeric($data[0])) {
-                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
-            }
-
-            if(!is_nan($data[5]) || !is_nan($data[6])){
-                return redirect()->back()->with('error', 'Certifique-se que os campos de horas extra e efetivas.');
-            }
-
-            // Verifica se os campos de horas são válidos
-            if(!strtotime($data[1]) || !strtotime($data[2]) || !strtotime($data[3]) || !strtotime($data[4])){
-                return redirect()->back()->with('error', 'Certifique-se que os campos de horas são válidos.');
-            }
 
             Presence::create([
                 'user_id' => $data[0],
@@ -124,14 +147,14 @@ class PresenceController extends Controller
                 'extra_hour' => $data[5],
                 'effective_hour' => $data[6],
             ]);
-
         }
 
         fclose($handle);
 
-        // Redireciona para a página anterior com uma mensagem de sucesso
-        return redirect()->back()->with('success', 'Presenças importadas com Successo.');
+        // Retorna para a página anterior com uma mensagem de sucesso
+        return redirect()->back()->with('success', 'Presenças importadas com sucesso.');
     }
+
 
     public function export(){
 

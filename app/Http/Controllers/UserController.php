@@ -521,10 +521,6 @@ class UserController extends Controller
     }
 
 
-
-
-
-
     /**
      * Remove the specified resource from storage.
      */
@@ -537,79 +533,101 @@ class UserController extends Controller
 
     public function import(Request $request)
     {
-    $file = $request->file('file');
+        $file = $request->file('file');
 
-    if(!$file) {
-        return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
-    }
-
-    $handle = fopen($file->getPathname(), 'r');
-
-
-    // Ignorar a primeira linha (cabeçalhos)
-    fgets($handle);
-
-    Schema::disableForeignKeyConstraints();
-
-    // Trunca as tabelas
-    DB::table('users')->truncate();
-    DB::table('presences')->truncate();
-    DB::table('absences')->truncate();
-    DB::table('vacations')->truncate();
-
-    // Reabilita as verificações de chave estrangeira
-    Schema::enableForeignKeyConstraints();
-
-
-
-    while (($line = fgets($handle)) !== false) {
-        $data = str_getcsv($line);
-
-        if(count($data) != 8) {
-            return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de utilizadores.');
+        if (!$file) {
+            return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
         }
 
-        // Verifica se os IDs são inteiros
-        if (!is_numeric($data[0])) {
-            return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
+        $handle = fopen($file->getPathname(), 'r');
+
+        if (!$handle) {
+            return redirect()->back()->with('error', 'Erro ao abrir o ficheiro.');
         }
 
-        //Verifica se o email é válido
-        if (!filter_var($data[6], FILTER_VALIDATE_EMAIL)) {
-            return redirect()->back()->with('error', 'Certifique-se que os emails são válidos.');
+        $userData = []; // Array para armazenar os dados válidos
+
+        // Ignorar a primeira linha (cabeçalhos)
+        fgets($handle);
+
+        // Faz as validações antes de inserir
+        while (($line = fgets($handle)) !== false) {
+            $data = str_getcsv($line);
+            if (count($data) != 8) {
+                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de utilizadores.');
+            }
+
+            // Verifica se os IDs são inteiros
+            if (!is_numeric($data[0])) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de permissão são números válidos.');
+            }
+
+            //Verifica se o email é válido
+            if (!filter_var($data[6], FILTER_VALIDATE_EMAIL)) {
+                return redirect()->back()->with('error', 'Certifique-se que os emails são válidos.');
+            }
+
+            //Verifica se a data de nascimento é válida
+            if (!strtotime($data[5])) {
+                return redirect()->back()->with('error', 'Certifique-se que as datas de nascimento são válidas.');
+            }
+
+            //Verifica se o NIF é válido
+            if (!is_numeric($data[3]) || strlen($data[3]) != 9){
+                return redirect()->back()->with('error', 'Certifique-se que os NIFs são válidos.');
+            }
+
+            //Verifica se o telefone é válido
+            if (!is_numeric($data[4]) || strlen($data[3]) != 9) {
+                return redirect()->back()->with('error', 'Certifique-se que os telefones são válidos.');
+            }
+
+            //Verifica se o role_id está entre 1 e 3
+            if ($data[0] < 1 || $data[0] > 3) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de função estão entre 1 e 3.');
+            }
+
+            // Armazenar os dados válidos no array
+            $userData[] = [
+                'role_id' => $data[0],
+                'name' => $data[1],
+                'address' => $data[2],
+                'nif' => $data[3],
+                'tel' => $data[4],
+                'birth_date' => $data[5],
+                'email' => $data[6],
+                'password' => $data[7],
+            ];
+
         }
 
-        //Verifica se a data de nascimento é válida
-        if (!strtotime($data[5])) {
-            return redirect()->back()->with('error', 'Certifique-se que as datas de nascimento são válidas.');
+        // Verifica se os emails são únicos
+        $numeroUsers = count($userData);
+
+        for($i = 0; $i < $numeroUsers; $i++) {
+            for($j = 0; $j < $numeroUsers; $j++) {
+                if($userData[$i]['email'] == $userData[$j]['email'] && $i != $j) {
+                    return redirect()->back()->with('error', 'Não pode haver utilizadores com o mesmo email.');
+                }
+            }
         }
 
-        //Verifica se o NIF é válido
-        if (!is_numeric($data[3])) {
-            return redirect()->back()->with('error', 'Certifique-se que os NIFs são válidos.');
+        fclose($handle);
+
+        // Trunca as tabelas antes de inserir
+        Schema::disableForeignKeyConstraints();
+        DB::table('users')->truncate();
+        DB::table('presences')->truncate();
+        DB::table('absences')->truncate();
+        DB::table('vacations')->truncate();
+        Schema::enableForeignKeyConstraints();
+
+        // Inserir os dados válidos no banco de dados
+        foreach ($userData as $data) {
+            User::create($data);
         }
 
-        //Verifica se o telefone é válido
-        if (!is_numeric($data[4])) {
-            return redirect()->back()->with('error', 'Certifique-se que os telefones são válidos.');
-        }
-
-
-        User::create([
-            'role_id' => $data[0],
-            'name' => $data[1],
-            'address' => $data[2],
-            'nif' => $data[3],
-            'tel' => $data[4],
-            'birth_date' => $data[5],
-            'email' => $data[6],
-            'password' => $data[7],
-        ]);
-    }
-
-    fclose($handle);
-
-    return redirect()->back()->with('success', 'Utilizadores importados com sucesso.');
+        return redirect()->back()->with('success', 'Utilizadores importados com sucesso.');
     }
 
     public function export(){

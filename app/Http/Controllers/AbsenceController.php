@@ -70,16 +70,19 @@ class AbsenceController extends Controller
 
     public function import(Request $request)
     {
-        //
         $file = $request->file('file');
 
-        // Se não for escolhido nenhum ficheiro mostra uma mensagem de erro
-        if(!$file) {
+        // Se não for escolhido nenhum ficheiro, mostra uma mensagem de erro
+        if (!$file) {
             return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
         }
 
         $handle = fopen($file->getPathname(), 'r');
 
+        // Se houver erro ao abrir o arquivo, mostra uma mensagem de erro
+        if (!$handle) {
+            return redirect()->back()->with('error', 'Erro ao abrir o ficheiro.');
+        }
 
         // Ignora a primeira linha do ficheiro
         fgets($handle);
@@ -87,25 +90,26 @@ class AbsenceController extends Controller
         // Desativa as verificações de chave estrangeira
         Schema::disableForeignKeyConstraints();
 
-        // Trunca as tabelas
+        // Trunca a tabela de faltas
         DB::table('absences')->truncate();
 
         // Reabilita as verificações de chave estrangeira
         Schema::enableForeignKeyConstraints();
 
+        $errors = [];
 
-        //Percorre o ficheiro e insere os dados na base de dados
+        // Percorre o ficheiro e insere os dados na base de dados
         while (($line = fgets($handle)) !== false) {
 
             $data = str_getcsv($line);
 
             // Verifica se há exatamente 5 campos
-            if(count($data) != 5) {
+            if (count($data) != 5) {
                 return redirect()->back()->with('error', 'Certifique-se que este ficheiro contém informações de faltas.');
             }
 
             // Verifica se os IDs são inteiros
-            if (!is_numeric($data[0]) || !is_numeric($data[1]) || !is_numeric($data[2])) {
+            if (!is_int($data[0]) || !is_int($data[1]) || !is_int($data[2])) {
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador, estado de falta e aprovador são números válidos.');
             }
 
@@ -114,9 +118,14 @@ class AbsenceController extends Controller
                 return redirect()->back()->with('error', 'A data fornecida não é válida.');
             }
 
-            // Verifica se justification pode ser convertido para uma data válida
+            // Verifica se a justificativa não pode ser convertida para uma data válida
             if (strtotime($data[4]) !== false) {
                 return redirect()->back()->with('error', 'A justificativa não deve ser uma data.');
+            }
+
+            // Verifica se o ID de estado de aprovação de falta está entre 1 e 3
+            if ($data[1] < 1 || $data[1] > 3){
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de estado são números válidos.');
             }
 
             Absence::create([
@@ -126,15 +135,19 @@ class AbsenceController extends Controller
                 'absence_date' => $data[3],
                 'justification' => $data[4],
             ]);
-
         }
 
         fclose($handle);
 
-        // Redireciona para a página anterior com uma mensagem de sucesso
-        return redirect()->back()->with('success', 'Faltas importadas com Successo.');
+        // Se houver erros, redireciona de volta com as mensagens de erro
+        if (!empty($errors)) {
+            return redirect()->back()->with('error', $errors);
+        }
 
+        // Redireciona para a página anterior com uma mensagem de sucesso
+        return redirect()->back()->with('success', 'Faltas importadas com sucesso.');
     }
+
 
     public function export(){
 
