@@ -80,7 +80,7 @@ class PresenceController extends Controller
 
         $handle = fopen($file->getPathname(), 'r');
 
-        
+
         // Ignorar a primeira linha (cabeçalhos)
         fgets($handle);
 
@@ -98,7 +98,21 @@ class PresenceController extends Controller
             $data = str_getcsv($line);
 
             if(count($data) != 7) {
-                return redirect()->back()->with('error', 'Invalid file format.');
+                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de presenças.');
+            }
+
+            // Verifica se os IDs são inteiros
+            if (!is_numeric($data[0])) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
+            }
+
+            if(!is_nan($data[5]) || !is_nan($data[6])){
+                return redirect()->back()->with('error', 'Certifique-se que os campos de horas extra e efetivas.');
+            }
+
+            // Verifica se os campos de horas são válidos
+            if(!strtotime($data[1]) || !strtotime($data[2]) || !strtotime($data[3]) || !strtotime($data[4])){
+                return redirect()->back()->with('error', 'Certifique-se que os campos de horas são válidos.');
             }
 
             Presence::create([
@@ -116,7 +130,7 @@ class PresenceController extends Controller
         fclose($handle);
 
         // Redireciona para a página anterior com uma mensagem de sucesso
-        return redirect()->back()->with('success', 'CSV file imported successfully.');
+        return redirect()->back()->with('success', 'Presenças importadas com Successo.');
     }
 
     public function export(){
@@ -130,7 +144,7 @@ class PresenceController extends Controller
         ];
 
         $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['User_id','First_start', 'First_end','Second_start','Second_end','Extra_hour','Effective_hour']); 
+        fputcsv($handle, ['User_id','First_start', 'First_end','Second_start','Second_end','Extra_hour','Effective_hour']);
 
         //Para cada presença insere uma linha no ficheiro
         foreach ($presences as $presence) {

@@ -75,13 +75,13 @@ class AbsenceController extends Controller
 
         // Se não for escolhido nenhum ficheiro mostra uma mensagem de erro
         if(!$file) {
-            return redirect()->back()->with('error', 'Please choose a file before importing.');
+            return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
         }
 
         $handle = fopen($file->getPathname(), 'r');
 
-        
-        // Ignora a primeira linha do ficheiro 
+
+        // Ignora a primeira linha do ficheiro
         fgets($handle);
 
         // Desativa as verificações de chave estrangeira
@@ -99,6 +99,26 @@ class AbsenceController extends Controller
 
             $data = str_getcsv($line);
 
+            // Verifica se há exatamente 5 campos
+            if(count($data) != 5) {
+                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contém informações de faltas.');
+            }
+
+            // Verifica se os IDs são inteiros
+            if (!is_numeric($data[0]) || !is_numeric($data[1]) || !is_numeric($data[2])) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador, estado de falta e aprovador são números válidos.');
+            }
+
+            // Verifica se o campo absence_date é uma data válida
+            if (strtotime($data[3]) === false) {
+                return redirect()->back()->with('error', 'A data fornecida não é válida.');
+            }
+
+            // Verifica se justification pode ser convertido para uma data válida
+            if (strtotime($data[4]) !== false) {
+                return redirect()->back()->with('error', 'A justificativa não deve ser uma data.');
+            }
+
             Absence::create([
                 'user_id' => $data[0],
                 'absence_states_id' => $data[1],
@@ -112,14 +132,14 @@ class AbsenceController extends Controller
         fclose($handle);
 
         // Redireciona para a página anterior com uma mensagem de sucesso
-        return redirect()->back()->with('success', 'CSV file imported successfully.');
-        
+        return redirect()->back()->with('success', 'Faltas importadas com Successo.');
+
     }
 
     public function export(){
 
         //
-        
+
         // Define o nome do ficheiro e os cabeçalhos
         $absences = Absence::all();
         $csvFileName = 'absences.csv';
@@ -130,7 +150,7 @@ class AbsenceController extends Controller
 
         //Escreve os cabeçalhos no ficheiro
         $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['User_id','Absence_states_id', 'Approved_by','Absence_date','Justification']); 
+        fputcsv($handle, ['User_id','Absence_states_id', 'Approved_by','Absence_date','Justification']);
 
         //Para cada falta insere uma linha no ficheiro
         foreach ($absences as $absence) {

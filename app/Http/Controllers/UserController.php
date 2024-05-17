@@ -515,12 +515,12 @@ class UserController extends Controller
     $file = $request->file('file');
 
     if(!$file) {
-        return redirect()->back()->with('error', 'Please choose a file before importing.');
+        return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
     }
 
     $handle = fopen($file->getPathname(), 'r');
 
-    
+
     // Ignorar a primeira linha (cabeçalhos)
     fgets($handle);
 
@@ -540,6 +540,36 @@ class UserController extends Controller
     while (($line = fgets($handle)) !== false) {
         $data = str_getcsv($line);
 
+        if(count($data) != 8) {
+            return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de utilizadores.');
+        }
+
+        // Verifica se os IDs são inteiros
+        if (!is_numeric($data[0])) {
+            return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
+        }
+
+        //Verifica se o email é válido
+        if (!filter_var($data[6], FILTER_VALIDATE_EMAIL)) {
+            return redirect()->back()->with('error', 'Certifique-se que os emails são válidos.');
+        }
+
+        //Verifica se a data de nascimento é válida
+        if (!strtotime($data[5])) {
+            return redirect()->back()->with('error', 'Certifique-se que as datas de nascimento são válidas.');
+        }
+
+        //Verifica se o NIF é válido
+        if (!is_numeric($data[3])) {
+            return redirect()->back()->with('error', 'Certifique-se que os NIFs são válidos.');
+        }
+
+        //Verifica se o telefone é válido
+        if (!is_numeric($data[4])) {
+            return redirect()->back()->with('error', 'Certifique-se que os telefones são válidos.');
+        }
+
+
         User::create([
             'role_id' => $data[0],
             'name' => $data[1],
@@ -548,13 +578,13 @@ class UserController extends Controller
             'tel' => $data[4],
             'birth_date' => $data[5],
             'email' => $data[6],
-            'password' => $data[7],  
+            'password' => $data[7],
         ]);
     }
 
     fclose($handle);
 
-    return redirect()->back()->with('success', 'CSV file imported successfully.');
+    return redirect()->back()->with('success', 'Utilizadores importados com sucesso.');
     }
 
     public function export(){
