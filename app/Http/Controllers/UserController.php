@@ -434,28 +434,14 @@ class UserController extends Controller
     public function show()
     {
         $user = auth()->user();
-
         $user_shift = User_Shift::where('user_id', $user->id)->first();
-
-
-
         return view('pages.users.show', ['user' => $user, 'user_shift' => $user_shift]);
     }
-
-
-
-
-
-
-
-
-
     /**
      * Show the form for editing the specified resource.
      */
     public function edit()
     {
-
         $work_shifts = Work_Shift::all();
         $roles = Role::all();
 
@@ -470,9 +456,6 @@ class UserController extends Controller
      */
     public function update(Request $request)
     {
-
-        // para funcionar o resto das informaçoes deve-se: apagar linha 82 e desomentar o bloco #83 ~ #93
-
         $user = auth()->user();
         $user->name = $request->input('name');
         $user->email = $request->input('email');
@@ -486,18 +469,10 @@ class UserController extends Controller
         $user->nif = $request->input('nif');
         $user->tel = $request->input('tel');
         $user->birth_date = $request->input('birth_date');
-        /*$user->work_shift_id = $request->input('work_shift_id');*/
         $user->save();
-        /*
-         $user->nif = $request->input('nif');
-         $user->tel = $request->input('tel');
-                $user->password = $request->input('password');
-
-         $user->birth_date = $request->input('birth_date');
-         $user->password = $request->input('password');
-         $user_shift = User_Shift::where('user_id', $user->id)->first();
-         $user_shift->work_shift_id = $request->input('work_shift_id');
-         $user_shift->save(); */
+        $user_shift = User_Shift::where('user_id', $user->id)->first();
+        $user_shift->work_shift_id = $request->input('work_shift_id');
+        $user_shift->save();
 
         return redirect('/user/show');
     }

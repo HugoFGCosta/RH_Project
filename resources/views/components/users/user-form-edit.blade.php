@@ -37,23 +37,30 @@
     </div>
     <div class="form-row">
         <div class="input-data">
-            <select name="role" id="role" class="form-control" required>
-                <option value="" disabled {{ !isset($user->role->role) ? 'selected' : '' }}>Tipo de Usuário</option>
-                <option
-                    value="Administrator" {{ isset($user->role->role) && $user->role->role == 'Administrator' ? 'selected' : '' }}>
-                    Administrador
-                </option>
-                <option
-                    value="Manager" {{ isset($user->role->role) && $user->role->role == 'Manager' ? 'selected' : '' }}>
-                    Gestor
-                </option>
-                <option
-                    value="Worker" {{ isset($user->role->role) && $user->role->role == 'Worker' ? 'selected' : '' }}>
-                    Utilizador
-                </option>
-            </select>
-            <div class="underline"></div>
-            <label for="role">Tipo de Usuário</label>
+            @if (Auth::user()->role->role == 'Administrator')
+                <select name="role" id="role" class="form-control" required>
+                    <option value="" disabled {{ !isset($user->role->role) ? 'selected' : '' }}>Tipo de Usuário</option>
+                    <option
+                        value="Administrator" {{ isset($user->role->role) && $user->role->role == 'Administrator' ? 'selected' : '' }}>
+                        Administrador
+                    </option>
+                    <option
+                        value="Manager" {{ isset($user->role->role) && $user->role->role == 'Manager' ? 'selected' : '' }}>
+                        Gestor
+                    </option>
+                    <option
+                        value="Worker" {{ isset($user->role->role) && $user->role->role == 'Worker' ? 'selected' : '' }}>
+                        Utilizador
+                    </option>
+                </select>
+                <div class="underline"></div>
+                <label for="role">Tipo de Usuário</label>
+            @else
+                <input type="hidden" name="role" value="{{ $user->role->role }}">
+                <input type="text" class="readonly-input" value="{{ $user->role->role }}" readonly>
+                <label for="role">Tipo de Usuário</label>
+                <div class="underline"></div>
+            @endif
         </div>
         <div class="input-data">
             <input type="text" id="address" name="address" class="form-control @error('address') is-invalid @enderror"
@@ -62,8 +69,8 @@
             <label for="address">Endereço</label>
             @error('address')
             <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
+                <strong>{{ $message }}</strong>
+            </span>
             @enderror
         </div>
     </div>
@@ -105,18 +112,31 @@
                 </span>
             @enderror
         </div>
-        {{--<div class="input-data">
-            <select name="work_shift_id" id="work_shift_id" class="form-control" required>
-                <option value="" disabled {{ !isset($user->work_shift_id) ? 'selected' : '' }}></option>
+        <div class="input-data">
+            @if (Auth::user()->role->role == 'Administrator')
+                <select name="work_shift_id" id="work_shift_id" class="form-control" required>
+                    <option value="" disabled {{ !isset($user_shift->work_shift_id) ? 'selected' : '' }}></option>
+                    @foreach ($work_shifts as $work_shift)
+                        <option
+                            value="{{ $work_shift->id }}" {{ isset($user_shift->work_shift_id) && $user_shift->work_shift_id == $work_shift->id ? 'selected' : '' }}>
+                            {{ $work_shift->start_hour . ' ~ ' . $work_shift->break_start . ' - ' . $work_shift->break_end . ' ~ ' . $work_shift->end_hour }}
+                        </option>
+                    @endforeach
+                </select>
+                <div class="underline"></div>
+                <label for="work_shift_id">{{ __('Work Shift') }}</label>
+            @else
                 @foreach ($work_shifts as $work_shift)
-                    <option value="{{ $work_shift->id }}" {{ isset($user->work_shift_id) && $user->work_shift_id == $work_shift->id ? 'selected' : '' }}>
-                        {{ $work_shift->start_hour . ' ~ ' . $work_shift->break_start . ' - ' . $work_shift->break_end . ' ~ ' . $work_shift->end_hour }}
-                    </option>
+                    @if ($user_shift->work_shift_id == $work_shift->id)
+                        <input type="hidden" name="work_shift_id" value="{{ $work_shift->id }}">
+                        <input type="text" class="readonly-input"
+                               value="{{ $work_shift->start_hour . ' ~ ' . $work_shift->break_start . ' - ' . $work_shift->break_end . ' ~ ' . $work_shift->end_hour }}"
+                               readonly>
+                        <label for="work_shift_id">{{ __('Work Shift') }}</label>
+                    @endif
                 @endforeach
-            </select>
-            <div class="underline"></div>
-            <label for="work_shift_id">{{ __('Work Shift') }}</label>
-        </div>--}}
+            @endif
+        </div>
     </div>
     <div class="form-row">
         <button type="submit" class="btn showform-btn">
@@ -133,5 +153,3 @@
         </ul>
     </div>
 @endif
-
-
