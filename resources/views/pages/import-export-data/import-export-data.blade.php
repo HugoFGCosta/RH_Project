@@ -1,56 +1,66 @@
 @extends('master.main')
 
+@component('components.styles.importsExports')
+@endcomponent
+
 @section('content')
 
-    <div class="container">
-        <div class="row text-center">
-            <div>
-                <form action="{{ route('import') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="messages">
-                        @if (session('success'))
-                            <div class="alert alert-success">
-                                {{ session('success') }}
-                            </div>
-                        @endif
-                    </div>
-                    <div class="fields">
-                        <div class="input-group mb-3">
-                            <input type="file" class="form-control" id="import_csv" name="import_csv" accept=".csv">
-                            <label class="input-group-text" for="import_csv">Upload</label>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-success">Import CSV</button>
-                </form>
-            </div>
-         </div>
 
-            <div class="col-md-6 mb-3">
-                <a href="{{ route('exportUsers') }}" class="btn btn-success">Exportar Utilizadores</a>
+    <div class="containerExcel">
+        <h1 class="titleExcel">Exportação e Importação de dados</h1>
+
+        @if (session('success'))
+            <div class="alert alert-success successMessage">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger errorMessage">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <form action="{{ route('import') }}" method="POST" enctype="multipart/form-data" class="importForm">
+            @csrf
+            <input class="import-input" type="file" name="file" accept=".csv">
+            <div class="buttonsDiv">
+                <button class="buttonImport" type="submit">Importar Users</button>
+                <a class="exportButton" href="{{ route('export') }}">Exportar Utilizadores</a>
             </div>
 
-            <div class="col-md-6">
-                <a href="/register-schedule"><button class="sub-menu">Importar Faltas</button></a>
-            </div>
+        </form>
 
-            <div class="col-md-6 mb-3">
-                <a href="{{ route('exportAbsences') }}" class="btn btn-success">Exportar Faltas</a>
-            </div>
+        <form action="{{ route('importAbsences') }}" method="POST" enctype="multipart/form-data" class="importForm">
+            @csrf
+            <input class="import-input" type="file" name="file" accept=".csv">
+            <div class="buttonsDiv">
+                <button class="buttonImport" type="submit">Importar Faltas</button>
+                <a class="exportButton" href="{{ route('exportAbsences') }}">Exportar Faltas</a>
 
-            <div class="col-md-6">
-                <a href="/register-schedule"><button class="sub-menu">Importar Férias</button></a>
             </div>
+        </form>
 
-            <div class="col-md-6 mb-3">
-                <a href="{{ route('exportVacations') }}" class="btn btn-success">Exportar Férias</a>
-            </div>
+        <form action="{{ route('importVacations') }}" method="POST" enctype="multipart/form-data" class="importForm">
+            @csrf
+            <input class="import-input" type="file" name="file" accept=".csv">
+            <div class="buttonsDiv">
+                <button class="buttonImport" type="submit">Importar Férias</button>
+                <a class="exportButton" href="{{ route('exportVacations') }}">Exportar Férias</a>
 
-            <div class="col-md-6">
-                <a href="/register-schedule"><button class="sub-menu">Importar Presenças</button></a>
             </div>
+        </form>
 
-            <div class="col-md-6 mb-3">
-                <a href="{{ route('exportPresences') }}" class="btn btn-success">Exportar Presenças</a>
+        <form action="{{ route('importPresences') }}" method="POST" enctype="multipart/form-data" class="importForm">
+            @csrf
+            <input class="import-input" type="file" name="file" accept=".csv">
+            <div class="buttonsDiv">
+                <button class="buttonImport" type="submit">Importar Presenças</button>
+                <a class="exportButton" href="{{ route('exportPresences') }}">Exportar Presenças</a>
             </div>
+        </form>
     </div>
+
+
+
 @endsection
