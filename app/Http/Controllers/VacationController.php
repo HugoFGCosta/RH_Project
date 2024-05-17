@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Vacation;
 use App\Http\Requests\StoreVacationRequest;
 use App\Http\Requests\UpdateVacationRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Http\Request;
 
 class VacationController extends Controller
 {
@@ -64,56 +68,84 @@ class VacationController extends Controller
         //
     }
 
-    public function exportCSVVacations() //exporta os dados dos utilizadores para um ficheiro CSV
+    public function import(Request $request)
     {
-        $filename = 'vacation-data.csv';
+        $file = $request->file('file');
 
+        if(!$file) {
+            return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
+        }
+
+        $handle = fopen($file->getPathname(), 'r');
+
+
+        // Ignorar a primeira linha (cabeçalhos)
+        fgets($handle);
+
+        // Desativa as verificações de chave estrangeira
+        Schema::disableForeignKeyConstraints();
+
+        // Trunca as tabelas
+        DB::table('vacations')->truncate();
+
+        // Reabilita as verificações de chave estrangeira
+        Schema::enableForeignKeyConstraints();
+
+
+        //Percorre o ficheiro e insere os dados na base de dados
+        while (($line = fgets($handle)) !== false) {
+            $data = str_getcsv($line);
+
+            if(count($data) != 5) {
+                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de férias.');
+            }
+
+            // Verifica se os IDs são inteiros
+            if (!is_numeric($data[0])|| !is_numeric($data[1]) || !is_numeric($data[2])){
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
+            }
+
+            // Valida se os campos date_start e date_end são datas válidas
+            if (strtotime($data[3]) === false || strtotime($data[4]) === false) {
+                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de férias.');
+            }
+
+            Vacation::create([
+                'user_id' => $data[0],
+                'vacation_approval_states_id' => $data[1],
+                'approved_by' => $data[2],
+                'date_start' => $data[3],
+                'date_end' => $data[4],
+            ]);
+        }
+
+        fclose($handle);
+
+        // Retorna para a página anterior com uma mensagem de sucesso
+        return redirect()->back()->with('success', 'Férias importadas com Successo.');
+    }
+
+    public function export(){
+
+        // Cria um vetor com todas as férias, define o nome do ficheiro e os cabeçalhos
+        $vacations = Vacation::all();
+        $csvFileName = 'vacations.csv';
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
+            'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
         ];
 
-        return response()->stream(function () {
-            $handle = fopen('php://output', 'w');
+        $handle = fopen('php://output', 'w');
+        fputcsv($handle, ['User_id','Vacation_approval_states_id', 'Approved_by','Date_start','Date_end']); // Add more headers as needed
 
-            // Add CSV headers
-            fputcsv($handle, [
-                'id',
-                'user_id',
-                'vacation_approval_states_id',
-                'approved_by',
-                'date_start',
-                'date_end',
-                'created_at',
-                'updated_at',
+        //Percorre o vetor com as férias e escreve no ficheiro
+        foreach ($vacations as $vacation) {
+            fputcsv($handle, [$vacation->user_id,$vacation->vacation_approval_states_id, $vacation->approved_by,$vacation->date_start,$vacation->date_end]); // Add more fields as needed
+        }
 
-            ]);
+        fclose($handle);
 
-            // Fetch and process data in chunks
-            Vacation::chunk(25, function ($vacations) use ($handle) {
-                foreach ($vacations as $vacation) {
-                    // Extract data from each employee.
-                    $data = [
-                        isset($vacation->id)? $vacation->id : '',
-                        isset($vacation->user_id)? $vacation->user_id : '',
-                        isset($vacation->vacation_approval_states_id)? $vacation->vacation_approval_states_id : '',
-                        isset($vacation->approved_by)? $vacation->approved_by : '',
-                        isset($vacation->date_start)? $vacation->date_start : '',
-                        isset($vacation->date_end)? $vacation->date_end : '',
-                        isset($vacation->created_at)? $vacation->created_at : '',
-                        isset($vacation->updated_at)? $vacation->updated_at : '',
-                    ];
-
-                    // Write data to a CSV file.
-                    fputcsv($handle, $data);
-                }
-            });
-
-            // Close CSV file handle
-            fclose($handle);
-        }, 200, $headers);
+        // Retorna o ficheiro
+        return Response::make('', 200, $headers);
     }
 }

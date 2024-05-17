@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Absence;
 use App\Http\Requests\StoreAbsenceRequest;
 use App\Http\Requests\UpdateAbsenceRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Http\Request;
 
 class AbsenceController extends Controller
 {
@@ -64,55 +68,98 @@ class AbsenceController extends Controller
         //
     }
 
-    public function exportCSVAbsences() //exporta os dados dos utilizadores para um ficheiro CSV
+    public function import(Request $request)
     {
-        $filename = 'absence-data.csv';
+        //
+        $file = $request->file('file');
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
-        ];
+        // Se não for escolhido nenhum ficheiro mostra uma mensagem de erro
+        if(!$file) {
+            return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
+        }
 
-        return response()->stream(function () {
-            $handle = fopen('php://output', 'w');
+        $handle = fopen($file->getPathname(), 'r');
 
-            // Add CSV headers
-            fputcsv($handle, [
-                'id',
-                'user_id',
-                'absence_states_id',
-                'approved_by',
-                'absence_date',
-                'justification',
-                'created_at',
-                'updated_at',
+
+        // Ignora a primeira linha do ficheiro
+        fgets($handle);
+
+        // Desativa as verificações de chave estrangeira
+        Schema::disableForeignKeyConstraints();
+
+        // Trunca as tabelas
+        DB::table('absences')->truncate();
+
+        // Reabilita as verificações de chave estrangeira
+        Schema::enableForeignKeyConstraints();
+
+
+        //Percorre o ficheiro e insere os dados na base de dados
+        while (($line = fgets($handle)) !== false) {
+
+            $data = str_getcsv($line);
+
+            // Verifica se há exatamente 5 campos
+            if(count($data) != 5) {
+                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contém informações de faltas.');
+            }
+
+            // Verifica se os IDs são inteiros
+            if (!is_numeric($data[0]) || !is_numeric($data[1]) || !is_numeric($data[2])) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador, estado de falta e aprovador são números válidos.');
+            }
+
+            // Verifica se o campo absence_date é uma data válida
+            if (strtotime($data[3]) === false) {
+                return redirect()->back()->with('error', 'A data fornecida não é válida.');
+            }
+
+            // Verifica se justification pode ser convertido para uma data válida
+            if (strtotime($data[4]) !== false) {
+                return redirect()->back()->with('error', 'A justificativa não deve ser uma data.');
+            }
+
+            Absence::create([
+                'user_id' => $data[0],
+                'absence_states_id' => $data[1],
+                'approved_by' => $data[2],
+                'absence_date' => $data[3],
+                'justification' => $data[4],
             ]);
 
-            // Fetch and process data in chunks
-            Absence::chunk(25, function ($absences) use ($handle) {
-                foreach ($absences as $absence) {
-                    // Extract data from each employee.
-                    $data = [
-                        isset($absence->id)? $absence->id : '',
-                        isset($absence->user_id)? $absence->user_id : '',
-                        isset($absence->absence_states_id)? $absence->absence_states_id : '',
-                        isset($absence->approved_by)? $absence->approved_by : '',
-                        isset($absence->absence_date)? $absence->absence_date : '',
-                        isset($absence->justification)? $absence->justification : '',
-                        isset($absence->created_at)? $absence->created_at : '',
-                        isset($absence->updated_at)? $absence->updated_at : '',
-                    ];
+        }
 
-                    // Write data to a CSV file.
-                    fputcsv($handle, $data);
-                }
-            });
+        fclose($handle);
 
-            // Close CSV file handle
-            fclose($handle);
-        }, 200, $headers);
+        // Redireciona para a página anterior com uma mensagem de sucesso
+        return redirect()->back()->with('success', 'Faltas importadas com Successo.');
+
+    }
+
+    public function export(){
+
+        //
+
+        // Define o nome do ficheiro e os cabeçalhos
+        $absences = Absence::all();
+        $csvFileName = 'absences.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
+        ];
+
+        //Escreve os cabeçalhos no ficheiro
+        $handle = fopen('php://output', 'w');
+        fputcsv($handle, ['User_id','Absence_states_id', 'Approved_by','Absence_date','Justification']);
+
+        //Para cada falta insere uma linha no ficheiro
+        foreach ($absences as $absence) {
+            fputcsv($handle, [$absence->user_id,$absence->absence_states_id, $absence->approved_by,$absence->absence_date,$absence->justification]); // Add more fields as needed
+        }
+
+        // Fecha o ficheiro
+        fclose($handle);
+
+        return Response::make('', 200, $headers);
     }
 }
