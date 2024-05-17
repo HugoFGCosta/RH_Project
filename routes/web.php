@@ -55,11 +55,16 @@ Route::post('user/presence/storeSimulated', [UserController::class, 'storeSimula
 Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
 
 
-/*Rotas Export*/
-Route::get('export-csv', [\App\Http\Controllers\UserController::class, 'exportCSVUsers'])->name('exportUsers');
-Route::get('exportCSVAbsences', [\App\Http\Controllers\AbsenceController::class, 'exportCSVAbsences'])->name('exportAbsences');
-Route::get('exportCSVVacations', [\App\Http\Controllers\VacationController::class, 'exportCSVVacations'])->name('exportVacations');
-Route::get('exportCSVPresences', [\App\Http\Controllers\PresenceController::class, 'exportCSVPresences'])->name('exportPresences');
 
-Route::post('import', [\App\Http\Controllers\UserController::class, 'importCSV'])->name('import');
+Route::post('import', [\App\Http\Controllers\UserController::class, 'import'])->name('import');
+Route::get('export', [\App\Http\Controllers\UserController::class, 'export'])->name('export');
+
+Route::post('import/absence', [\App\Http\Controllers\AbsenceController::class, 'import'])->name('importAbsences');
+Route::get('export/absence', [\App\Http\Controllers\AbsenceController::class, 'export'])->name('exportAbsences');
+
+Route::post('import/vacations', [\App\Http\Controllers\VacationController::class, 'import'])->name('importVacations');
+Route::get('export/vacations', [\App\Http\Controllers\VacationController::class, 'export'])->name('exportVacations');
+
+Route::post('import/presences', [\App\Http\Controllers\PresenceController::class, 'import'])->name('importPresences');
+Route::get('export/presences', [\App\Http\Controllers\PresenceController::class, 'export'])->name('exportPresences');
 
