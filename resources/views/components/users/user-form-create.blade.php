@@ -8,7 +8,12 @@
     </div>
 @endif
 
-<form method="POST" action="{{ route('register') }}">
+
+
+
+{{-- <form method="POST" action="{{ route('register') }}"> --}}
+
+<form method="POST" action="{{ route('admin-register') }}">
     @method('POST')
     @csrf
     <div class="form-row">
