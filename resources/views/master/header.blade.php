@@ -1,5 +1,5 @@
 <!-- Barra Lateral -->
-<div class="container">
+<div class="container custom">
     <div class="menu">
         <ul>
             <li>
@@ -38,7 +38,7 @@
             </li>
             <li id="logout">
                 <a href="/logout">
-                    <span class="icon"><ion-icon name="log-out-outline"></ion-icon></ion-icon></span>
+                    <span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
                     <span class="title">Log Out</span>
                 </a>
             </li>

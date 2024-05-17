@@ -7,8 +7,9 @@
                 <h1>Perfil de {{ $user->name }}</h1>
                 @component('components.users.user-form-edit', [
                     'user' => $user,
-                    /*'work_shifts' => $work_shifts,*/
+                    'work_shifts' => $work_shifts,
                     'roles' => $roles,
+                    'user_shift' => $user_shift,
                 ])
                 @endcomponent
             </div>

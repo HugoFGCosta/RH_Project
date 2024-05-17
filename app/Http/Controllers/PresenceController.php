@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Presence;
 use App\Http\Requests\StorePresenceRequest;
 use App\Http\Requests\UpdatePresenceRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Http\Request;
 
 class PresenceController extends Controller
 {
@@ -64,60 +68,92 @@ class PresenceController extends Controller
         //
     }
 
-    public function exportCSVPresences() //exporta os dados dos utilizadores para um ficheiro CSV
+    public function import(Request $request)
     {
-        $filename = 'presence-data.csv';
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
-        ];
+        // Se não for escolhido nenhum ficheiro mostra uma mensagem de erro
+        $file = $request->file('file');
 
-        return response()->stream(function () {
-            $handle = fopen('php://output', 'w');
+        if(!$file) {
+            return redirect()->back()->with('error', 'Please choose a file before importing.');
+        }
 
-            // Add CSV headers
-            fputcsv($handle, [
-                'id',
-                'user_id',
-                'first_start',
-                'first_end',
-                'second_start',
-                'second_end',
-                'extra_hour',
-                'effective_hour',
-                'created_at',
-                'updated_at',
+        $handle = fopen($file->getPathname(), 'r');
+
+
+        // Ignorar a primeira linha (cabeçalhos)
+        fgets($handle);
+
+        // Desativa as verificações de chave estrangeira
+        Schema::disableForeignKeyConstraints();
+
+        // Trunca as tabelas
+        DB::table('presences')->truncate();
+
+        // Reabilita as verificações de chave estrangeira
+        Schema::enableForeignKeyConstraints();
+
+        // Ler o ficheiro linha a linha e insere na base de dados
+        while (($line = fgets($handle)) !== false) {
+            $data = str_getcsv($line);
+
+            if(count($data) != 7) {
+                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de presenças.');
+            }
+
+            // Verifica se os IDs são inteiros
+            if (!is_numeric($data[0])) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
+            }
+
+            if(!is_nan($data[5]) || !is_nan($data[6])){
+                return redirect()->back()->with('error', 'Certifique-se que os campos de horas extra e efetivas.');
+            }
+
+            // Verifica se os campos de horas são válidos
+            if(!strtotime($data[1]) || !strtotime($data[2]) || !strtotime($data[3]) || !strtotime($data[4])){
+                return redirect()->back()->with('error', 'Certifique-se que os campos de horas são válidos.');
+            }
+
+            Presence::create([
+                'user_id' => $data[0],
+                'first_start' => $data[1],
+                'first_end' => $data[2],
+                'second_start' => $data[3],
+                'second_end' => $data[4],
+                'extra_hour' => $data[5],
+                'effective_hour' => $data[6],
             ]);
 
-            // Fetch and process data in chunks
-            Presence::chunk(25, function ($presences) use ($handle) {
-                foreach ($presences as $presence) {
-                    // Extract data from each employee.
-                    $data = [
-                        isset($presence->id)? $presence->id : '',
-                        isset($presence->user_id)? $presence->user_id : '',
-                        isset($presence->first_start)? $presence->first_start : '',
-                        isset($presence->first_end)? $presence->first_end : '',
-                        isset($presence->second_start)? $presence->second_start : '',
-                        isset($presence->second_end)? $presence->second_end : '',
-                        isset($presence->extra_hour)? $presence->extra_hour : '',
-                        isset($presence->effective_hour)? $presence->effective_hour : '',
-                        isset($presence->created_at)? $presence->created_at : '',
-                        isset($presence->updated_at)? $presence->updated_at : '',
+        }
 
-                    ];
+        fclose($handle);
 
-                    // Write data to a CSV file.
-                    fputcsv($handle, $data);
-                }
-            });
+        // Redireciona para a página anterior com uma mensagem de sucesso
+        return redirect()->back()->with('success', 'Presenças importadas com Successo.');
+    }
 
-            // Close CSV file handle
-            fclose($handle);
-        }, 200, $headers);
+    public function export(){
+
+        // Define o nome do ficheiro e os cabeçalhos
+        $presences = Presence::all();
+        $csvFileName = 'presences.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
+        ];
+
+        $handle = fopen('php://output', 'w');
+        fputcsv($handle, ['User_id','First_start', 'First_end','Second_start','Second_end','Extra_hour','Effective_hour']);
+
+        //Para cada presença insere uma linha no ficheiro
+        foreach ($presences as $presence) {
+            fputcsv($handle, [$presence->user_id,$presence->first_start, $presence->first_end,$presence->second_start,$presence->second_end,$presence->extra_hour,$presence->effective_hour]); // Add more fields as needed
+        }
+
+        fclose($handle);
+
+        // Retorna o ficheiro
+        return Response::make('', 200, $headers);
     }
 }
