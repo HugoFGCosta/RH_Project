@@ -57,6 +57,8 @@ h1 {
     transition: 0.5s;
 }
 
+/*Formulários Globais*/
+
 
 /*Menu*/
 .menu {
@@ -200,6 +202,7 @@ h1 {
     color: var(--blue);
 }
 
+
 /*MainBlade*/
 .main {
     position: absolute;
@@ -303,6 +306,7 @@ footer {
     transition: 0.5s;
     box-sizing: border-box;
 }
+
 
 
 

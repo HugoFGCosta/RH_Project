@@ -1,38 +1,66 @@
 @extends('master.main')
 
+@component('components.styles.importsExports')
+@endcomponent
+
 @section('content')
 
-    <div class="container div-button">
-            <div class="col-md-6">
-                <a href="/register-schedule"><button class="sub-menu">Importar Utilizadores</button></a>
+
+    <div class="containerExcel">
+        <h1 class="titleExcel">Exportação e Importação de dados</h1>
+
+        @if (session('success'))
+            <div class="alert alert-success successMessage">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger errorMessage">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <form action="{{ route('import') }}" method="POST" enctype="multipart/form-data" class="importForm">
+            @csrf
+            <input class="import-input" type="file" name="file" accept=".csv">
+            <div class="buttonsDiv">
+                <button class="buttonImport" type="submit">Importar Users</button>
+                <a class="exportButton" href="{{ route('export') }}">Exportar Utilizadores</a>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <a href="/register-schedule"><button class="sub-menu">Exportar Utilizadores</button></a>
-            </div>
+        </form>
 
-            <div class="col-md-6">
-                <a href="/register-schedule"><button class="sub-menu">Importar Faltas</button></a>
-            </div>
+        <form action="{{ route('importAbsences') }}" method="POST" enctype="multipart/form-data" class="importForm">
+            @csrf
+            <input class="import-input" type="file" name="file" accept=".csv">
+            <div class="buttonsDiv">
+                <button class="buttonImport" type="submit">Importar Faltas</button>
+                <a class="exportButton" href="{{ route('exportAbsences') }}">Exportar Faltas</a>
 
-            <div class="col-md-6 mb-3">
-                <a href="/register-schedule"><button class="sub-menu">Exportar Faltas</button></a>
             </div>
+        </form>
 
-            <div class="col-md-6">
-                <a href="/register-schedule"><button class="sub-menu">Importar Férias</button></a>
-            </div>
+        <form action="{{ route('importVacations') }}" method="POST" enctype="multipart/form-data" class="importForm">
+            @csrf
+            <input class="import-input" type="file" name="file" accept=".csv">
+            <div class="buttonsDiv">
+                <button class="buttonImport" type="submit">Importar Férias</button>
+                <a class="exportButton" href="{{ route('exportVacations') }}">Exportar Férias</a>
 
-            <div class="col-md-6 mb-3">
-                <a href="/register-schedule"><button class="sub-menu">Exportar Férias</button></a>
             </div>
+        </form>
 
-            <div class="col-md-6">
-                <a href="/register-schedule"><button class="sub-menu">Importar Presenças</button></a>
+        <form action="{{ route('importPresences') }}" method="POST" enctype="multipart/form-data" class="importForm">
+            @csrf
+            <input class="import-input" type="file" name="file" accept=".csv">
+            <div class="buttonsDiv">
+                <button class="buttonImport" type="submit">Importar Presenças</button>
+                <a class="exportButton" href="{{ route('exportPresences') }}">Exportar Presenças</a>
             </div>
-
-            <div class="col-md-6">
-                <a href="/register-schedule"><button class="sub-menu">Exportar Presenças</button></a>
-            </div>
+        </form>
     </div>
+
+
+
 @endsection

@@ -16,8 +16,19 @@
     <!-- Styles -->
     <link href="{{ asset('css/mainPage.css') }}" rel="stylesheet">
     <link href="{{ asset('css/daily-tasks.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/users-edit.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/showform.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
+    @yield("styles")
 
+    <!-- Script de js para correr primeiro para resolver problema de expansão no recarregamento da página -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarState = localStorage.getItem('sidebarState');
+            if (sidebarState === 'collapsed') {
+                document.documentElement.classList.add('sidebar-collapsed');
+            }
+        });
+    </script>
 </head>
 <body>
 
@@ -39,14 +50,14 @@
             <div class="user">
                 @if (Auth::check())
                     <li class="nav-item">
-                        <a href="/user/edit">{{ Auth::user()->name }}</a>
+                        <a href="/user/show">{{ Auth::user()->name }}</a>
                     </li>
                 @endif
             </div>
         </div>
     </div>
 
-    <div class="content-area">
+    <div class="content-area hidden">
         @yield('content')
     </div>
 

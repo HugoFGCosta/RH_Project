@@ -37,10 +37,11 @@ Route::get('/view-absences', [App\Http\Controllers\ButtonController::class, 'vie
 Route::get('/manage-data', [App\Http\Controllers\ButtonController::class, 'manageData']);
 Route::get('/vacation-plans', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
 Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
-Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData']);
+Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData'])->name('importExportData');
 Route::get('/daily-tasks', [App\Http\Controllers\ButtonController::class, 'dailyTasks']);
 Route::get('/requests', [App\Http\Controllers\ButtonController::class, 'requests']);
 Route::get('/settings', [App\Http\Controllers\ButtonController::class, 'settings']);
+
 
 /*Rotas Users*/
 Route::post('/admin-register', [AdminRegisterController::class, 'create'])->name('admin-register');
@@ -59,3 +60,20 @@ Route::post('/user/presence/store', [UserController::class, 'store']);
 Route::get('/user/presence', [UserController::class, 'getPresence']);
 
 Route::post('user/presence/storeSimulated', [UserController::class, 'storeSimulated']); //ROTA SIMULADA
+
+
+Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
+
+
+
+Route::post('import', [\App\Http\Controllers\UserController::class, 'import'])->name('import');
+Route::get('export', [\App\Http\Controllers\UserController::class, 'export'])->name('export');
+
+Route::post('import/absence', [\App\Http\Controllers\AbsenceController::class, 'import'])->name('importAbsences');
+Route::get('export/absence', [\App\Http\Controllers\AbsenceController::class, 'export'])->name('exportAbsences');
+
+Route::post('import/vacations', [\App\Http\Controllers\VacationController::class, 'import'])->name('importVacations');
+Route::get('export/vacations', [\App\Http\Controllers\VacationController::class, 'export'])->name('exportVacations');
+
+Route::post('import/presences', [\App\Http\Controllers\PresenceController::class, 'import'])->name('importPresences');
+Route::get('export/presences', [\App\Http\Controllers\PresenceController::class, 'export'])->name('exportPresences');
