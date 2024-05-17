@@ -553,7 +553,7 @@ class UserController extends Controller
         // Faz as validações antes de inserir
         while (($line = fgets($handle)) !== false) {
             $data = str_getcsv($line);
-            if (count($data) != 8) {
+            if (count($data) != 9) {
                 return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de utilizadores.');
             }
 
@@ -587,6 +587,10 @@ class UserController extends Controller
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de função estão entre 1 e 3.');
             }
 
+            if($data[8] < 1 || $data[8] > 2) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de turno estão entre 1 e 2.');
+            }
+
             // Armazenar os dados válidos no array
             $userData[] = [
                 'role_id' => $data[0],
@@ -597,6 +601,7 @@ class UserController extends Controller
                 'birth_date' => $data[5],
                 'email' => $data[6],
                 'password' => $data[7],
+                'work_shift_id' => $data[8],
             ];
 
         }
@@ -620,17 +625,34 @@ class UserController extends Controller
         DB::table('presences')->truncate();
         DB::table('absences')->truncate();
         DB::table('vacations')->truncate();
+        DB::table('user_shifts')->truncate();
         Schema::enableForeignKeyConstraints();
 
-        // Inserir os dados válidos no banco de dados
+        // Inserir os dados válidos na base de dados
         foreach ($userData as $data) {
-            User::create($data);
+            $user = User::create([
+                'role_id' => $data['role_id'],
+                'name' => $data['name'],
+                'address' => $data['address'],
+                'nif' => $data['nif'],
+                'tel' => $data['tel'],
+                'birth_date' => $data['birth_date'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+            ]);
+
+            User_Shift::create([
+                'user_id' => $user->id,
+                'work_shift_id' => $data['work_shift_id'],
+                'start_date' => now(),
+            ]);
         }
 
         return redirect()->back()->with('success', 'Utilizadores importados com sucesso.');
     }
 
     public function export(){
+        $work_shifts = Work_Shift::all();
         $users = User::all();
         $csvFileName = 'users.csv';
         $headers = [
@@ -639,10 +661,14 @@ class UserController extends Controller
         ];
 
         $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['Role_id','Name', 'Address','Nif','Tel','Birth_date','Email','Password']); // Add more headers as needed
+        fputcsv($handle, ['Role_id','Name', 'Address','Nif','Tel','Birth_date','Email','Password','User_Work_Shift_Id']); // Add more headers as needed
 
         foreach ($users as $user) {
-            fputcsv($handle, [$user->role_id,$user->name, $user->address,$user->nif,$user->tel,$user->birth_date,$user->email,$user->password]); // Add more fields as needed
+            //escreve como vou  buscar o ultimo user_shift deste user para saber qual o turno que está a fazer
+
+            $user_shift = User_Shift::where('user_id', $user->id)->orderBy('id', 'desc')->first();
+
+            fputcsv($handle, [$user->role_id,$user->name, $user->address,$user->nif,$user->tel,$user->birth_date,$user->email,$user->password,$user_shift->work_shift_id]); // Add more fields as needed
         }
 
         fclose($handle);
