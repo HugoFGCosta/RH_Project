@@ -534,6 +534,7 @@ class UserController extends Controller
     public function import(Request $request)
     {
         $file = $request->file('file');
+        $users = User::all();
 
         if (!$file) {
             return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
@@ -608,6 +609,7 @@ class UserController extends Controller
 
         // Verifica se os emails são únicos
         $numeroUsers = count($userData);
+        $numeroUsersAtuais = count($users);
 
         for($i = 0; $i < $numeroUsers; $i++) {
             for($j = 0; $j < $numeroUsers; $j++) {
@@ -617,35 +619,48 @@ class UserController extends Controller
             }
         }
 
-        fclose($handle);
+        //Verifica se existem users com o mesmo nif
+        for($i = 0; $i < $numeroUsers; $i++) {
+            for($j = 0; $j < $numeroUsers; $j++) {
+                if($userData[$i]['nif'] == $userData[$j]['nif'] && $i != $j) {
+                    return redirect()->back()->with('error', 'Não pode haver utilizadores com o mesmo nif.');
+                }
+            }
+        }
 
-        // Trunca as tabelas antes de inserir
-        Schema::disableForeignKeyConstraints();
-        DB::table('users')->truncate();
-        DB::table('presences')->truncate();
-        DB::table('absences')->truncate();
-        DB::table('vacations')->truncate();
-        DB::table('user_shifts')->truncate();
-        Schema::enableForeignKeyConstraints();
+        fclose($handle);
 
         // Inserir os dados válidos na base de dados
         foreach ($userData as $data) {
-            $user = User::create([
-                'role_id' => $data['role_id'],
-                'name' => $data['name'],
-                'address' => $data['address'],
-                'nif' => $data['nif'],
-                'tel' => $data['tel'],
-                'birth_date' => $data['birth_date'],
-                'email' => $data['email'],
-                'password' => $data['password'],
-            ]);
 
-            User_Shift::create([
-                'user_id' => $user->id,
-                'work_shift_id' => $data['work_shift_id'],
-                'start_date' => now(),
-            ]);
+            $ver=false;
+
+            for($i=0;$i<$numeroUsersAtuais;$i++){
+                if($data['nif']==$users[$i]['nif']){
+                    $ver=true;
+                }
+            }
+
+            if($ver==false){
+                $user = User::create([
+                    'role_id' => $data['role_id'],
+                    'name' => $data['name'],
+                    'address' => $data['address'],
+                    'nif' => $data['nif'],
+                    'tel' => $data['tel'],
+                    'birth_date' => $data['birth_date'],
+                    'email' => $data['email'],
+                    'password' => $data['password'],
+                ]);
+
+                // Criação do turno do usuário
+                $user_shift = new User_Shift();
+                $user_shift->work_shift_id = $data['work_shift_id'];
+                $user_shift->user_id = $user->id;
+                $user_shift->start_date = now();
+                $user_shift->end_date= null;
+                $user_shift->save();
+            }
         }
 
         return redirect()->back()->with('success', 'Utilizadores importados com sucesso.');
@@ -674,24 +689,5 @@ class UserController extends Controller
         fclose($handle);
 
         return Response::make('', 200, $headers);
-    }
-
-
-    public function insertUser($data)
-    {
-        $user = new User();
-        $user->role_id = $data['role_id'];
-        $user->name = $data['name'];
-        $user->address = $data['address'];
-        $user->nif = $data['nif'];
-        $user->tel = $data['tel'];
-        $user->birth_date = $data['birth_date'];
-        $user->email = $data['email'];
-        $user->password = $data['password'];
-        $user->created_at = $data['created_at'];
-        $user->updated_at = $data['updated_at'];
-        $user->deleted_at = $data['deleted_at'];
-
-        $user->save();
     }
 }
