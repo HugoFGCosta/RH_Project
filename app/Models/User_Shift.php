@@ -13,6 +13,7 @@ class User_Shift extends Model
         'user_id',
         'work_shift_id',
         'start_date',
+        'end_date',
     ];
 
     protected $table = 'user_shifts';
