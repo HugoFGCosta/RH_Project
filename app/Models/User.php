@@ -73,7 +73,7 @@ class User extends Authenticatable
         return $this->hasMany(Vacation::class);
     }
 
-    public function user_shift()
+    public function user_shifts()
     {
         return $this->hasMany(User_Shift::class);
     }

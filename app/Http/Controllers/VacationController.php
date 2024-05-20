@@ -72,15 +72,43 @@ class VacationController extends Controller
     {
         $file = $request->file('file');
 
-        if(!$file) {
+        if (!$file) {
             return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
         }
 
         $handle = fopen($file->getPathname(), 'r');
 
+        if (!$handle) {
+            return redirect()->back()->with('error', 'Erro ao abrir o ficheiro.');
+        }
 
         // Ignorar a primeira linha (cabeçalhos)
         fgets($handle);
+
+        // Armazenar mensagens de erro
+        $errors = [];
+
+        // Verificar os dados do arquivo antes de truncar as tabelas
+        while (($line = fgets($handle)) !== false) {
+            $data = str_getcsv($line);
+
+            if (count($data) != 5) {
+                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de férias.');
+            }
+
+            // Verifica se os IDs são inteiros
+            if (!is_numeric($data[0]) || !is_numeric($data[1]) || !is_numeric($data[2])) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
+            }
+
+            // Valida se os campos date_start e date_end são datas válidas
+            if (strtotime($data[3]) === false || strtotime($data[4]) === false) {
+                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem as data no formato AAAA-MM-DD.');
+            }
+        }
+
+        // Fecha o arquivo após a verificação
+        fclose($handle);
 
         // Desativa as verificações de chave estrangeira
         Schema::disableForeignKeyConstraints();
@@ -91,24 +119,15 @@ class VacationController extends Controller
         // Reabilita as verificações de chave estrangeira
         Schema::enableForeignKeyConstraints();
 
+        // Abre novamente o arquivo para importar os dados
+        $handle = fopen($file->getPathname(), 'r');
 
-        //Percorre o ficheiro e insere os dados na base de dados
+        // Ignora a primeira linha (cabeçalhos)
+        fgets($handle);
+
+        // Percorre o ficheiro e insere os dados na base de dados
         while (($line = fgets($handle)) !== false) {
             $data = str_getcsv($line);
-
-            if(count($data) != 5) {
-                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de férias.');
-            }
-
-            // Verifica se os IDs são inteiros
-            if (!is_numeric($data[0])|| !is_numeric($data[1]) || !is_numeric($data[2])){
-                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
-            }
-
-            // Valida se os campos date_start e date_end são datas válidas
-            if (strtotime($data[3]) === false || strtotime($data[4]) === false) {
-                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de férias.');
-            }
 
             Vacation::create([
                 'user_id' => $data[0],
@@ -122,8 +141,9 @@ class VacationController extends Controller
         fclose($handle);
 
         // Retorna para a página anterior com uma mensagem de sucesso
-        return redirect()->back()->with('success', 'Férias importadas com Successo.');
+        return redirect()->back()->with('success', 'Férias importadas com sucesso.');
     }
+
 
     public function export(){
 

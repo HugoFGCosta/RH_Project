@@ -31,6 +31,11 @@
     text-align: center;
 }
 
+.firstContainer{
+    display: flex;
+    gap: 10px;
+}
+
 
 /*Geral Form Styles*/
 
@@ -43,9 +48,8 @@
     border-radius: 8px;
     background-color: #f9f9f9;
     width: 700px;
-    margin: 0 auto;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 40px;
+    margin-bottom: 60px;
 }
 
 /* Import Input Style */
@@ -113,4 +117,47 @@
 
 .exportButton:hover {
     background-color: #003d69;
+}
+
+/*Captions*/
+
+.captionParagraph{
+    margin-bottom: 10px;
+}
+
+/* Media Querys */
+
+@media only screen and (max-width: 1700px) {
+
+    .firstContainer {
+        display: block;
+    }
+}
+
+@media only screen and (max-width: 1120px) {
+
+    .importForm {
+        width: 500px;
+    }
+
+}
+
+@media only screen and (max-width: 680px) {
+
+    .importForm {
+        width: 300px;
+    }
+
+    .buttonImport {
+        min-width: 20px;
+        max-width: 110px;
+        font-size: 15px;
+    }
+
+    .exportButton {
+        min-width: 20px;
+        max-width: 110px;
+        font-size: 15px;
+    }
+
 }
