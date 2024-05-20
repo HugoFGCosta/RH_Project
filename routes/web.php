@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdminRegisterController;
+use App\Http\Controllers\AuthenticatedRegisterController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -42,7 +44,14 @@ Route::get('/settings', [App\Http\Controllers\ButtonController::class, 'settings
 
 
 /*Rotas Users*/
+Route::post('/admin-register', [AdminRegisterController::class, 'create'])->name('admin-register');
+Route::get('/admin-register', [AdminRegisterController::class, 'showRegisterForm']);
+
+
+
 Route::get('/users/create', [UserController::class, 'create']);
+
+
 Route::get('/user/edit', [UserController::class, 'edit']);
 Route::put('/user/edit', [UserController::class, 'update']);
 Route::get('/user/show', [UserController::class, 'show']);
@@ -51,6 +60,7 @@ Route::post('/user/presence/store', [UserController::class, 'store']);
 Route::get('/user/presence', [UserController::class, 'getPresence']);
 
 Route::post('user/presence/storeSimulated', [UserController::class, 'storeSimulated']); //ROTA SIMULADA
+
 
 Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
 
@@ -67,4 +77,3 @@ Route::get('export/vacations', [\App\Http\Controllers\VacationController::class,
 
 Route::post('import/presences', [\App\Http\Controllers\PresenceController::class, 'import'])->name('importPresences');
 Route::get('export/presences', [\App\Http\Controllers\PresenceController::class, 'export'])->name('exportPresences');
-

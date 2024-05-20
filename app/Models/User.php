@@ -48,6 +48,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function isAdmin()
+    {
+        return $this->role_id == 3; // Verifica se o usuário é um administrador
+    }
+
     public function presences()
     {
         return $this->hasMany(Presence::class);
@@ -63,7 +68,7 @@ class User extends Authenticatable
         return $this->hasMany(Vacation::class);
     }
 
-    public function user_shift()
+    public function user_shifts()
     {
         return $this->hasMany(User_Shift::class);
     }
