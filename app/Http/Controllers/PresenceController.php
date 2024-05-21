@@ -9,6 +9,7 @@ use App\Models\User_Shift;
 use App\Models\Work_Shift;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
@@ -34,7 +35,9 @@ class PresenceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePresenceRequest $request)
+
+
+    public function store(Request $request)
     {
         // GUARDA REGISTRO POR REGISTRO AO CLICKAR NO BOTAO + aviso - 95% hora extra -> CONFORME o horario do turno
         $user = auth()->user();
@@ -65,7 +68,6 @@ class PresenceController extends Controller
             $second_end = Carbon::parse($presence->second_end);
 
             $totalMinutes = $first_end->diffInMinutes($first_start) + $second_end->diffInMinutes($second_start);
-
             $workShiftStart = Carbon::parse($workShift->start_hour);
             $workShiftEnd = Carbon::parse($workShift->end_hour);
             $workShiftMinutes = $workShiftEnd->diffInMinutes($workShiftStart);
@@ -106,6 +108,26 @@ class PresenceController extends Controller
         $presence->save();
 
         return redirect()->to(url('user/presence'));
+    }
+
+
+    public function getStatus()
+    {
+        $user = auth()->user();
+        $user_id = $user->id;
+        $presence = Presence::where('user_id', $user_id)->whereDate('created_at', Carbon::today())->first();
+
+        if (!$presence || is_null($presence->first_start)) {
+            return response()->json(['status' => 'out']);
+        } elseif (is_null($presence->first_end)) {
+            return response()->json(['status' => 'in']);
+        } elseif (is_null($presence->second_start)) {
+            return response()->json(['status' => 'out']);
+        } elseif (is_null($presence->second_end)) {
+            return response()->json(['status' => 'in']);
+        } else {
+            return response()->json(['status' => 'out']);
+        }
     }
 
     public function storeSimulated(Request $request)
@@ -175,7 +197,7 @@ class PresenceController extends Controller
 
         $presence->save();
 
-        return redirect()->to(url('user/presence'));
+        return redirect()->to(url('/menu'));
     }
 
     /**
@@ -215,7 +237,7 @@ class PresenceController extends Controller
         $user = auth()->user();
         $presence = Presence::where('user_id', $user->id)->first();
 
-        return view('pages.users.presence', ['user' => $user, 'presence' => $presence]);
+        return view('pages.menu.menu', ['user' => $user, 'presence' => $presence]);
     }
 
     public function getPresence()
@@ -223,7 +245,7 @@ class PresenceController extends Controller
         $user = auth()->user();
         $presence = Presence::where('user_id', $user->id)->first();
 
-        return view('pages.users.presence', ['user' => $user, 'presence' => $presence]);
+        return view('pages.menu.menu', ['user' => $user, 'presence' => $presence]);
     }
 
     public function import(Request $request)

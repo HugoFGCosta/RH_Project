@@ -41,12 +41,6 @@
             <div class="toggle">
                 <ion-icon name="menu-outline"></ion-icon>
             </div>
-            <div class="search">
-                <label>
-                    <input type="text" placeholder="Procure">
-                    <ion-icon name="search-outline"></ion-icon>
-                </label>
-            </div>
             <div class="user">
                 @if (Auth::check())
                     <li class="nav-item">
@@ -56,7 +50,6 @@
             </div>
         </div>
     </div>
-
     <div class="content-area hidden">
         @yield('content')
     </div>
@@ -71,6 +64,9 @@
 <!-- Icons -->
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+<!-- Scripts -->
+<script>var presenceStatusUrl = '{{ url('user/presence/status') }}';</script>
 
 @yield('scripts')
 

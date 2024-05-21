@@ -51,6 +51,7 @@ Route::get('/admin-register', [AdminRegisterController::class, 'showRegisterForm
 Route::get('/user/edit', [UserController::class, 'edit']);
 Route::put('/user/edit', [UserController::class, 'update']);
 Route::get('/user/show', [UserController::class, 'show']);
+Route::delete('/user/delete/{id}', [UserController::class, 'destroy']);
 
 
 Route::get('/users/show-all', [UserController::class, 'showAll']);
@@ -66,6 +67,8 @@ Route::post('user/presence/storeSimulated', [PresenceController::class, 'storeSi
 Route::post('/user/presence', [PresenceController::class, 'presence']);
 Route::post('/user/presence/store', [PresenceController::class, 'store']);
 Route::get('/user/presence', [PresenceController::class, 'getPresence']);
+Route::get('/user/presence/status', [PresenceController::class, 'getStatus']);
+
 
 
 /* ROTAS IMPORT / EXPORT */
