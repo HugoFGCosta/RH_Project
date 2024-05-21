@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="{{ asset('css/work-shifts.css') }}">
 
-<a href="{{ url('work-shifts/create') }}" type="button"><button class="sub-menu">Criar Turno</button></a>
+<a href="{{ url('work-shifts/create') }}" type="button"><button class="sub-menu indexCreateButton">Criar Turno</button></a>
 
 <table>
     <thead>

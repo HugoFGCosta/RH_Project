@@ -2,7 +2,7 @@
 
 <div class="container">
 
-    <h1 class="mt-5">Adicionar Turno</h1>
+    <h1 class="mt-5 addWorkShiftTitle">Adicionar Turno</h1>
 
     <form method="POST" action="{{ url('work-shifts') }}">
         @csrf

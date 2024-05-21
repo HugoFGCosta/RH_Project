@@ -2,7 +2,7 @@
 
 <div class="container">
 
-    <h1 class="mt-5">Editar Horário</h1>
+    <h1 class="mt-5 addWorkShiftTitle">Editar Horário</h1>
 
     <form id="editForm" method="POST" action="{{ url('work-shifts/'.$workShift->id) }}">
         @csrf
@@ -84,7 +84,7 @@
             @enderror
         </div>
 
-        <button type="button" id="editButton" class="btn editButton">Submit</button>
+        <button type="button" id="editButton" class="btn editButton">Editar</button>
 
     </form>
 

@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="{{ asset('css/work-shifts.css') }}">
+
 <div class="container">
 
     <h1 class="mt-5 mb-3">Detalhes de Horário</h1>
@@ -32,7 +34,7 @@
     </div>
 
     <div class="showform-form-row">
-        <a href="{{ url('work-shifts/edit/'.$work_shift->id) }}" type="button"><button class="sub-menu btn btn-primary showform-btn">Editar Dados</button></a>
+        <a class="buttonEditData" href="{{ url('work-shifts/edit/'.$work_shift->id) }}" type="button"><button>Editar Dados</button></a>
     </div>
 
 

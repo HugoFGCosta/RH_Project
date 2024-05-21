@@ -87,7 +87,16 @@ button:hover {
     margin-top: 20px;
 }
 
+.buttonEditData{
+    text-decoration: none;
+}
+
 /*CREATE FORM*/
+
+.indexCreateButton{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
 
 .end_hour_label_create{
     margin-right: 218px;
@@ -104,3 +113,14 @@ button:hover {
     visibility: hidden;
 }
 
+.inputHour{
+    margin-right: 20px;
+}
+
+.start_hour_label ,.break_start_label ,.break_end_label ,.end_hour_label,.end_hour_label_create{
+    margin-left: 20px;
+}
+
+.addWorkShiftTitle{
+    margin-bottom: 20px;
+}

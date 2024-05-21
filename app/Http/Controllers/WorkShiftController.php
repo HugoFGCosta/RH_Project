@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\User_Shift;
 use App\Models\Work_shift;
 use App\Http\Requests\StoreWork_shiftRequest;
 use App\Http\Requests\UpdateWork_shiftRequest;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -135,6 +138,13 @@ class WorkShiftController extends Controller
     public function destroy(Work_shift $work_shift)
     {
         //
+
+        $user_shifts = User_Shift::where('work_shift_id', $work_shift->id)->get();
+        foreach ($user_shifts as $user_shift) {
+            $user_shift->end_date = Carbon::now();
+            $user_shift->save();
+        }
+
         $work_shift->delete();
 
         return redirect('work-shifts')->with('success', 'Turno apagado com sucesso');
@@ -142,6 +152,7 @@ class WorkShiftController extends Controller
     }
 
     public function export(){
+
         $work_shifts = Work_Shift::all();
         $csvFileName = 'work-shifts.csv';
         $headers = [
@@ -150,7 +161,7 @@ class WorkShiftController extends Controller
         ];
 
         $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['HoraEntrada','Name', 'Address','HoraSaida']); // Add more headers as needed
+        fputcsv($handle, ['HoraEntrada','HoraInicioIntervalo', 'HoraFimIntervalo','HoraSaida']); // Add more headers as needed
 
         foreach ($work_shifts as $work_shift) {
             fputcsv($handle, [$work_shift->start_hour,$work_shift->break_start, $work_shift->break_end,$work_shift->end_hour]); // Add more fields as needed
@@ -160,4 +171,48 @@ class WorkShiftController extends Controller
 
         return Response::make('', 200, $headers);
     }
+
+    public function getUserWorkShift($userId){
+        $users=User::all();
+        $user_Shifts=User_Shift::all();
+
+        //Percorre a lista de users e encontra o user que está logado
+        foreach ($users as $user){
+            if($user->id == $userId){
+                $userFound = $user;
+            }
+        }
+
+        //Vai buscar o horário atual deste utilizador
+        $user_shift = User_Shift::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+
+        return $user_shift;
+    }
+
+    public function exportUserWorkShift($userId){
+
+        $user_Shift = User_Shift::where('user_id', $userId)->orderBy('created_at', 'desc')->first();
+
+        $work_shift = Work_shift::find($user_Shift->work_shift_id);
+
+        $csvFileName = 'user-work-shift.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
+        ];
+
+        $handle = fopen('php://output', 'w');
+        fputcsv($handle, ['HoraEntrada','HoraInicioIntervalo', 'HoraFimIntervalo','HoraSaida']); // Add more headers as needed
+
+        $weekDays = ['Segunda','Terça','Quarta','Quinta','Sábado','Domingo'];
+
+        foreach ($weekDays as $day){
+            fputcsv($handle, [$day,$work_shift->start_hour,$work_shift->break_start, $work_shift->break_end,$work_shift->end_hour]); // Add more fields as needed
+        }
+
+        fclose($handle);
+
+        return Response::make('', 200, $headers);
+    }
+
 }
