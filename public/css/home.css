@@ -1,0 +1,39 @@
+:root {
+    --blue: #005999;
+    --white: #fff;
+    --gray: #E9E9E9;
+    --black: #222;
+    --black2: #999;
+    --green: #097D56;
+}
+
+.btn-in-out {
+    margin: 30px 5px 5px 20px;
+    display: inline-block;
+    padding: 20px 50px;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    color: white;
+    transition: background-color 0.3s;
+    box-shadow: black 5px 5px 5px;
+}
+
+.btn-in {
+    background-color: var(--green);
+}
+
+.btn-in:hover {
+    transform: scale(1.1);
+    transition: 0.5s;
+}
+
+.btn-out {
+    background-color: #C80002;
+}
+
+.btn-out:hover {
+    transform: scale(1.1);
+    transition: 0.5s;
+}

@@ -9,6 +9,7 @@ use App\Models\User_Shift;
 use App\Models\Work_Shift;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
@@ -34,30 +35,38 @@ class PresenceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePresenceRequest $request)
+
+
+    public function store(Request $request)
     {
-        // GUARDA REGISTRO POR REGISTRO AO CLICKAR NO BOTAO + aviso - 95% hora extra -> CONFORME o horario do turno
-        $user = auth()->user();
-        $userShift = User_Shift::where('user_id', $user->id)->first();
+        Log::info('Store method called.');
+
+        if (auth()->check()) {
+        Log::info('User authenticated: ' . auth()->user()->id);
+        $user=auth()->user();
+        $user_id = $user->id;
+
+        $userShift = User_Shift::where('user_id', $user_id)->first();
         $workShift = Work_Shift::find($userShift->work_shift_id);
-        $presence = Presence::where('user_id', $user->id)->whereDate('created_at', Carbon::today())->first();
+        $presence = Presence::where('user_id', $user_id)->whereDate('created_at', Carbon::today())->first();
 
         if (!$presence) {
             $presence = new Presence;
-            $presence->user_id = $user->id;
-            $presence->first_start = now();
+            $presence->user_id = $user_id;
+            $presence->first_start = $request->input('first_start') ?? now();
         } elseif (!$presence->first_end) {
-            $presence->first_end = now();
+            $presence->first_end = $request->input('first_end') ?? now();
         } elseif (!$presence->second_start) {
-            $presence->second_start = now();
+            $presence->second_start = $request->input('second_start') ?? now();
         } else {
-            $existingPresence = Presence::where('user_id', $user->id)->where('second_end', '!=', null)->whereDate('created_at', Carbon::today())->first();
+            $existingPresence = Presence::where('user_id', $user_id)->whereNotNull('second_end')->whereDate('created_at', Carbon::today())->first();
 
             if ($existingPresence) {
+                Log::info('Já existe um registro de presença completo para hoje.');
                 return redirect()->to(url('user/presence'))->with('error', 'Já existe um registro de presença completo para hoje.');
             }
 
-            $presence->second_end = now();
+            $presence->second_end = $request->input('second_end') ?? now();
 
             $first_start = Carbon::parse($presence->first_start);
             $first_end = Carbon::parse($presence->first_end);
@@ -105,7 +114,30 @@ class PresenceController extends Controller
 
         $presence->save();
 
-        return redirect()->to(url('user/presence'));
+        return redirect()->to(url('/menu'))->with('success', 'Presença registrada com sucesso.');
+        } else {
+            Log::error('User not authenticated');
+           return redirect()->back()->with('error', 'Usuário não autenticado.');
+        }
+    }
+
+    public function getStatus()
+    {
+        $user = auth()->user();
+        $user_id = $user->id;
+        $presence = Presence::where('user_id', $user_id)->whereDate('created_at', Carbon::today())->first();
+
+        if (!$presence || is_null($presence->first_start)) {
+            return response()->json(['status' => 'out']);
+        } elseif (is_null($presence->first_end)) {
+            return response()->json(['status' => 'in']);
+        } elseif (is_null($presence->second_start)) {
+            return response()->json(['status' => 'out']);
+        } elseif (is_null($presence->second_end)) {
+            return response()->json(['status' => 'in']);
+        } else {
+            return response()->json(['status' => 'out']);
+        }
     }
 
     public function storeSimulated(Request $request)
@@ -175,7 +207,7 @@ class PresenceController extends Controller
 
         $presence->save();
 
-        return redirect()->to(url('user/presence'));
+        return redirect()->to(url('/menu'));
     }
 
     /**
@@ -215,7 +247,7 @@ class PresenceController extends Controller
         $user = auth()->user();
         $presence = Presence::where('user_id', $user->id)->first();
 
-        return view('pages.users.presence', ['user' => $user, 'presence' => $presence]);
+        return view('pages.menu.menu', ['user' => $user, 'presence' => $presence]);
     }
 
     public function getPresence()
@@ -223,7 +255,7 @@ class PresenceController extends Controller
         $user = auth()->user();
         $presence = Presence::where('user_id', $user->id)->first();
 
-        return view('pages.users.presence', ['user' => $user, 'presence' => $presence]);
+        return view('pages.menu.menu', ['user' => $user, 'presence' => $presence]);
     }
 
     public function import(Request $request)
