@@ -3,6 +3,7 @@
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WorkShiftController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,7 +54,18 @@ Route::post('user/presence/storeSimulated', [UserController::class, 'storeSimula
 
 Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
 
+/*Rotas WorkShifts*/
 
+Route::resource('work-shifts', \App\Http\Controllers\WorkShiftController::class);
+Route::get('/work-shifts/create', [WorkShiftController::class, 'create'])->name('work-shifts.create');
+Route::post('/work-shifts', [WorkShiftController::class, 'store']);
+Route::get('/work-shifts/show', [WorkShiftController::class, 'show']);
+Route::get('/work-shifts/edit/{work_shift}', [WorkShiftController::class, 'edit']);
+Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update']);
+
+
+
+/*Rotas Import Export*/
 
 Route::post('import', [\App\Http\Controllers\UserController::class, 'import'])->name('import');
 Route::get('export', [\App\Http\Controllers\UserController::class, 'export'])->name('export');
@@ -67,3 +79,4 @@ Route::get('export/vacations', [\App\Http\Controllers\VacationController::class,
 Route::post('import/presences', [\App\Http\Controllers\PresenceController::class, 'import'])->name('importPresences');
 Route::get('export/presences', [\App\Http\Controllers\PresenceController::class, 'export'])->name('exportPresences');
 
+Route::get('export/work-shifts', [\App\Http\Controllers\WorkShiftController::class, 'export'])->name('exportWorkShifts');

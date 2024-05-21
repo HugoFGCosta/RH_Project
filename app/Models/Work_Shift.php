@@ -9,6 +9,13 @@ class Work_Shift extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'start_hour',
+        'break_start',
+        'break_end',
+        'end_hour',
+    ];
+
     protected $table = 'work_shifts';
 
 
