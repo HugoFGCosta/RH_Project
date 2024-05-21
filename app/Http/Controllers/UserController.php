@@ -169,10 +169,11 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $user)
+    public function destroy($id)
     {
-        $user->softDelete();
-        return redirect('users')->with('status', 'User deleted successfully!');
+        $user = User::findOrFail($id);
+        $user->delete();
+        return redirect('/users/show-all')->with('status', 'Usuário apagado com sucesso!');
     }
 
 

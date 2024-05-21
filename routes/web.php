@@ -51,6 +51,7 @@ Route::get('/admin-register', [AdminRegisterController::class, 'showRegisterForm
 Route::get('/user/edit', [UserController::class, 'edit']);
 Route::put('/user/edit', [UserController::class, 'update']);
 Route::get('/user/show', [UserController::class, 'show']);
+Route::delete('/user/delete/{id}', [UserController::class, 'destroy']);
 
 
 Route::get('/users/show-all', [UserController::class, 'showAll']);
