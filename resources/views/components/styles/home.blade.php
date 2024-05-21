@@ -1,5 +1,4 @@
 @section("styles")
-    <link href="{{ asset('css/importsExports.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/home.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ mix('css/app.css') }}">
-
 @endsection

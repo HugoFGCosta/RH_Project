@@ -154,3 +154,8 @@ form .form-row .textarea {
         width: 40% !important;
     }
 }
+.container .no-form {
+    display: none;
+    box-shadow: none;
+    padding: 2px;
+}

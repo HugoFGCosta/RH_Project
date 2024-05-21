@@ -53,6 +53,11 @@ class User extends Authenticatable
         return $this->role_id == 3; // Verifica se o usuário é um administrador
     }
 
+    public function isManager()
+    {
+        return $this->role_id == 2; // Verifica se o usuário é um gestor
+    }
+
     public function presences()
     {
         return $this->hasMany(Presence::class);
@@ -68,7 +73,7 @@ class User extends Authenticatable
         return $this->hasMany(Vacation::class);
     }
 
-    public function user_shift()
+    public function user_shifts()
     {
         return $this->hasMany(User_Shift::class);
     }
