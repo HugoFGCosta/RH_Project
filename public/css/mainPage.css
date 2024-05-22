@@ -26,6 +26,7 @@ body {
 .container {
     position:relative;
     width: 100%;
+    height: auto;
 }
 
 h1 {
@@ -58,7 +59,6 @@ h1 {
 }
 
 /*Formulários Globais*/
-
 
 
 /*Menu*/
@@ -202,7 +202,6 @@ h1 {
 .menu ul li.selected a {
     color: var(--blue);
 }
-
 
 /*MainBlade*/
 .main {

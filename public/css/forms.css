@@ -127,6 +127,16 @@ form .form-row .textarea {
     color: var(--white);
 }
 
+.input-data .readonly-input {
+    cursor: not-allowed;
+}
+
+.input-data .readonly-input + label {
+    transform: translateY(-20px);
+    font-size: 14px;
+    color: var(--blue);
+}
+
 @media (max-width: 700px) {
     .container .text {
         font-size: 30px;
@@ -143,4 +153,9 @@ form .form-row .textarea {
     .submit-btn .input-data {
         width: 40% !important;
     }
+}
+.container .no-form {
+    display: none;
+    box-shadow: none;
+    padding: 2px;
 }

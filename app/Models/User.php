@@ -48,6 +48,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function isAdmin()
+    {
+        return $this->role_id == 3; // Verifica se o usuário é um administrador
+    }
+
+    public function isManager()
+    {
+        return $this->role_id == 2; // Verifica se o usuário é um gestor
+    }
+
     public function presences()
     {
         return $this->hasMany(Presence::class);

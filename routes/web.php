@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\AdminRegisterController;
+use App\Http\Controllers\AuthenticatedRegisterController;
+use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -41,18 +44,23 @@ Route::get('/daily-tasks', [App\Http\Controllers\ButtonController::class, 'daily
 Route::get('/requests', [App\Http\Controllers\ButtonController::class, 'requests']);
 Route::get('/settings', [App\Http\Controllers\ButtonController::class, 'settings']);
 
+
 /*Rotas Users*/
-Route::get('/users/create', [UserController::class, 'create']);
+Route::post('/admin-register', [AdminRegisterController::class, 'create'])->name('admin-register');
+Route::get('/admin-register', [AdminRegisterController::class, 'showRegisterForm']);
+
 Route::get('/user/edit', [UserController::class, 'edit']);
 Route::put('/user/edit', [UserController::class, 'update']);
 Route::get('/user/show', [UserController::class, 'show']);
-Route::post('/user/presence', [UserController::class, 'presence']);
-Route::post('/user/presence/store', [UserController::class, 'store']);
-Route::get('/user/presence', [UserController::class, 'getPresence']);
+Route::delete('/user/delete/{id}', [UserController::class, 'destroy']);
 
-Route::post('user/presence/storeSimulated', [UserController::class, 'storeSimulated']); //ROTA SIMULADA
 
-Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
+Route::get('/users/show-all', [UserController::class, 'showAll']);
+
+Route::get('/user/edit/{id}', [UserController::class, 'editSpec']);
+Route::put('/user/edit/{id}', [UserController::class, 'updateSpec']);
+Route::get('/user/show/{id}', [UserController::class, 'showSpec']);
+
 
 /*Rotas WorkShifts*/
 
@@ -64,8 +72,19 @@ Route::get('/work-shifts/edit/{work_shift}', [WorkShiftController::class, 'edit'
 Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update']);
 
 
-
 /*Rotas Import Export*/
+
+/* ROTA PRESENÇA */
+
+Route::post('user/presence/storeSimulated', [PresenceController::class, 'storeSimulated']); //ROTA SIMULADA
+Route::post('/user/presence', [PresenceController::class, 'presence']);
+Route::post('/user/presence/store', [PresenceController::class, 'store']);
+Route::get('/user/presence', [PresenceController::class, 'getPresence']);
+Route::get('/user/presence/status', [PresenceController::class, 'getStatus']);
+
+
+
+/* ROTAS IMPORT / EXPORT */
 
 Route::post('import', [\App\Http\Controllers\UserController::class, 'import'])->name('import');
 Route::get('export', [\App\Http\Controllers\UserController::class, 'export'])->name('export');

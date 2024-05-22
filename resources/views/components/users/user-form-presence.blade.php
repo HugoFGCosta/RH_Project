@@ -1,8 +1,3 @@
-{{-- METODO PARA TESTAR O STORE --}}
-
-
-
-
 {{-- @if (session('error'))
     <div class="alert alert-danger">
         {{ session('error') }}
@@ -10,37 +5,50 @@
 @endif
 
 <form method="POST" action="{{ url('user/presence/store') }}">
-
-
-    @method('POST')
     @csrf
 
-    <h1>Registro MANUAL - user/presence/store </h1>
-    <div class="form-group row mb-0">
-        <div class="col-md-6 offset-md-4">
-            <button type="submit" class="btn btn-primary">
-                {{ __('Register') }}
-            </button>
-        </div>
+    <input type="hidden" id="first_start" name="first_start">
+    <input type="hidden" id="first_end" name="first_end">
+    <input type="hidden" id="second_start" name="second_start">
+    <input type="hidden" id="second_end" name="second_end">
+
+    <div class="form-group">
+        <button type="submit" id="entryExitButton" class="btn-in-out">Entrada</button>
     </div>
-    <br>
-</form>
-
-<hr />
-<hr />
-<hr />
-<hr />
-<hr /> --}}
+</form> --}}
 
 
+{{-- TEMPORARIO ROTA SIMULATED --}}
 
+{{-- @if (session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
 
+<form method="POST" action="{{ url('user/presence/storeSimulated') }}">
+    @csrf
+    <div>
+        <label for="first_start">Início do Primeiro Turno:</label>
+        <input type="time" id="first_start" name="first_start" required>
+    </div>
+    <div>
+        <label for="first_end">Fim do Primeiro Turno:</label>
+        <input type="time" id="first_end" name="first_end" required>
+    </div>
+    <div>
+        <label for="second_start">Início do Segundo Turno:</label>
+        <input type="time" id="second_start" name="second_start" required>
+    </div>
+    <div>
+        <label for="second_end">Fim do Segundo Turno:</label>
+        <input type="time" id="second_end" name="second_end" required>
+    </div>
+    <div>
+        <button type="submit">Simular</button>
+    </div>
+</form> --}}
 
-
-
-
-
-{{-- METODO PARA TESTAR O STORESIMULATED --}}
 
 
 @if (session('error'))
@@ -49,64 +57,15 @@
     </div>
 @endif
 
-
-<form method="POST" action="{{ url('user/presence/storeSimulated') }}">
-
-    @method('POST')
+<form method="POST" action="{{ url('user/presence/store') }}">
     @csrf
 
-    <label for="first_start">Entrar:</label><br>
-    <input type="text" id="first_start" name="first_start"><br>
-    <label for="first_end">Sair:</label><br>
-    <input type="text" id="first_end" name="first_end"><br>
-    <label for="second_start">Voltar:</label><br>
-    <input type="text" id="second_start" name="second_start"><br>
-    <label for="second_end">Sair:</label><br>
-    <input type="text" id="second_end" name="second_end">
-    <br>
-    <br>
-    <br>
+    <input type="hidden" id="first_start" name="first_start">
+    <input type="hidden" id="first_end" name="first_end">
+    <input type="hidden" id="second_start" name="second_start">
+    <input type="hidden" id="second_end" name="second_end">
 
-    <button type="submit" id="simulate">Simular</button>
+    <div class="form-group">
+        <button type="submit" id="entryExitButton" class="btn-in-out">Entrada</button>
+    </div>
 </form>
-
-<script>
-    document.getElementById('simulate').addEventListener('click', function(e) {
-        e.preventDefault();
-
-        // Crie objetos Date com as datas e horas desejadas
-        var first_start = new Date('2024-05-12T10:00:00');
-        var first_end = new Date('2024-05-12T12:00:00');
-        var second_start = new Date('2024-05-12T13:00:00');
-        var second_end = new Date('2024-05-12T19:00:00');
-
-        // Converta os objetos Date para strings no formato 24 horas
-        document.getElementById('first_start').value = first_start.toLocaleString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        });
-        document.getElementById('first_end').value = first_end.toLocaleString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        });
-        document.getElementById('second_start').value = second_start.toLocaleString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        });
-        document.getElementById('second_end').value = second_end.toLocaleString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        });
-
-        // Submeta o formulário
-        e.target.form.submit();
-    });
-</script>
