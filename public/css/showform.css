@@ -97,6 +97,26 @@
     transition: transform 0.6s ease-in-out;
 }
 
+.btn-detail-edit {
+    background: var(--white);
+    color: var(--blue);
+    border: 1px solid var(--blue);
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.delete-button {
+    background: rgba(255, 0, 0, 0.7);
+    color: var(--white);
+    border: 1px solid var(--blue);
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 5px;
+    cursor: pointer;
+}
+
 @media (max-width: 700px) {
     .showform-restricted-container {
         width: 90%;
@@ -112,5 +132,3 @@
         width: 40% !important;
     }
 }
-
-

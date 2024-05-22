@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const mime_types = {
             'json': 'application/json',
             'csv': 'text/csv',
-            'excel': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'excel': 'application/vnd.ms-excel',
         }
         a.href = `
             data:${mime_types[fileType]};charset=utf-8,${encodeURIComponent(data)}
