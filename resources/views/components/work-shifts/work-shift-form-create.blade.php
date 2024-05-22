@@ -4,7 +4,7 @@
 
     <h1 class="mt-5 addWorkShiftTitle">Adicionar Turno</h1>
 
-    <form method="POST" action="{{ url('work-shifts') }}">
+    <form id="createForm" method="POST" action="{{ url('work-shifts') }}">
         @csrf
         @method('POST')
 
@@ -12,7 +12,7 @@
             <label class="start_hour_label" for="start_hour">Hora de Entrada</label>
             <input
                 type="time"
-                id="start_hour"
+                id="start_hour_create"
                 name="start_hour"
                 class="inputHour form-control @error('start_hour') is-invalid @enderror"
                 value="{{ old('start_hour') }}"
@@ -28,7 +28,7 @@
             <label class="break_start_label" for="break_start">Hora de Início do Intervalo</label>
             <input
                 type="time"
-                id="break_start"
+                id="break_start_create"
                 name="break_start"
                 class="inputHour form-control @error('break_start') is-invalid @enderror"
                 value="{{ old('break_start') }}"
@@ -44,7 +44,7 @@
             <label class="break_end_label" for="break_end">Hora de Fim do Intervalo</label>
             <input
                 type="time"
-                id="break_end"
+                id="break_end_create"
                 name="break_end"
                 class="inputHour form-control @error('break_end') is-invalid @enderror"
                 value="{{ old('break_end') }}"
@@ -60,7 +60,7 @@
             <label class="end_hour_label_create" for="end_hour">Hora de Saída</label>
             <input
                 type="time"
-                id="end_hour"
+                id="end_hour_create"
                 name="end_hour"
                 class="inputHour form-control @error('end_hour') is-invalid @enderror"
                 value="{{ old('end_hour') }}"
