@@ -122,9 +122,18 @@ class UserController extends Controller
         $user->tel = $request->input('tel');
         $user->birth_date = $request->input('birth_date');
         $user->save();
-        $user_shift = User_Shift::where('user_id', $user->id)->first();
-        $user_shift->work_shift_id = $request->input('work_shift_id');
+
+        //Ao trocar de horario ele adiciona um user_shift
+        $user_shift = User_Shift::where('user_id', $user->id)->latest()->first();
+        $user_shift->end_date = now();
         $user_shift->save();
+
+        User_Shift::create([
+            'user_id' => $user->id,
+            'work_shift_id'=>$request->input('work_shift_id'),
+            'start_date'=>now(),
+            'end_date'=>null,
+        ]);
 
         return redirect('/user/show');
     }
@@ -315,6 +324,7 @@ class UserController extends Controller
     }
 
     public function export(){
+
         $work_shifts = Work_Shift::all();
         $users = User::all();
         $csvFileName = 'users.csv';
@@ -325,10 +335,11 @@ class UserController extends Controller
 
         $handle = fopen('php://output', 'w');
 
-        fputcsv($handle, ['Role_id','Name', 'Address','Nif','Tel','Birth_date','Email','Password','User_Work_Shift_Id']); // Add more headers as needed
+        //Coloca o header no ficheiro
+        fputcsv($handle, ['Role_id','Nome', 'Rua','Nif','Telemovel','Data_Nascimento','Email','Password','User_Work_Shift_Id']);
 
+        //Imprime cada utilizador no ficheiro csv
         foreach ($users as $user) {
-            //escreve como vou  buscar o ultimo user_shift deste user para saber qual o turno que está a fazer
 
             $user_shift = User_Shift::where('user_id', $user->id)->orderBy('id', 'desc')->first();
 
