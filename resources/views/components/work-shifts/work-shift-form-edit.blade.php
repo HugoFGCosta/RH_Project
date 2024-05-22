@@ -12,7 +12,7 @@
             <label class="start_hour_label" for="start_hour">Horario de Inicio:</label>
             <input
                 type="time"
-                id="start_hour"
+                id="start_hour_edit"
                 name="start_hour"
                 autocomplete="start_hour"
                 placeholder="Type your name"
@@ -31,7 +31,7 @@
             <label class="break_start_label" for="break_start ">Hora de Inicio de Intervalo:</label>
             <input
                 type="time"
-                id="break_start"
+                id="break_start_edit"
                 name="break_start"
                 autocomplete="break_start"
                 placeholder="Type your name"
@@ -50,7 +50,7 @@
             <label class="break_end_label" for="break_end">Hora de Fim de Intervalo:</label>
             <input
                 type="time"
-                id="break_end"
+                id="break_end_edit"
                 name="break_end"
                 autocomplete="break_end"
                 placeholder="Type your name"
@@ -69,7 +69,7 @@
             <label class="end_hour_label" for="end_hour">Hora de Fim:</label>
             <input
                 type="time"
-                id="end_hour"
+                id="end_hour_edit"
                 name="end_hour"
                 autocomplete="end_hour"
                 placeholder="Type your name"
