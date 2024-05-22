@@ -8,7 +8,7 @@ createButton.addEventListener('click', function() {
     let break_startInput = document.getElementById('break_start_create');
     let break_endInput = document.getElementById('break_end_create');
 
-    //Valida se os campos estão preenchidos
+    //Valida se os campos estão todos preenchidos
     if(start_hourInput.value == '' || end_hourInput.value == '' || break_startInput.value == '' || break_endInput.value == ''){
         errorDiv.style.visibility = 'visible';
         errorMessage.innerHTML = 'Por favor preencha todos os campos';
@@ -20,13 +20,13 @@ createButton.addEventListener('click', function() {
     let break_start = break_startInput.value;
     let break_end = break_endInput.value;
 
-    // Converter horários para minutos
+    // Converte horários para minutos
     let start_minutes = timeToMinutes(start_hour);
     let end_minutes = timeToMinutes(end_hour);
     let break_start_minutes = timeToMinutes(break_start);
     let break_end_minutes = timeToMinutes(break_end);
 
-    //Valida total de horas do turno
+    //Valida se o total de horas do turno é 8
     let work_minutes = (end_minutes - start_minutes);
     let work_hours = Math.floor(work_minutes / 60);
 
@@ -36,7 +36,7 @@ createButton.addEventListener('click', function() {
         return;
     }
 
-    //Valida hora almoço
+    //Valida se a hora de almoço tem entre 1 e 2 horas
     let break_minutes=break_end_minutes-break_start_minutes;
     let break_hours = Math.floor(break_minutes / 60);
     console.log(break_hours);
@@ -47,21 +47,24 @@ createButton.addEventListener('click', function() {
         return;
     }
 
-    //Valida total de horas do turno
+    //Valida se o turno da manhã tem até 4 horas
     let firstShiftMinutes = (break_start_minutes-start_minutes);
     let firstShiftHours = Math.floor(firstShiftMinutes / 60);
 
-    //Valida total de horas do turno
+    //Valida se o turno da tarde tem até 4 horas
     let secondShiftMinutes = (end_minutes - break_end_minutes);
     let secondShiftHours = Math.floor(secondShiftMinutes / 60);
 
     //Valida duração turnos
-    if(firstShiftHours>=4){
+    if(firstShiftHours>4){
         errorDiv.style.visibility = 'visible';
         errorMessage.innerHTML = 'O primeiro turno tem de ter 4 horas ou menos';
         return;
     }
-    if(secondShiftHours>=4){
+
+    console.log(secondShiftHours);
+
+    if(secondShiftHours>4){
         errorDiv.style.visibility = 'visible';
         errorMessage.innerHTML = 'O segundo turno tem de ter 4 horas ou menos';
         return;
@@ -69,6 +72,7 @@ createButton.addEventListener('click', function() {
 
     //Submit the form
     document.getElementById('createForm').submit();
+
 });
 
 // Função para converter horas em minutos desde meia-noite
