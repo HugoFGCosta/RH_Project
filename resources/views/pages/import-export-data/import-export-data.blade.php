@@ -64,6 +64,14 @@
             </form>
         </div>
 
+        <div class="firstContainer">
+            <form class="importForm">
+                <div class="buttonsDiv">
+                    <a class="exportButton" href="{{ route('exportWorkShifts') }}">Exportar Horários</a>
+                </div>
+            </form>
+        </div>
+
         <div class="captionDiv">
             <h3 class="captionParagraph">Como importar</h3>
             <h4 class="captionParagraph">Para importar os dados os ficheiros excel devem seguir a seguinte estrutura</h4>

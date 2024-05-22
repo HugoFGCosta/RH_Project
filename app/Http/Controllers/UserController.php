@@ -60,7 +60,7 @@ class UserController extends Controller
     public function show()
     {
         $user = auth()->user();
-        $user_shift = User_Shift::where('user_id', $user->id)->first();
+        $user_shift = User_Shift::where('user_id', $user->id)->whereNull('end_date')->first();
         return view('pages.users.show', ['user' => $user, 'user_shift' => $user_shift]);
     }
 
@@ -87,7 +87,7 @@ class UserController extends Controller
         $roles = Role::all();
 
         $user = auth()->user();
-        $user_shift = User_Shift::where('user_id', $user->id)->first();
+        $user_shift = User_Shift::where('user_id', $user->id)->whereNull('end_date')->first();
         return view('pages.users.edit', ['user' => $user, 'user_shift' => $user_shift, 'work_shifts' => $work_shifts, 'roles' => $roles]);
     }
 
@@ -234,8 +234,11 @@ class UserController extends Controller
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de função estão entre 1 e 3.');
             }
 
-            if($data[8] < 1 || $data[8] > 2) {
-                return redirect()->back()->with('error', 'Certifique-se que os IDs de turno estão entre 1 e 2.');
+            //Verifica se o work_shift_id existe
+            $work_shift = Work_Shift::find($data[8]);
+
+            if(!$work_shift) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de turno existem.');
             }
 
             // Armazenar os dados válidos no array
