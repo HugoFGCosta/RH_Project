@@ -437,7 +437,7 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        $user_shift = User_Shift::where('user_id', $user->id)->first();
+        $user_shift = User_Shift::where('user_id', $user->id)->whereNull('end_date')->first();
 
 
 
@@ -462,7 +462,7 @@ class UserController extends Controller
         $roles = Role::all();
 
         $user = auth()->user();
-        $user_shift = User_Shift::where('user_id', $user->id)->first();
+        $user_shift = User_Shift::where('user_id', $user->id)->whereNull('end_date')->first();
         return view('pages.users.edit', ['user' => $user, 'user_shift' => $user_shift, 'work_shifts' => $work_shifts, 'roles' => $roles]);
     }
 

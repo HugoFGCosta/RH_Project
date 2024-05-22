@@ -191,7 +191,11 @@ class WorkShiftController extends Controller
 
     public function exportUserWorkShift($userId){
 
-        $user_Shift = User_Shift::where('user_id', $userId)->orderBy('created_at', 'desc')->first();
+        $user_Shift = User_Shift::where('user_id', $userId)->orderBy('created_at', 'desc')->whereNull('end_date')->first();
+
+        if(!$user_Shift){
+            return redirect()->back()->with('error', 'Este utilizador não tem um horário associado neste momento.');
+        }
 
         $work_shift = Work_shift::find($user_Shift->work_shift_id);
 
