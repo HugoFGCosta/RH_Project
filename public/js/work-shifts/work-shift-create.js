@@ -2,7 +2,7 @@ let createButton = document.getElementById('createButton');
 let errorDiv = document.getElementById('errorDiv');
 let errorMessage = document.getElementById('errorMessage');
 
-createButton.addEventListener('click', function() {
+createButton.addEventListener('click', function () {
     let start_hourInput = document.getElementById('start_hour');
     let end_hourInput = document.getElementById('end_hour');
     let break_startInput = document.getElementById('break_start');
@@ -14,7 +14,7 @@ createButton.addEventListener('click', function() {
     let break_end = break_endInput.value;
 
     //Check if the input fields are empty
-    if(start_hourInput.value == '' || end_hourInput.value == '' || break_startInput.value == '' || break_endInput.value == ''){
+    if (start_hourInput.value == '' || end_hourInput.value == '' || break_startInput.value == '' || break_endInput.value == '') {
         errorDiv.style.visibility = 'visible';
         errorMessage.innerHTML = 'Por favor preencha todos os campos';
         return;
@@ -42,7 +42,7 @@ createButton.addEventListener('click', function() {
 
     console.log(hoursDifference);
     //Check if the difference is 8 hours
-    if(hoursDifference != 8){
+    if (hoursDifference != 8) {
         errorDiv.style.visibility = 'visible';
         errorMessage.innerHTML = 'O turno tem de ter 8 horas';
         return;
@@ -53,7 +53,7 @@ createButton.addEventListener('click', function() {
     console.log(breakHoursDifference);
 
     //Check if the break is 1 to 2 hours
-    if(breakHoursDifference < 1 || breakHoursDifference > 2){
+    if (breakHoursDifference < 1 || breakHoursDifference > 2) {
         errorDiv.style.visibility = 'visible';
         errorMessage.innerHTML = 'O intervalo tem de ser entre 1 e 2 horas';
         return;
@@ -62,13 +62,19 @@ createButton.addEventListener('click', function() {
     const durationFirstShift = Math.abs(breakTime - startTime);
     const durationSecondShift = Math.abs(endTime - breakEndTime);
 
-    if(durationFirstShift > 4 || durationSecondShift > 4){
+    console.log("1" + breakTime);
+    console.log("2" + startTime);
+
+    const durationFirstShitHours = durationFirstShift / (1000 * 60 * 60);
+    const durationSecondShitHours = durationSecondShift / (1000 * 60 * 60);
+
+    if (durationFirstShitHours > 4 || durationSecondShitHours > 4) {
         errorDiv.style.visibility = 'visible';
         errorMessage.innerHTML = 'Os turnos têm de ter no máximo 4 horas';
         return;
     }
 
     //Submit the form
-    document.getElementById('editForm').submit();
+    document.getElementById('createForm').submit();
 
 });
