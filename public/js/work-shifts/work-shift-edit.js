@@ -26,34 +26,6 @@ editButton.addEventListener('click', function() {
     let break_start_minutes = timeToMinutes(break_start);
     let break_end_minutes = timeToMinutes(break_end);
 
-    //Validates the input times
-    if (start_minutes >= break_start_minutes) {
-        errorDiv.style.visibility = 'visible';
-        errorMessage.innerHTML = 'A hora de entrada tem de ser menor que a hora de inicio de intervalo';
-        return;
-    }
-    else if(start_minutes >= end_minutes){
-        errorDiv.style.visibility = 'visible';
-        errorMessage.innerHTML = 'A hora de entrada tem de ser menor que a hora de saída';
-        return;
-    }
-    else if(start_minutes >= break_end_minutes){
-        errorDiv.style.visibility = 'visible';
-        errorMessage.innerHTML = 'A hora de entrada tem de ser menor que a hora de fim de intervalo';
-        return;
-    }
-    else if(break_start_minutes>=break_end_minutes){
-        errorDiv.style.visibility = 'visible';
-        errorMessage.innerHTML = 'A hora de inicio de intervalo tem de ser menor que a horea de fim de intervalo';
-        return;
-    }
-    else if(break_end_minutes>=end_minutes){
-        errorDiv.style.visibility = 'visible';
-        errorMessage.innerHTML = 'A hora de fim de intervalo tem de ser menor que a hora de saída';
-        return;
-    }
-
-
     //Valida total de horas do turno
     let work_minutes = (end_minutes - start_minutes);
     let work_hours = Math.floor(work_minutes / 60);
