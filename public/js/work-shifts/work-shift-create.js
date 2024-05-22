@@ -55,7 +55,6 @@ createButton.addEventListener('click', function() {
     let secondShiftMinutes = (end_minutes - break_end_minutes);
     let secondShiftHours = Math.floor(secondShiftMinutes / 60);
 
-    console.log(firstShiftHours);
     //Valida duração turnos
     if(firstShiftHours>=4){
         errorDiv.style.visibility = 'visible';
@@ -70,8 +69,6 @@ createButton.addEventListener('click', function() {
 
     //Submit the form
     document.getElementById('createForm').submit();
-
-
 });
 
 // Função para converter horas em minutos desde meia-noite
