@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminRegisterController;
 use App\Http\Controllers\AuthenticatedRegisterController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -84,3 +85,12 @@ Route::get('export/vacations', [\App\Http\Controllers\VacationController::class,
 
 Route::post('import/presences', [\App\Http\Controllers\PresenceController::class, 'import'])->name('importPresences');
 Route::get('export/presences', [\App\Http\Controllers\PresenceController::class, 'export'])->name('exportPresences');
+
+
+
+/* Rota CALENDARIO */
+Route::controller(EventController::class)->group(function () {
+    Route::get('fullcalender', 'index');
+    Route::post('fullcalenderAjax', 'ajax');
+})->middleware('check.calendar');
+;
