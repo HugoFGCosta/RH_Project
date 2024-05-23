@@ -106,5 +106,9 @@ Route::controller(EventController::class)->group(function () {
     Route::post('fullcalenderAjax', 'ajax');
 })->middleware('check.calendar');
 
+
+
+
+
 Route::get('export/work-shifts', [\App\Http\Controllers\WorkShiftController::class, 'export'])->name('exportWorkShifts');
 Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift');
