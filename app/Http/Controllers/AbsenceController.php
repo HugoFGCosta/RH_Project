@@ -181,25 +181,42 @@ class AbsenceController extends Controller
         return Response::make('', 200, $headers);
     }
 
-    public function marcaFalta(){
+    public function marcaFaltaPrimeiroTurno(){
 
         $users = User::all();
 
         foreach ($users as $user){
 
+            //Vai buscar o horario de trabalho do utilizador
             $user_shift = User_Shift::where('user_id', $user->id)->latest()->first();
-
             $work_shiftId = $user_shift->id;
-
-            //Vai buscar o horário do utilizador
             $work_shift= Work_Shift::where('id', $work_shiftId)->first();
 
-            //Vai buscar a hora atual
-            $currentTime = Carbon::now()->format('H:i:s');
+            //Obtem hora entrada utilizador
+            $currentDateTime = Carbon::now()->format('Y-m-d H:i:s');
+            $horaEntrada = Carbon::parse($work_shift->start_time)->format('H:i:s');
+            $horaEntrada = Carbon::parse($currentDateTime)->format('Y-m-d') . ' ' . $horaEntrada;
 
-            //Vai buscar todas as presenças
-            $presences = Presence::all();
-            
+            //Adiciona 15 minutos à hora de entrada
+            $horaEntradaComTolerancia = Carbon::parse($horaEntrada)->addMinutes(15)->format('Y-m-d H:i:s');
+
+            //Obtem data e hora atual
+            $currentDateTime = Carbon::now()->format('Y-m-d H:i:s');
+
+            if($currentDateTime == $horaEntradaComTolerancia){
+                $presences = Presence::where('user_id', $user->id)->where('first_start', '>=', $currentDateTime)->get();
+                //Se o utilizador não tiver registos de presença
+                if($presences->isEmpty()){
+                    Absence::create([
+                        'user_id' => $user->id,
+                        'absence_states_id' => 3,
+                        'approved_by' => null,
+                        'absence_date' => $currentDateTime,
+                        'justification' => 'Falta ao primeiro turno',
+                    ]);
+                }
+            }
+
         }
 
     }

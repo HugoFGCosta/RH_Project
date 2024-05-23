@@ -3,74 +3,48 @@ let errorDiv = document.getElementById('errorDiv');
 let errorMessage = document.getElementById('errorMessage');
 
 createButton.addEventListener('click', function() {
+
     let start_hourInput = document.getElementById('start_hour_create');
     let end_hourInput = document.getElementById('end_hour_create');
     let break_startInput = document.getElementById('break_start_create');
     let break_endInput = document.getElementById('break_end_create');
 
-    //Valida se os campos estão todos preenchidos
-    if(start_hourInput.value == '' || end_hourInput.value == '' || break_startInput.value == '' || break_endInput.value == ''){
-        errorDiv.style.visibility = 'visible';
-        errorMessage.innerHTML = 'Por favor preencha todos os campos';
-        return;
-    }
-
     let start_hour = start_hourInput.value;
-    let end_hour = end_hourInput.value;
     let break_start = break_startInput.value;
     let break_end = break_endInput.value;
+    let end_hour = end_hourInput.value;
 
-    // Converte horários para minutos
-    let start_minutes = timeToMinutes(start_hour);
-    let end_minutes = timeToMinutes(end_hour);
-    let break_start_minutes = timeToMinutes(break_start);
-    let break_end_minutes = timeToMinutes(break_end);
+    //Calcula a duração do Primeiro Turno e do Segundo Turno em minutos
+    let durationFirstTurn = calculaHoraPrimeiroTurno(start_hour, break_start);
+    let durationSecondTurn = calculaHoraSegundoTurno(break_end, end_hour);
+    let durationBreak = calculaDuracaoIntervalo(break_start, break_end);
 
-    //Valida se o total de horas do turno é 8
-    let work_minutes = (end_minutes - start_minutes);
-    let work_hours = Math.floor(work_minutes / 60);
+    console.log("Duração Primeiro Turno: " + durationFirstTurn);
+    console.log("Duração Segundo Turno: " + durationSecondTurn);
+    console.log("Duração Intervalo: " + durationBreak);
 
-    if(work_hours!=8){
+    //Converte tudo para horas
+    let durationFirstTurnHours = durationFirstTurn / 60;
+    let durationSecondTurnHours = durationSecondTurn / 60;
+    let durationBreakHours = durationBreak / 60;
+
+    console.log("Duração Primeiro Turno: " + durationFirstTurnHours);
+    console.log("Duração Segundo Turno: " + durationSecondTurnHours);
+    console.log("Duração Intervalo: " + durationBreakHours);
+
+    if(durationFirstTurnHours + durationSecondTurnHours + durationBreakHours > 8){
         errorDiv.style.visibility = 'visible';
-        errorMessage.innerHTML = 'O turno tem de ter 8 horas';
+        errorMessage.innerHTML = 'O turno tem de ter no máximo 8 horas de duração';
         return;
     }
 
-    //Valida se a hora de almoço tem entre 1 e 2 horas
-    let break_minutes=break_end_minutes-break_start_minutes;
-    let break_hours = Math.floor(break_minutes / 60);
-    console.log(break_hours);
-
-    if(break_hours<1||break_hours>2){
+    if(durationBreakHours <1 || durationBreakHours > 2){
         errorDiv.style.visibility = 'visible';
-        errorMessage.innerHTML = 'O intervalo de almoço tem de ter no minimo 1 e no máximo 2 horas';
+        errorMessage.innerHTML = 'O intervalo tem de ter entre 1 e 2 horas';
         return;
     }
 
-    //Valida se o turno da manhã tem até 4 horas
-    let firstShiftMinutes = (break_start_minutes-start_minutes);
-    let firstShiftHours = Math.floor(firstShiftMinutes / 60);
-
-    //Valida se o turno da tarde tem até 4 horas
-    let secondShiftMinutes = (end_minutes - break_end_minutes);
-    let secondShiftHours = Math.floor(secondShiftMinutes / 60);
-
-    //Valida duração turnos
-    if(firstShiftHours>4){
-        errorDiv.style.visibility = 'visible';
-        errorMessage.innerHTML = 'O primeiro turno tem de ter 4 horas ou menos';
-        return;
-    }
-
-    console.log(secondShiftHours);
-
-    if(secondShiftHours>4){
-        errorDiv.style.visibility = 'visible';
-        errorMessage.innerHTML = 'O segundo turno tem de ter 4 horas ou menos';
-        return;
-    }
-
-    //Submit the form
+    //Submete o formulário
     document.getElementById('createForm').submit();
 
 });
@@ -80,3 +54,75 @@ function timeToMinutes(time) {
     let [hours, minutes] = time.split(':').map(Number);
     return hours * 60 + minutes;
 }
+
+function calculaHoraPrimeiroTurno(start_hourInput, break_startInput) {
+
+    let duration = 0;
+
+    if (break_startInput > start_hourInput) {
+        let start_hour = timeToMinutes(start_hourInput);
+        let break_start = timeToMinutes(break_startInput);
+
+        duration = break_start - start_hour;
+
+    }
+    else{
+        //Se a hora de entrada for maior que a hora de saída, então o funcionário trabalhou até o dia seguinte
+        let start_hour = timeToMinutes(start_hourInput);
+        let break_start = timeToMinutes(break_startInput);
+
+        duration = (1440 - start_hour) + break_start;
+
+    }
+
+    return duration;
+}
+
+function calculaHoraSegundoTurno(break_endInput, end_hourInput) {
+
+    let duration = 0;
+
+    if (end_hourInput > break_endInput) {
+        let break_end = timeToMinutes(break_endInput);
+        let end_hour = timeToMinutes(end_hourInput);
+
+        duration = end_hour - break_end;
+    }
+
+    else{
+        //Se a hora de entrada for maior que a hora de saída, então o funcionário trabalhou até o dia seguinte
+        let break_end = timeToMinutes(break_endInput);
+        let end_hour = timeToMinutes(end_hourInput);
+
+        duration = (1440 - break_end) + end_hour;
+
+    }
+
+    return duration;
+}
+
+function calculaDuracaoIntervalo(break_startInput, break_endInput) {
+
+    let duration = 0;
+
+    if (break_endInput > break_startInput) {
+        let break_end = timeToMinutes(break_startInput);
+        let end_hour = timeToMinutes(break_endInput);
+
+        duration = end_hour - break_end;
+    }
+
+    else{
+        //Se a hora de entrada for maior que a hora de saída, então o funcionário trabalhou até o dia seguinte
+        let break_end = timeToMinutes(break_startInput);
+        let end_hour = timeToMinutes(break_endInput);
+
+        duration = (1440 - break_end) + end_hour;
+
+    }
+
+    return duration;
+
+}
+
+
