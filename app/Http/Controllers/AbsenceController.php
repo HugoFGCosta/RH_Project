@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Absence;
 use App\Http\Requests\StoreAbsenceRequest;
 use App\Http\Requests\UpdateAbsenceRequest;
+use App\Models\Presence;
+use App\Models\User;
+use App\Models\User_Shift;
+use App\Models\Work_Shift;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
@@ -175,4 +180,28 @@ class AbsenceController extends Controller
 
         return Response::make('', 200, $headers);
     }
+
+    public function marcaFalta(){
+
+        $users = User::all();
+
+        foreach ($users as $user){
+
+            $user_shift = User_Shift::where('user_id', $user->id)->latest()->first();
+
+            $work_shiftId = $user_shift->id;
+
+            //Vai buscar o horário do utilizador
+            $work_shift= Work_Shift::where('id', $work_shiftId)->first();
+
+            //Vai buscar a hora atual
+            $currentTime = Carbon::now()->format('H:i:s');
+
+            //Vai buscar todas as presenças
+            $presences = Presence::all();
+            
+        }
+
+    }
+
 }

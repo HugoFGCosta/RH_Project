@@ -14,7 +14,6 @@ class Kernel extends ConsoleKernel
     {
 
         // $schedule->command('inspire')->hourly();
-
         //$schedule->command('check:presences')->everyMinute(); // CORRE a verificaçao cada 1 minuto
         $schedule->command('check:presences')->everyTenMinutes(); // CORRE a verificaçao cada 10 minutos
         //$schedule->command('check:presences')->everyThirtyMinutes(); // CORRE a verificaçao cada 30 minutos

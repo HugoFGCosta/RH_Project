@@ -28,13 +28,13 @@
         <table>
             <thead>
             <tr>
-                <th> Id <span class="icon-arrow">&UpArrow;</span></th>
+                <th class="id_cell"> Id <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Horario de Inicio <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Horario de Fim <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Horario de Almoço <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Dias da Semana <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Detalhe/Editar <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Delete <span class="icon-arrow">&UpArrow;</span></th>
+                <th clasS="delete_cell"> Delete <span class="icon-arrow">&UpArrow;</span></th>
             </tr>
             </thead>
             <tbody>
