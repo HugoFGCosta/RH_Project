@@ -78,9 +78,9 @@ Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update']);
 /* ROTA PRESENÇA */
 
 Route::post('user/presence/storeSimulated', [PresenceController::class, 'storeSimulated']); //ROTA SIMULADA
-Route::post('/user/presence', [PresenceController::class, 'presence']);
+/*Route::post('/user/presence', [PresenceController::class, 'presence']);*/
 Route::post('/user/presence/store', [PresenceController::class, 'store']);
-Route::get('/user/presence', [PresenceController::class, 'getPresence']);
+/*Route::get('/user/presence', [PresenceController::class, 'getPresence']);*/
 Route::get('/user/presence/status', [PresenceController::class, 'getStatus']);
 
 
