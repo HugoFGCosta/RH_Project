@@ -7,6 +7,7 @@ use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WorkShiftController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +63,18 @@ Route::put('/user/edit/{id}', [UserController::class, 'updateSpec']);
 Route::get('/user/show/{id}', [UserController::class, 'showSpec']);
 
 
+/*Rotas WorkShifts*/
+
+Route::resource('work-shifts', \App\Http\Controllers\WorkShiftController::class);
+Route::get('/work-shifts/create', [WorkShiftController::class, 'create'])->name('work-shifts.create');
+Route::post('/work-shifts', [WorkShiftController::class, 'store']);
+Route::get('/work-shifts/show', [WorkShiftController::class, 'show']);
+Route::get('/work-shifts/edit/{work_shift}', [WorkShiftController::class, 'edit']);
+Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update']);
+
+
+/*Rotas Import Export*/
+
 /* ROTA PRESENÇA */
 
 Route::post('user/presence/storeSimulated', [PresenceController::class, 'storeSimulated']); //ROTA SIMULADA
@@ -87,10 +100,11 @@ Route::post('import/presences', [\App\Http\Controllers\PresenceController::class
 Route::get('export/presences', [\App\Http\Controllers\PresenceController::class, 'export'])->name('exportPresences');
 
 
-
 /* Rota CALENDARIO */
 Route::controller(EventController::class)->group(function () {
     Route::get('fullcalender', 'index');
     Route::post('fullcalenderAjax', 'ajax');
 })->middleware('check.calendar');
-;
+
+Route::get('export/work-shifts', [\App\Http\Controllers\WorkShiftController::class, 'export'])->name('exportWorkShifts');
+Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift');

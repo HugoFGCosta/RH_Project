@@ -17,5 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call(AdminUserSeeder::class);
         $this->call(AbsenceStateSeeder::class);
         $this->call(VacationApprovalStateSeeder::class);
+        /**  Seeder de teste
+        $this->call(UserSeeder::class); */
     }
 }

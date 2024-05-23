@@ -81,7 +81,9 @@
                             O usuário não tem um turno de trabalho atribuído.
                         @endif
                     </td>
-                    <td><a href="{{ url('/user/edit', $user->id) }}">Detalhe/Editar</a></td>
+                    <td>
+                        <a href="{{ url('/user/edit', $user->id) }}" class="btn-detail-edit">Detalhe/Editar</a>
+                    </td>
                     <td>
                         <form action="{{ url('/user/delete', $user->id) }}" method="POST" style="display:inline;" class="no-form">
                             @csrf
