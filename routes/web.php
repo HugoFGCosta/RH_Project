@@ -93,4 +93,3 @@ Route::controller(EventController::class)->group(function () {
     Route::get('fullcalender', 'index');
     Route::post('fullcalenderAjax', 'ajax');
 })->middleware('check.calendar');
-;
