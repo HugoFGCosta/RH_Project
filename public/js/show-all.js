@@ -14,6 +14,15 @@ document.addEventListener('DOMContentLoaded', function () {
             // Esconde a linha se os dados não correspondem à busca
             row.classList.toggle('hide', table_data.indexOf(search_data) < 0);
             row.style.setProperty('--delay', i / 25 + 's');
+
+            //depois de esconder a linha remove-a
+            setTimeout(() => {
+                if (row.classList.contains('hide')) {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = 'table-row';
+                }
+            }, 1000);
         })
 
         // Altera a cor de fundo das linhas visíveis
