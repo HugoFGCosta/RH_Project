@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Faker\Generator as Faker;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -16,13 +17,22 @@ class UserFactory extends Factory
      *
      * @return array<string, mixed>
      */
+
+    /** Usuários para testes */
+
     public function definition(): array
     {
+        $faker = \Faker\Factory::create();
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => $faker->name(),
+            'role_id' => $faker->numberBetween(1, 3),
+            'email' => $faker->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => Hash::make('admin1234'),
+            'address' => 'asdasd',
+            'nif' => rand(100000000, 999999999),
+            'tel' => rand(100000000, 999999999),
+            'birth_date' => '2000-01-01',
             'remember_token' => Str::random(10),
         ];
     }
@@ -56,4 +66,8 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+
+
 }
+

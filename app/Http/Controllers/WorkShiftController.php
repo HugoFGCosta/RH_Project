@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\User_Shift;
-use App\Models\Work_shift;
-use App\Http\Requests\StoreWork_shiftRequest;
-use App\Http\Requests\UpdateWork_shiftRequest;
+use App\Models\Work_Shift;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
@@ -21,7 +19,7 @@ class WorkShiftController extends Controller
     public function index()
     {
         //
-        $workShifts= Work_shift::orderBy('id','asc')->get();
+        $workShifts= Work_Shift::all();
 
         return view ('pages.work-shifts.index',['workShifts'=>$workShifts]);
     }
