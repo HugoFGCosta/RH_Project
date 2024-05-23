@@ -75,6 +75,7 @@
 <script>var presenceStatusUrl = '{{ url('user/presence/status') }}';</script>
 
 @yield('scripts')
+@stack('scripts')
 
 </body>
 </html>

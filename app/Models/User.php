@@ -78,4 +78,9 @@ class User extends Authenticatable
         return $this->hasMany(User_Shift::class);
     }
 
+
+    public function event()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
