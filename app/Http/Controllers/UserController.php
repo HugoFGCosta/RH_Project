@@ -60,7 +60,7 @@ class UserController extends Controller
     public function show()
     {
         $user = auth()->user();
-        $user_shift = User_Shift::where('user_id', $user->id)->first();
+        $user_shift = User_Shift::where('user_id', $user->id)->whereNull('end_date')->first();
         return view('pages.users.show', ['user' => $user, 'user_shift' => $user_shift]);
     }
 
@@ -87,7 +87,7 @@ class UserController extends Controller
         $roles = Role::all();
 
         $user = auth()->user();
-        $user_shift = User_Shift::where('user_id', $user->id)->first();
+        $user_shift = User_Shift::where('user_id', $user->id)->whereNull('end_date')->first();
         return view('pages.users.edit', ['user' => $user, 'user_shift' => $user_shift, 'work_shifts' => $work_shifts, 'roles' => $roles]);
     }
 
@@ -122,9 +122,18 @@ class UserController extends Controller
         $user->tel = $request->input('tel');
         $user->birth_date = $request->input('birth_date');
         $user->save();
-        $user_shift = User_Shift::where('user_id', $user->id)->first();
-        $user_shift->work_shift_id = $request->input('work_shift_id');
+
+        //Ao trocar de horario ele adiciona um user_shift
+        $user_shift = User_Shift::where('user_id', $user->id)->latest()->first();
+        $user_shift->end_date = now();
         $user_shift->save();
+
+        User_Shift::create([
+            'user_id' => $user->id,
+            'work_shift_id'=>$request->input('work_shift_id'),
+            'start_date'=>now(),
+            'end_date'=>null,
+        ]);
 
         return redirect('/user/show');
     }
@@ -169,10 +178,11 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $user)
+    public function destroy($id)
     {
-        $user->softDelete();
-        return redirect('users')->with('status', 'User deleted successfully!');
+        $user = User::findOrFail($id);
+        $user->delete();
+        return redirect('/users/show-all')->with('status', 'Usuário apagado com sucesso!');
     }
 
 
@@ -233,8 +243,11 @@ class UserController extends Controller
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de função estão entre 1 e 3.');
             }
 
-            if($data[8] < 1 || $data[8] > 2) {
-                return redirect()->back()->with('error', 'Certifique-se que os IDs de turno estão entre 1 e 2.');
+            //Verifica se o work_shift_id existe
+            $work_shift = Work_Shift::find($data[8]);
+
+            if(!$work_shift) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de turno existem.');
             }
 
             // Armazenar os dados válidos no array
@@ -311,6 +324,7 @@ class UserController extends Controller
     }
 
     public function export(){
+
         $work_shifts = Work_Shift::all();
         $users = User::all();
         $csvFileName = 'users.csv';
@@ -321,10 +335,11 @@ class UserController extends Controller
 
         $handle = fopen('php://output', 'w');
 
-        fputcsv($handle, ['Role_id','Name', 'Address','Nif','Tel','Birth_date','Email','Password','User_Work_Shift_Id']); // Add more headers as needed
+        //Coloca o header no ficheiro
+        fputcsv($handle, ['Role_id','Nome', 'Rua','Nif','Telemovel','Data_Nascimento','Email','Password','User_Work_Shift_Id']);
 
+        //Imprime cada utilizador no ficheiro csv
         foreach ($users as $user) {
-            //escreve como vou  buscar o ultimo user_shift deste user para saber qual o turno que está a fazer
 
             $user_shift = User_Shift::where('user_id', $user->id)->orderBy('id', 'desc')->first();
 

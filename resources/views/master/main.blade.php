@@ -41,22 +41,21 @@
             <div class="toggle">
                 <ion-icon name="menu-outline"></ion-icon>
             </div>
-            <div class="search">
-                <label>
-                    <input type="text" placeholder="Procure">
-                    <ion-icon name="search-outline"></ion-icon>
-                </label>
-            </div>
             <div class="user">
                 @if (Auth::check())
+                    @php
+                        $fullName = Auth::user()->name;
+                        $nameParts = explode(' ', $fullName);
+                        $firstName = $nameParts[0];
+                        $lastName = count($nameParts) > 1 ? end($nameParts) : '';
+                    @endphp
                     <li class="nav-item">
-                        <a href="/user/show">{{ Auth::user()->name }}</a>
+                        <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }} ({{ Auth::user()->role->role }})</a>
                     </li>
                 @endif
             </div>
         </div>
     </div>
-
     <div class="content-area hidden">
         @yield('content')
     </div>

@@ -26,6 +26,7 @@ body {
 .container {
     position:relative;
     width: 100%;
+    height: auto;
 }
 
 h1 {
@@ -202,7 +203,6 @@ h1 {
     color: var(--blue);
 }
 
-
 /*MainBlade*/
 .main {
     position: absolute;
@@ -289,6 +289,26 @@ h1 {
 .content-area.active {
     margin-left: 80px;
     width: calc(100% - 80px);
+}
+
+/*Erros and success messages*/
+/*Messages after import Styles*/
+.errorMessage{
+    padding: 30px;
+    border: 5px #ff5a5a solid;
+    background-color: #ff7b7b;
+    border-radius: 20px;
+    margin-bottom: 50px;
+    text-align: center;
+}
+
+.successMessage{
+    padding: 30px;
+    border: 5px #3dbe45 solid;
+    background-color: #77ff81;
+    border-radius: 20px;
+    margin-bottom: 50px;
+    text-align: center;
 }
 
 
