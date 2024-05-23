@@ -21,7 +21,7 @@ class WorkShiftController extends Controller
     public function index()
     {
         //
-        $workShifts= Work_shift::all();
+        $workShifts= Work_Shift::all();
 
         return view ('pages.work-shifts.index',['workShifts'=>$workShifts]);
     }
