@@ -1,4 +1,3 @@
-'use strict';
 
 // Calendar
 $(document).ready(function() {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Event;
 use App\Models\Presence;
 use Illuminate\Http\Request;
 
@@ -15,7 +16,8 @@ class ButtonController extends Controller
     {
         $user = auth()->user();
         $presence = Presence::where('user_id', $user->id)->first();
-        return view('pages.menu.menu', ['user' => $user,'presence' => $presence]);
+        $events = Event::where('user_id', $user->id)->get();
+        return view('pages.menu.menu', ['user' => $user,'presence' => $presence, 'events' => $events]);
     }
 
 

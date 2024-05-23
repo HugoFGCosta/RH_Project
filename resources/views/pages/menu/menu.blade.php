@@ -10,16 +10,15 @@
             ])
         @endcomponent
     </div>
-    <div class="calendar-container">
-        <div id='calendar'>
-            @component('components.calendar.calendar')
-            @endcomponent
-        </div>
+    <div>
+        @component('components.calendar.calendar', [
+                'events' => $events,
+            ])
+        @endcomponent
     </div>
 @endsection
 
-@push('scripts')
-    <script src="{{ asset('js/calendar.js') }}"></script>
-@endpush
+
+
 
 
