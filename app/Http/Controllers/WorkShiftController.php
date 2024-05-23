@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\User_Shift;
-use App\Models\Work_shift;
-use App\Http\Requests\StoreWork_shiftRequest;
-use App\Http\Requests\UpdateWork_shiftRequest;
+use App\Models\Work_Shift;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
