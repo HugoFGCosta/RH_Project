@@ -58,9 +58,31 @@
         });
 
         var calendar = $('#calendar').fullCalendar({
-            locale: 'pt-pt',
+            locale: 'pt-br',
             editable: true,
-            events: SITEURL + "/fullcalender",
+            events: function(start, end, timezone, callback) {
+                $.ajax({
+                    url: SITEURL + "/fullcalender",
+                    type: 'GET',
+                    data: {
+                        start: start.format(),
+                        end: end.format()
+                    },
+                    success: function(data) {
+                        var events = [];
+                        $(data).each(function() {
+                            events.push({
+                                id: this.id,
+                                title: this.title,
+                                start: this.start,
+                                end: this.end,
+                                allDay: this.allDay
+                            });
+                        });
+                        callback(events);
+                    }
+                });
+            },
             displayEventTime: false,
             eventRender: function(event, element, view) {
                 if (event.allDay === 'true') {
