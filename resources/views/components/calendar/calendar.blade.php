@@ -2,13 +2,14 @@
 <html>
 
 <head>
-    <title>Laravel Fullcalender Tutorial Tutorial - ItSolutionStuff.com</title>
+    <title>Laravel Fullcalender Tutorial - ItSolutionStuff.com</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/locale/pt-br.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
@@ -47,10 +48,10 @@
         --------------------------------------------
         --------------------------------------------*/
         var calendar = $('#calendar').fullCalendar({
+            locale: 'pt-pt', // Adicione esta linha para definir o idioma para português de Portugal
             editable: true,
             events: SITEURL + "/fullcalender",
             displayEventTime: false,
-            editable: true,
             eventRender: function(event, element, view) {
                 if (event.allDay === 'true') {
                     event.allDay = true;
@@ -61,7 +62,7 @@
             selectable: true,
             selectHelper: true,
             select: function(start, end, allDay) {
-                var title = prompt('Event Title:');
+                var title = prompt('Título do Evento:');
                 if (title) {
                     var start = $.fullCalendar.formatDate(start, "Y-MM-DD");
                     var end = $.fullCalendar.formatDate(end, "Y-MM-DD");
@@ -75,7 +76,7 @@
                         },
                         type: "POST",
                         success: function(data) {
-                            displayMessage("Event Created Successfully");
+                            displayMessage("Evento criado com sucesso");
 
                             calendar.fullCalendar('renderEvent', {
                                 id: data.id,
@@ -105,12 +106,12 @@
                     },
                     type: "POST",
                     success: function(response) {
-                        displayMessage("Event Updated Successfully");
+                        displayMessage("Evento atualizado com sucesso");
                     }
                 });
             },
             eventClick: function(event) {
-                var deleteMsg = confirm("Do you really want to delete?");
+                var deleteMsg = confirm("Deseja realmente excluir?");
                 if (deleteMsg) {
                     $.ajax({
                         type: "POST",
@@ -121,14 +122,12 @@
                         },
                         success: function(response) {
                             calendar.fullCalendar('removeEvents', event.id);
-                            displayMessage("Event Deleted Successfully");
+                            displayMessage("Evento excluído com sucesso");
                         }
                     });
                 }
             }
-
         });
-
     });
 
     /*------------------------------------------
@@ -137,7 +136,7 @@
     --------------------------------------------
     --------------------------------------------*/
     function displayMessage(message) {
-        toastr.success(message, 'Event');
+        toastr.success(message, 'Evento');
     }
 </script>
 
