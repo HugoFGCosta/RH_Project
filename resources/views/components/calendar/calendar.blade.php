@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Laravel Fullcalender Tutorial - ItSolutionStuff.com</title>
+    <title>Laravel FullCalendar Tutorial - ItSolutionStuff.com</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -10,9 +10,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/locale/pt-br.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
 
 <body>
@@ -22,7 +21,7 @@
 </div>
 
 <!-- Modal -->
-<div id="eventModal" class="modal">
+<div id="eventModal" class="modal" style="display: none;">
     <div class="modal-content">
         <span class="close">&times;</span>
         <form id="eventForm">
