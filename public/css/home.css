@@ -7,17 +7,61 @@
     --green: #097D56;
 }
 
+.container-menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.left-column, .right-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.left-column {
+    flex: 1;
+    align-items: center;
+}
+
+.right-column {
+    flex: 2;
+    padding: 40px;
+}
+
+.button-In-Out {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center; /* Center button horizontally */
+}
+
+.notifications {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.calendar {
+    width: 100%;
+}
+
 .btn-in-out {
-    margin: 30px 5px 5px 20px;
-    display: inline-block;
-    padding: 20px 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center text inside button */
+    margin: 10px 5px;
+    padding: 20px 40px;
     font-size: 20px;
     border: none;
     cursor: pointer;
     border-radius: 10px;
     color: white;
     transition: background-color 0.3s;
-    box-shadow: black 5px 5px 5px;
+    box-shadow: 2px 2px 5px black;
 }
 
 .btn-in {
@@ -36,4 +80,28 @@
 .btn-out:hover {
     transform: scale(1.1);
     transition: 0.5s;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-danger {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+/* Dispositivos Móveis */
+@media (max-width: 768px) {
+    .row {
+        flex-direction: column;
+    }
+
+    .right-column {
+        margin-left: 0;
+    }
 }

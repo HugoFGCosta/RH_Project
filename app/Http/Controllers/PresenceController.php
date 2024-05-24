@@ -38,7 +38,7 @@ class PresenceController extends Controller
 
 
     /*  public function store(Request $request)
-     { 
+     {
         // metodo antigo
 
          $user = auth()->user();
@@ -142,7 +142,7 @@ class PresenceController extends Controller
 
         // VERIFICA se todos os 4 registros já foram preenchidos
         if ($presence && $presence->first_start && $presence->first_end && $presence->second_start && $presence->second_end) {
-            return redirect()->to(url('user/presence'))->with('error', 'Já existe um registro de presença completo para hoje.');
+            return redirect()->to(url('menu'))->with('error', 'Já existe um registro de presença completo para hoje.');
         }
 
         if (!$presence) {
