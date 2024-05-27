@@ -19,6 +19,6 @@ class Absence extends Model
 
     public function absence_state()
     {
-        return $this->belongsTo(Absence_State::class);
+        return $this->belongsTo('App\Absence_State');
     }
 }

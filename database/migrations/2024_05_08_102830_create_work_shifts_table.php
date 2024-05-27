@@ -17,8 +17,6 @@ return new class extends Migration {
             $table->time('break_end');
             $table->time('end_hour');
             $table->timestamps();
-            $table->softDeletes();
-
         });
     }
 
@@ -27,8 +25,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('work_shifts', function (Blueprint $table) {
-            $table->dropSoftDeletes();
-        });
+        Schema::dropIfExists('work_shifts');
     }
 };

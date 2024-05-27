@@ -71,7 +71,7 @@ class RegisterController extends Controller
             'password' => 'required',
             'role_id' => 'required',
             'address' => 'required',
-            'nif' => 'required|digits:9|unique:users,nif',
+            'nif' => 'required|digits:9',
             'tel' => 'required|digits:9|unique:users,tel',
             'birth_date' => ['required', 'date', 'before:-18 years'],
             'work_shift_id' => 'required',

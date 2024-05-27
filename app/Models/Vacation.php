@@ -19,11 +19,11 @@ class Vacation extends Model
 
     public function vacation_approval_state()
     {
-        return $this->belongsTo(Vacation_Approval_State::class);
+        return $this->belongsTo('App\Vacation_Approval_state');
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo('App\Models\User');
     }
 }

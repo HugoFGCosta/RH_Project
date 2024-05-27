@@ -1,13 +1,9 @@
 <?php
 
-use App\Http\Controllers\AdminRegisterController;
-use App\Http\Controllers\AuthenticatedRegisterController;
-use App\Http\Controllers\EventController;
-use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VacationController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WorkShiftController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,8 +22,8 @@ Route::get('/', function () {
 
 Auth::routes();
 Route::get('/logout', function () {
-    Auth::logout();
-    return redirect('/login');
+ Auth::logout();
+   return redirect('/login');
 })->middleware('auth');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
@@ -45,70 +41,45 @@ Route::get('/daily-tasks', [App\Http\Controllers\ButtonController::class, 'daily
 Route::get('/requests', [App\Http\Controllers\ButtonController::class, 'requests']);
 Route::get('/settings', [App\Http\Controllers\ButtonController::class, 'settings']);
 
-
 /*Rotas Users*/
-Route::post('/admin-register', [AdminRegisterController::class, 'create'])->name('admin-register');
-Route::get('/admin-register', [AdminRegisterController::class, 'showRegisterForm']);
-
+Route::get('/users/create', [UserController::class, 'create']);
 Route::get('/user/edit', [UserController::class, 'edit']);
 Route::put('/user/edit', [UserController::class, 'update']);
 Route::get('/user/show', [UserController::class, 'show']);
-Route::delete('/user/delete/{id}', [UserController::class, 'destroy']);
+Route::post('/user/presence', [UserController::class, 'presence']);
+Route::post('/user/presence/store', [UserController::class, 'store']);
+Route::get('/user/presence', [UserController::class, 'getPresence']);
+
+//rotas vacation
+
+Route::get('/vacation', [VacationController::class, 'index'])->name('vacations.index');
 
 
-Route::get('/users/show-all', [UserController::class, 'showAll']);
+Route::get('/vacation', [VacationController::class, 'index'])->name('vacations.index');
 
-Route::get('/user/edit/{id}', [UserController::class, 'editSpec']);
-Route::put('/user/edit/{id}', [UserController::class, 'updateSpec']);
-Route::get('/user/show/{id}', [UserController::class, 'showSpec']);
+Route::get('/vacations', [VacationController::class, 'index'])->name('vacations.index');
+Route::get('/vacations/create', [VacationController::class, 'create'])->name('vacations.create');
+Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
+Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
+Route::get('/vacations/edit/{vacation}', [VacationController::class, 'edit'])->name('vacations.edit');
+Route::put('/vacations/edit/{vacation}', [VacationController::class, 'update'])->name('vacations.update');
+Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destroy'])->name('vacations.destroy');
+//check for val on ed aft the creation only for admin
 
+Route::post('user/presence/storeSimulated', [UserController::class, 'storeSimulated']); //ROTA SIMULADA
 
-/*Rotas WorkShifts*/
-
-Route::resource('work-shifts', \App\Http\Controllers\WorkShiftController::class);
-Route::get('/work-shifts/create', [WorkShiftController::class, 'create'])->name('work-shifts.create');
-Route::post('/work-shifts', [WorkShiftController::class, 'store']);
-Route::get('/work-shifts/show', [WorkShiftController::class, 'show']);
-Route::get('/work-shifts/edit/{work_shift}', [WorkShiftController::class, 'edit']);
-Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update']);
-
-
-/*Rotas Import Export*/
-
-/* ROTA PRESENÇA */
-
-Route::post('user/presence/storeSimulated', [PresenceController::class, 'storeSimulated']); //ROTA SIMULADA
-/*Route::post('/user/presence', [PresenceController::class, 'presence']);*/
-Route::post('/user/presence/store', [PresenceController::class, 'store']);
-/*Route::get('/user/presence', [PresenceController::class, 'getPresence']);*/
-Route::get('/user/presence/status', [PresenceController::class, 'getStatus']);
+Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
 
 
-
-/* ROTAS IMPORT / EXPORT */
-
-Route::post('import', [\App\Http\Controllers\UserController::class, 'import'])->name('import');
-Route::get('export', [\App\Http\Controllers\UserController::class, 'export'])->name('export');
-
-Route::post('import/absence', [\App\Http\Controllers\AbsenceController::class, 'import'])->name('importAbsences');
-Route::get('export/absence', [\App\Http\Controllers\AbsenceController::class, 'export'])->name('exportAbsences');
-
-Route::post('import/vacations', [\App\Http\Controllers\VacationController::class, 'import'])->name('importVacations');
-Route::get('export/vacations', [\App\Http\Controllers\VacationController::class, 'export'])->name('exportVacations');
-
-Route::post('import/presences', [\App\Http\Controllers\PresenceController::class, 'import'])->name('importPresences');
-Route::get('export/presences', [\App\Http\Controllers\PresenceController::class, 'export'])->name('exportPresences');
+/*Rotas Export*/
+Route::get('users/export/', [\App\Http\Controllers\UserController::class, 'export'])->name('exportUsers');
+Route::get('absences/export/', [\App\Http\Controllers\AbsenceController::class, 'export'])->name('exportAbsences');
+Route::get('vacations/export/', [\App\Http\Controllers\VacationController::class, 'export'])->name('exportVacations');
+Route::get('presences/export/', [\App\Http\Controllers\PresenceController::class, 'export'])->name('exportPresences');
 
 
-/* Rota CALENDARIO */
-Route::controller(EventController::class)->group(function () {
-    Route::get('fullcalender', 'index');
-    Route::post('fullcalenderAjax', 'ajax');
-})->middleware('check.calendar');
-
-
-
-
-
-Route::get('export/work-shifts', [\App\Http\Controllers\WorkShiftController::class, 'export'])->name('exportWorkShifts');
-Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift');
+/*Rotas Import*/
+Route::post('users/import/', [\App\Http\Controllers\UserController::class, 'import'])->name('importUsers');
+Route::post('absences/import/', [\App\Http\Controllers\AbsenceController::class, 'import'])->name('importAbsences');
+Route::post('vacations/import/', [\App\Http\Controllers\VacationController::class, 'import'])->name('importVacations');
+Route::post('presences/import/', [\App\Http\Controllers\PresenceController::class, 'import'])->name('importPresences');

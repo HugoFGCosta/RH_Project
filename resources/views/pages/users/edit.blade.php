@@ -1,18 +1,13 @@
+{{-- NAO ESTA PRONTO --}}
+
 @extends('master.main')
 
 @section('content')
     <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <h1>Perfil de {{ $user->name }}</h1>
-                @component('components.users.user-form-edit', [
-                    'user' => $user,
-                    'work_shifts' => $work_shifts,
-                    'roles' => $roles,
-                    'user_shift' => $user_shift,
-                ])
-                @endcomponent
-            </div>
+        <h1>Perfil de {{Auth::user()->name}}</h1>
+        <div class="form-container">
+            @component('components.users.user-form-edit', ['user' => $user])
+            @endcomponent
         </div>
     </div>
 @endsection

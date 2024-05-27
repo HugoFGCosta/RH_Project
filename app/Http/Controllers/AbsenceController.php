@@ -2,18 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AbsencesExport;
+use App\Imports\AbsencesImport;
 use App\Models\Absence;
 use App\Http\Requests\StoreAbsenceRequest;
 use App\Http\Requests\UpdateAbsenceRequest;
-use App\Models\Presence;
-use App\Models\User;
-use App\Models\User_Shift;
-use App\Models\Work_Shift;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class AbsenceController extends Controller
 {
@@ -73,152 +69,25 @@ class AbsenceController extends Controller
         //
     }
 
-    public function import(Request $request)
+    public function import()
     {
-        $file = $request->file('file');
+        try {
+            //verifica se o ficheiro foi submetido no formulário
+            if (request()->has('file')) {  //se sim apaga os dados da tabela
+                DB::table('absences')->delete();
+            }
 
-        // Se não for escolhido nenhum ficheiro, mostra uma mensagem de erro
-        if (!$file) {
-            return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
+            //importa os dados do ficheiro para a tabela
+            Excel::import(new AbsencesImport(), request()->file('file'));
+            return redirect('/import-export-data')->with('success', 'Faltas importadas com sucesso!');
+
+        } catch (\Exception $e) {
+            return redirect('/import-export-data')->with('error', 'Error during import: ' . $e->getMessage());
         }
-
-        $handle = fopen($file->getPathname(), 'r');
-
-        // Se houver erro ao abrir o arquivo, mostra uma mensagem de erro
-        if (!$handle) {
-            return redirect()->back()->with('error', 'Erro ao abrir o ficheiro.');
-        }
-
-        // Ignora a primeira linha do ficheiro
-        fgets($handle);
-
-        // Desativa as verificações de chave estrangeira
-        Schema::disableForeignKeyConstraints();
-
-        // Trunca a tabela de faltas
-        DB::table('absences')->truncate();
-
-        // Reabilita as verificações de chave estrangeira
-        Schema::enableForeignKeyConstraints();
-
-        $errors = [];
-
-        // Percorre o ficheiro e insere os dados na base de dados
-        while (($line = fgets($handle)) !== false) {
-
-            $data = str_getcsv($line);
-
-            // Verifica se há exatamente 5 campos
-            if (count($data) != 5) {
-                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contém informações de faltas.');
-            }
-
-            // Verifica se os IDs são inteiros
-            if (!is_int($data[0]) || !is_int($data[1]) || !is_int($data[2])) {
-                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador, estado de falta e aprovador são números válidos.');
-            }
-
-            // Verifica se o campo absence_date é uma data válida
-            if (strtotime($data[3]) === false) {
-                return redirect()->back()->with('error', 'A data fornecida não é válida.');
-            }
-
-            // Verifica se a justificativa não pode ser convertida para uma data válida
-            if (strtotime($data[4]) !== false) {
-                return redirect()->back()->with('error', 'A justificativa não deve ser uma data.');
-            }
-
-            // Verifica se o ID de estado de aprovação de falta está entre 1 e 3
-            if ($data[1] < 1 || $data[1] > 3){
-                return redirect()->back()->with('error', 'Certifique-se que os IDs de estado são números válidos.');
-            }
-
-            Absence::create([
-                'user_id' => $data[0],
-                'absence_states_id' => $data[1],
-                'approved_by' => $data[2],
-                'absence_date' => $data[3],
-                'justification' => $data[4],
-            ]);
-        }
-
-        fclose($handle);
-
-        // Se houver erros, redireciona de volta com as mensagens de erro
-        if (!empty($errors)) {
-            return redirect()->back()->with('error', $errors);
-        }
-
-        // Redireciona para a página anterior com uma mensagem de sucesso
-        return redirect()->back()->with('success', 'Faltas importadas com sucesso.');
     }
 
-
-    public function export(){
-
-        //
-
-        // Define o nome do ficheiro e os cabeçalhos
-        $absences = Absence::all();
-        $csvFileName = 'absences.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
-        ];
-
-        //Escreve os cabeçalhos no ficheiro
-        $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['User_id','Absence_states_id', 'Approved_by','Absence_date','Justification']);
-
-        //Para cada falta insere uma linha no ficheiro
-        foreach ($absences as $absence) {
-            fputcsv($handle, [$absence->user_id,$absence->absence_states_id, $absence->approved_by,$absence->absence_date,$absence->justification]); // Add more fields as needed
-        }
-
-        // Fecha o ficheiro
-        fclose($handle);
-
-        return Response::make('', 200, $headers);
+    public function export()
+    {
+        return Excel::download(new AbsencesExport(), 'absences.xlsx');
     }
-
-    public function marcaFaltaPrimeiroTurno(){
-
-        $users = User::all();
-
-        foreach ($users as $user){
-
-            //Vai buscar o horario de trabalho do utilizador
-            $user_shift = User_Shift::where('user_id', $user->id)->latest()->first();
-            $work_shiftId = $user_shift->id;
-            $work_shift= Work_Shift::where('id', $work_shiftId)->first();
-
-            //Obtem hora entrada utilizador
-            $currentDateTime = Carbon::now()->format('Y-m-d H:i:s');
-            $horaEntrada = Carbon::parse($work_shift->start_time)->format('H:i:s');
-            $horaEntrada = Carbon::parse($currentDateTime)->format('Y-m-d') . ' ' . $horaEntrada;
-
-            //Adiciona 15 minutos à hora de entrada
-            $horaEntradaComTolerancia = Carbon::parse($horaEntrada)->addMinutes(15)->format('Y-m-d H:i:s');
-
-            //Obtem data e hora atual
-            $currentDateTime = Carbon::now()->format('Y-m-d H:i:s');
-
-            if($currentDateTime == $horaEntradaComTolerancia){
-                $presences = Presence::where('user_id', $user->id)->where('first_start', '>=', $currentDateTime)->get();
-                //Se o utilizador não tiver registos de presença
-                if($presences->isEmpty()){
-                    Absence::create([
-                        'user_id' => $user->id,
-                        'absence_states_id' => 3,
-                        'approved_by' => null,
-                        'absence_date' => $currentDateTime,
-                        'justification' => 'Falta ao primeiro turno',
-                    ]);
-                }
-            }
-
-        }
-
-    }
-
 }

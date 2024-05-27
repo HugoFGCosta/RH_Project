@@ -12,22 +12,15 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-
         // $schedule->command('inspire')->hourly();
-        //$schedule->command('check:presences')->everyMinute(); // CORRE a verificaçao cada 1 minuto
-        $schedule->command('check:presences')->everyTenMinutes(); // CORRE a verificaçao cada 10 minutos
-        //$schedule->command('check:presences')->everyThirtyMinutes(); // CORRE a verificaçao cada 30 minutos
     }
-
-
-
 
     /**
      * Register the commands for the application.
      */
     protected function commands(): void
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }

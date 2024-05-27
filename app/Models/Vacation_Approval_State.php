@@ -11,6 +11,6 @@ class Vacation_Approval_State extends Model
 
     public function vacations()
     {
-        return $this->hasMany(Vacation::class);
+        return $this->hasMany('App\Vacation');
     }
 }
