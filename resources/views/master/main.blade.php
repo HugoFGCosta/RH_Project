@@ -48,9 +48,10 @@
                         $nameParts = explode(' ', $fullName);
                         $firstName = $nameParts[0];
                         $lastName = count($nameParts) > 1 ? end($nameParts) : '';
+                        $role = translateRole(Auth::user()->role->role);
                     @endphp
                     <li class="nav-item">
-                        <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }} ({{ Auth::user()->role->role }})</a>
+                        <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }} ({{ $role }})</a>
                     </li>
                 @endif
             </div>
