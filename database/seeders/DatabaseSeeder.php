@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(AbsenceTypeSeeder::class);
         $this->call(RoleSeeder::class);
         $this->call(WorkShiftSeeder::class);
         $this->call(AdminUserSeeder::class);
