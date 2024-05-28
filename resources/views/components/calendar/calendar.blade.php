@@ -74,7 +74,7 @@
                                 id: this.id,
                                 title: this.title,
                                 start: this.start,
-                                end: this.end,
+                                end: moment(this.end).add(1, 'days').format('YYYY-MM-DD'),
                                 allDay: this.allDay
                             });
                         });
@@ -109,7 +109,7 @@
                             data: {
                                 title: title,
                                 start: startDate,
-                                end: moment(endDate).add(1, 'days').format('YYYY-MM-DD'), // Adiciona um dia para garantir o fim correto
+                                end: moment(endDate).format('YYYY-MM-DD'), // Adiciona um dia para garantir o fim correto
                                 type: 'add'
                             },
                             type: "POST",
@@ -140,7 +140,7 @@
                     data: {
                         title: event.title,
                         start: start,
-                        end: end,
+                        end: moment(end).subtract(1, 'days').format('YYYY-MM-DD'),
                         id: event.id,
                         type: 'update'
                     },
