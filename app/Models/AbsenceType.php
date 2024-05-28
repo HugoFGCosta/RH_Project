@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Absence_State extends Model
+class AbsenceType extends Model
 {
     use HasFactory;
 
-    protected $table = 'absence_states';
+    protected $table = 'absence_types';
 
 
     public function absences()

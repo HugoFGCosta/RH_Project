@@ -48,15 +48,6 @@
         <button type="submit">Simular</button>
     </div>
 </form> --}}
-
-
-
-@if (session('error'))
-    <div class="alert alert-danger">
-        {{ session('error') }}
-    </div>
-@endif
-
 <form method="POST" action="{{ url('user/presence/store') }}">
     @csrf
 

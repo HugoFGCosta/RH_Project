@@ -12,8 +12,10 @@ class Absence extends Model
     protected $fillable = [
         'user_id',
         'absence_states_id',
+        'absence_types_id',
         'approved_by',
-        'absence_date',
+        'absence_start_date',
+        'absence_end_date',
         'justification',
     ];
 
@@ -21,4 +23,10 @@ class Absence extends Model
     {
         return $this->belongsTo(Absence_State::class);
     }
+
+    public function absence_type()
+    {
+        return $this->belongsTo(AbsenceType::class);
+    }
+
 }
