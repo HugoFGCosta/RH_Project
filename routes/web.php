@@ -106,6 +106,10 @@ Route::controller(EventController::class)->group(function () {
     Route::post('fullcalenderAjax', 'ajax');
 })->middleware('check.calendar');
 
+/* Rotas Absences */
+Route::get('users/{user}/absences', [\App\Http\Controllers\AbsenceController::class, 'absencesByUser']);
+
+
 
 
 
