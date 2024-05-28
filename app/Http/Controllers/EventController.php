@@ -19,8 +19,14 @@ class EventController extends Controller
             $userId = auth()->user()->id;
 
             $data = Event::where('user_id', $userId)
-                ->whereDate('start', '>=', $request->start)
-                ->whereDate('end', '<=', $request->end)
+                ->where(function($query) use ($request) {
+                    $query->whereBetween('start', [$request->start, $request->end])
+                        ->orWhereBetween('end', [$request->start, $request->end])
+                        ->orWhere(function($query) use ($request) {
+                            $query->where('start', '<', $request->start)
+                                ->where('end', '>', $request->end);
+                        });
+                })
                 ->get(['id', 'title', 'start', 'end']);
 
             return response()->json($data);
@@ -28,8 +34,8 @@ class EventController extends Controller
 
         /* $users = User::orderBy('id', 'desc')->get();                 // exemplo para enviar Faltas, Presenças, Ferias
         return view('pages.users.index', ['users' => $users]); */
-
-        return view('fullcalender');
+        $events = Event::all();
+        return view('fullcalender', ['events' => $events]);
     }
 
 
