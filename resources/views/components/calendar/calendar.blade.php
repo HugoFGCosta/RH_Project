@@ -169,7 +169,7 @@
                             data: {
                                 title: title,
                                 start: startDate,
-                                end: moment(endDate).add(1, 'days').format('YYYY-MM-DD'), // Adiciona um dia para garantir o fim correto
+                                end: moment(endDate).format('YYYY-MM-DD'), // Adiciona um dia para garantir o fim correto
                                 id: currentEvent.id,
                                 type: 'update'
                             },
@@ -179,7 +179,7 @@
 
                                 currentEvent.title = title;
                                 currentEvent.start = startDate;
-                                currentEvent.end = moment(endDate).add(1, 'days').format('YYYY-MM-DD'); // Adiciona um dia para garantir o fim correto
+                                currentEvent.end = moment(endDate).format('YYYY-MM-DD'); // Adiciona um dia para garantir o fim correto
                                 calendar.fullCalendar('updateEvent', currentEvent);
 
                                 $('#eventModal').css('display', 'none');
