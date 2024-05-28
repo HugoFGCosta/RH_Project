@@ -43,7 +43,7 @@ class ButtonController extends Controller
 
     public function vacationPlans()
     {
-        return view('pages.schedule-vacations.schedule-vacations');
+        return view('pages.vacations.show');
     }
 
     public function approveAbsences()

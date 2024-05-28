@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Vacation;
 use App\Http\Requests\StoreVacationRequest;
 use App\Http\Requests\UpdateVacationRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,9 @@ class VacationController extends Controller
      */
     public function index()
     {
-        //
+        $vacation = vacation::with('user')->orderBy('id', 'asc')->paginate(3);
+        return view('pages.vacations.show', ['vacations' => $vacation]);
+
     }
 
     /**
@@ -25,7 +28,7 @@ class VacationController extends Controller
      */
     public function create()
     {
-        //
+        return view ('pages.vacations.create');
     }
 
     /**
@@ -33,7 +36,19 @@ class VacationController extends Controller
      */
     public function store(StoreVacationRequest $request)
     {
-        //
+        $request->validate([
+            'date_start' => 'required|after:tomorrow' ,
+            'date_end' => 'required|after:tomorrow'
+        ]);
+        $vacation = new Vacation();
+        $vacation->user_id = Auth::id();
+        $vacation->vacation_approval_states_id = 3;
+        $vacation->approved_by = null;
+        $vacation->date_start =$request->date_start ;
+        $vacation->date_end = $request->date_end ;
+        $vacation->save();
+        return redirect(url('/vacation'))->with('status','Item created successfully!');
+
     }
 
     /**
@@ -49,7 +64,8 @@ class VacationController extends Controller
      */
     public function edit(Vacation $vacation)
     {
-        //
+        return view('pages.vacations.edit', ['vacations' => $vacation]);
+
     }
 
     /**
@@ -57,7 +73,17 @@ class VacationController extends Controller
      */
     public function update(UpdateVacationRequest $request, Vacation $vacation)
     {
-        //
+        $vacation = vacation::find($vacation->id);
+        //  if(find($vacation->approved_by))
+        $vacation->approved_by = null;
+        $vacation->vacation_approval_states_id = '3';
+        $vacation->date_start = $request->date_start;
+        $vacation->date_end = $request->date_end;
+
+
+        $vacation->save();
+        return redirect(url('/vacation'))->with('status','Item edited successfully!');
+
     }
 
     /**
@@ -65,7 +91,10 @@ class VacationController extends Controller
      */
     public function destroy(Vacation $vacation)
     {
-        //
+        $vacation = vacation::find($vacation->id);
+        $vacation->delete();
+        return redirect('vacation')->with('status','Item deleted successfully!');
+
     }
 
     public function import(Request $request)

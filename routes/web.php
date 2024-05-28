@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkShiftController;
+use App\Http\Controllers\VacationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,7 +39,7 @@ Route::get('/register-schedule', [App\Http\Controllers\ButtonController::class, 
 Route::get('/dashboard-statistics', [App\Http\Controllers\ButtonController::class, 'dashboardStatistics']);
 Route::get('/view-absences', [App\Http\Controllers\ButtonController::class, 'viewAbsences']);
 Route::get('/manage-data', [App\Http\Controllers\ButtonController::class, 'manageData']);
-Route::get('/vacation-plans', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
+Route::get('/vacation', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
 Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
 Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData'])->name('importExportData');
 Route::get('/daily-tasks', [App\Http\Controllers\ButtonController::class, 'dailyTasks']);
@@ -72,6 +73,16 @@ Route::get('/work-shifts/show', [WorkShiftController::class, 'show']);
 Route::get('/work-shifts/edit/{work_shift}', [WorkShiftController::class, 'edit']);
 Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update']);
 
+
+//rotas vacation
+
+Route::get('/vacation', [VacationController::class, 'index'])->name('vacations.index');
+Route::get('/vacations/create', [VacationController::class, 'create'])->name('vacations.create');
+Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
+Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
+Route::get('/vacations/edit/{vacation}', [VacationController::class, 'edit'])->name('vacations.edit');
+Route::put('/vacations/edit/{vacation}', [VacationController::class, 'update'])->name('vacations.update');
+Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destroy'])->name('vacations.destroy');
 
 /*Rotas Import Export*/
 
