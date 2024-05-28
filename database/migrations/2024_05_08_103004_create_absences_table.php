@@ -14,8 +14,10 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('absence_states_id')->constrained();
+            $table->foreignId('absence_types_id')->constrained();
             $table->unsignedBigInteger('approved_by')->nullable();
-            $table->date('absence_date');
+            $table->dateTime('absence_start_date');
+            $table->dateTime('absence_end_date');
             $table->string('justification');
             $table->timestamps();
         });
