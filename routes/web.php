@@ -1,10 +1,10 @@
 <?php
 
 use App\Http\Controllers\AdminRegisterController;
-use App\Http\Controllers\AuthenticatedRegisterController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserShiftController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkShiftController;
@@ -121,6 +121,9 @@ Route::controller(EventController::class)->group(function () {
 Route::get('users/{user}/absences', [\App\Http\Controllers\AbsenceController::class, 'absencesByUser']);
 
 
+/* Rotas Turnos */
+Route::get('users/shift-list', [UserShiftController::class, 'show']); // LISTA DE TODOS
+Route::get('user/shifts', [UserShiftController::class, 'show_spec']); // PESSOA LOGADA
 
 
 

@@ -37,7 +37,17 @@ class UserShiftController extends Controller
      */
     public function show(User_shift $user_shift)
     {
-        //
+        $users_shifts = User_shift::all();
+
+        return view('pages.user-shifts.show-all', ['users_shifts' => $users_shifts]);
+    }
+    public function show_spec(User_shift $user_shift)
+    {
+
+        $user = auth()->user();
+        $user_shifts = User_Shift::all()->where('user_id', $user->id);
+
+        return view('pages.user-shifts.show-spec', ['user_shifts' => $user_shifts]);
     }
 
     /**
