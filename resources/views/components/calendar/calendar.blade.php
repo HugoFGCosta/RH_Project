@@ -120,7 +120,7 @@
                                     id: data.id,
                                     title: title,
                                     start: startDate,
-                                    end: moment(endDate).add(1, 'days').format('YYYY-MM-DD'), // Adiciona um dia para garantir o fim correto
+                                    end: moment(endDate).add(1, 'days').format('YYYY-MM-DD'),
                                     allDay: allDay
                                 }, true);
 
@@ -155,7 +155,7 @@
                 currentEvent = event;
                 $('#eventTitle').val(event.title);
                 $('#startDate').val(moment(event.start).format('YYYY-MM-DD'));
-                $('#endDate').val(moment(event.end).subtract(1, 'days').format('YYYY-MM-DD')); // Ajusta a data final para exibição correta
+                $('#endDate').val(moment(event.end).subtract(1, 'days').format('YYYY-MM-DD'));
                 $('#eventModal').css('display', 'block');
 
                 $('#saveEvent').off('click').on('click', function() {
@@ -169,20 +169,20 @@
                             data: {
                                 title: title,
                                 start: startDate,
-                                end: moment(endDate).format('YYYY-MM-DD'), // Adiciona um dia para garantir o fim correto
+                                end: moment(endDate).format('YYYY-MM-DD'),
                                 id: currentEvent.id,
                                 type: 'update'
                             },
                             type: "POST",
                             success: function(response) {
                                 displayMessage("Evento atualizado com sucesso");
-
                                 currentEvent.title = title;
                                 currentEvent.start = startDate;
-                                currentEvent.end = moment(endDate).format('YYYY-MM-DD'); // Adiciona um dia para garantir o fim correto
+                                currentEvent.end = moment(endDate).format('YYYY-MM-DD');
                                 calendar.fullCalendar('updateEvent', currentEvent);
 
                                 $('#eventModal').css('display', 'none');
+                                calendar.fullCalendar('refetchEvents');
                             }
                         });
                     }
