@@ -12,6 +12,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/locale/pt-br.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <style>
+        .vacation-event {
+            background-color: green !important;
+            border-color: green !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -75,7 +81,12 @@
                                 title: this.title,
                                 start: this.start,
                                 end: moment(this.end).add(1, 'days').format('YYYY-MM-DD'),
-                                allDay: this.allDay
+                                allDay: this.allDay,
+                                className: this.is_vacation ? 'vacation-event' : '',
+                                durationEditable: false,
+                                editable: !this.is_vacation,
+                                eventStartEditable: !this.is_vacation,
+                                eventDurationEditable: !this.is_vacation
                             });
                         });
                         callback(events);
@@ -132,6 +143,10 @@
                 });
             },
             eventDrop: function(event, delta) {
+                // Se for um evento de férias, não permitir a edição
+                if (event.className.includes('vacation-event')) {
+                    return; // Não fazer nada
+                }
                 var start = event.start.format("YYYY-MM-DD");
                 var end = (event.end) ? event.end.format("YYYY-MM-DD") : start;
 
@@ -142,7 +157,7 @@
                         start: start,
                         end: moment(end).subtract(1, 'days').format('YYYY-MM-DD'),
                         id: event.id,
-                        type: 'update'
+                        type: 'update',
                     },
                     type: "POST",
                     success: function(response) {
@@ -152,6 +167,10 @@
                 });
             },
             eventClick: function(event) {
+                // Se for um evento de férias, não permitir abrir o modal
+                if (event.className.includes('vacation-event')) {
+                    return;
+                }
                 currentEvent = event;
                 $('#eventTitle').val(event.title);
                 $('#startDate').val(moment(event.start).format('YYYY-MM-DD'));
@@ -221,7 +240,7 @@
         }
 
         window.onclick = function(event) {
-            if (event.target == modal) {
+            if (event.target === modal) {
                 modal.style.display = "none";
             }
         }
