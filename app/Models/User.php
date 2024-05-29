@@ -36,7 +36,6 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
         'remember_token',
     ];
 
@@ -49,19 +48,39 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function isAdmin()
+    {
+        return $this->role_id == 3; // Verifica se o usuário é um administrador
+    }
+
+    public function isManager()
+    {
+        return $this->role_id == 2; // Verifica se o usuário é um gestor
+    }
+
     public function presences()
     {
-        return $this->hasMany('App\Presence');
+        return $this->hasMany(Presence::class);
     }
 
     public function role()
     {
-        return $this->belongsTo('App\Role');
+        return $this->belongsTo(Role::class);
     }
 
     public function vacations()
     {
-        return $this->hasMany('App\Vacation');
+        return $this->hasMany(Vacation::class);
     }
 
+    public function user_shifts()
+    {
+        return $this->hasMany(User_Shift::class);
+    }
+
+
+    public function event()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

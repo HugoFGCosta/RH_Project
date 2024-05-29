@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
+use App\Models\User_Shift;
+use App\Models\Work_Shift;
+use Faker\Factory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class UserSeeder extends Seeder
 {
@@ -13,23 +16,15 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        //
-        // Verificar se a tabela roles já contém os dados antes de inserir
-        if (DB::table('users')->count() == 0) {
-            DB::table('users')->insert([
-                ['id' => 1,
-                    'name' => 'luis',
-                    'address' => 'Rua do luis',
-                    'nif' => '123456789',
-                    'tel' => '123456789',
-                    'birth_date' => '2024-05-08',
-                    'email' => 'luis@email.com',
-                    'password' => 'password',
-                    'role_id' => 1,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
+        /**  Seeder de teste
+
+        User::factory()->count(50)->create()->each(function ($user) {
+            User_Shift::create([
+                'user_id' => $user->id,
+                'work_shift_id' => Work_Shift::all()->random()->id,
+                'start_date' => now(),
+                'end_date' => null,
             ]);
-        }
+        }); */
     }
 }

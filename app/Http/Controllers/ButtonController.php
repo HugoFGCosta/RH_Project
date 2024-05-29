@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Event;
+use App\Models\Presence;
 use Illuminate\Http\Request;
 
 class ButtonController extends Controller
@@ -12,9 +14,12 @@ class ButtonController extends Controller
      */
     public function index()
     {
-        //
-        return view('pages.menu.menu');
+        $user = auth()->user();
+        $presence = Presence::where('user_id', $user->id)->first();
+        $events = Event::where('user_id', $user->id)->get();
+        return view('pages.menu.menu', ['user' => $user,'presence' => $presence, 'events' => $events]);
     }
+
 
     public function registerSchedule()
     {
@@ -38,7 +43,7 @@ class ButtonController extends Controller
 
     public function vacationPlans()
     {
-        return view('pages.vacations.vacations');
+        return view('pages.vacations.show');
     }
 
     public function approveAbsences()

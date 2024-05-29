@@ -16,8 +16,19 @@
     <!-- Styles -->
     <link href="{{ asset('css/mainPage.css') }}" rel="stylesheet">
     <link href="{{ asset('css/daily-tasks.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/users-edit.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/showform.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
+    @yield("styles")
 
+    <!-- Script de js para correr primeiro para resolver problema de expansão no recarregamento da página -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarState = localStorage.getItem('sidebarState');
+            if (sidebarState === 'collapsed') {
+                document.documentElement.classList.add('sidebar-collapsed');
+            }
+        });
+    </script>
 </head>
 <body>
 
@@ -30,23 +41,22 @@
             <div class="toggle">
                 <ion-icon name="menu-outline"></ion-icon>
             </div>
-            <div class="search">
-                <label>
-                    <input type="text" placeholder="Procure">
-                    <ion-icon name="search-outline"></ion-icon>
-                </label>
-            </div>
             <div class="user">
                 @if (Auth::check())
+                    @php
+                        $fullName = Auth::user()->name;
+                        $nameParts = explode(' ', $fullName);
+                        $firstName = $nameParts[0];
+                        $lastName = count($nameParts) > 1 ? end($nameParts) : '';
+                    @endphp
                     <li class="nav-item">
-                        <a href="/user/edit">{{ Auth::user()->name }}</a>
+                        <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }} ({{ Auth::user()->role->role }})</a>
                     </li>
                 @endif
             </div>
         </div>
     </div>
-
-    <div class="content-area">
+    <div class="content-area hidden">
         @yield('content')
     </div>
 
@@ -61,7 +71,11 @@
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
+<!-- Scripts -->
+<script>var presenceStatusUrl = '{{ url('user/presence/status') }}';</script>
+
 @yield('scripts')
+@stack('scripts')
 
 </body>
 </html>
