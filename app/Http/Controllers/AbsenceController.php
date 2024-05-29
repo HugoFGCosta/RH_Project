@@ -209,7 +209,7 @@ class AbsenceController extends Controller
     }
 
     public function verifyFirstShiftAbsence(){
-
+        
         $users = User::all();
         $presences = Presence::all();
 
