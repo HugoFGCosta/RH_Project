@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
+use App\Models\Vacation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,8 @@ class EventController extends Controller
         if ($request->ajax()) {
             $userId = auth()->user()->id;
 
-            $data = Event::where('user_id', $userId)
+            // Busca eventos normais
+            $events = Event::where('user_id', $userId)
                 ->where(function($query) use ($request) {
                     $query->whereBetween('start', [$request->start, $request->end])
                         ->orWhereBetween('end', [$request->start, $request->end])
@@ -29,11 +31,31 @@ class EventController extends Controller
                 })
                 ->get(['id', 'title', 'start', 'end']);
 
+            // Busca eventos de férias
+            $vacations = Vacation::where('user_id', $userId)
+                ->where('vacation_approval_states_id', 1) // Apenas férias aprovadas
+                ->where(function($query) use ($request) {
+                    $query->whereBetween('date_start', [$request->start, $request->end])
+                        ->orWhereBetween('date_end', [$request->start, $request->end])
+                        ->orWhere(function($query) use ($request) {
+                            $query->where('date_start', '<', $request->start)
+                                ->where('date_end', '>', $request->end);
+                        });
+                })
+                ->get(['id', 'date_start as start', 'date_end as end']);
+
+            // Adiciona uma propriedade 'is_vacation' aos eventos de férias
+            foreach ($vacations as $vacation) {
+                $vacation->title = 'Férias';
+                $vacation->is_vacation = true;
+            }
+
+            // Une eventos e férias
+            $data = $events->merge($vacations);
+
             return response()->json($data);
         }
 
-        /* $users = User::orderBy('id', 'desc')->get();                 // exemplo para enviar Faltas, Presenças, Ferias
-        return view('pages.users.index', ['users' => $users]); */
         $events = Event::all();
         return view('fullcalender', ['events' => $events]);
     }
