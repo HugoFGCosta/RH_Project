@@ -24,13 +24,17 @@
 }
 
 .left-column {
-    flex: 1;
+    flex: 2;
     align-items: center;
 }
 
 .right-column {
-    flex: 2;
-    padding: 40px;
+    flex: 0.7;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
 }
 
 .button-In-Out {
@@ -40,13 +44,15 @@
 }
 
 .notifications {
-    text-align: center;
+    text-align: left;
     margin-top: 10px;
     margin-bottom: 20px;
 }
 
 .calendar {
+    flex: 2;
     width: 100%;
+    margin-top: 50px;
 }
 
 .btn-in-out {
@@ -170,13 +176,14 @@
 .form-group-event .btn-delete:hover {
     background-color: darkred;
 }
+
 /* Dispositivos Móveis */
 @media (max-width: 768px) {
     .row {
-        flex-direction: column;
+        flex-direction: column-reverse;
     }
 
-    .right-column {
-        margin-left: 0;
+    container-menu {
+        flex-direction: column;
     }
 }
