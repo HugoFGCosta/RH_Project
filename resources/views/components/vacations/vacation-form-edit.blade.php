@@ -1,6 +1,10 @@
 
 <form method="POST" action="{{url('vacations/' .'edit/' .$vacations->id)}}">
     @csrf
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('status') }}
+       
+    </div>
     <div class="form-group">
 
         @method('PUT')
@@ -43,8 +47,8 @@
            required
        @endif
        type="date"
-       name="date_start"
-       id="date_start"
+       name="date_end"
+       id="date_end"
         >
 
 
