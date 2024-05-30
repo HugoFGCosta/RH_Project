@@ -23,6 +23,11 @@
 
         <input
             value="{{ $vacations->date_start}}"
+            @if($totaldias>=22)
+                disabled
+            @else
+                required
+            @endif
             type="date"
             name="date_start"
             id="date_start"
@@ -32,11 +37,14 @@
         <label for="date_end">end</label>
         <input
        value="{{$vacations->date_end }}"
-            required
-            type="date"
-            name="date_end"
-            id="date_end"
-
+       @if($totaldias>=22)
+           disabled
+       @else
+           required
+       @endif
+       type="date"
+       name="date_start"
+       id="date_start"
         >
 
 
