@@ -45,6 +45,7 @@ Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class,
 Route::get('/daily-tasks', [App\Http\Controllers\ButtonController::class, 'dailyTasks']);
 Route::get('/requests', [App\Http\Controllers\ButtonController::class, 'requests']);
 Route::get('/settings', [App\Http\Controllers\ButtonController::class, 'settings']);
+Route::get('/attendance-record', [App\Http\Controllers\ButtonController::class, 'attendanceRecord']);
 
 
 /*Rotas Users*/

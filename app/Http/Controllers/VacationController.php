@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Vacation;
 use App\Http\Requests\StoreVacationRequest;
 use App\Http\Requests\UpdateVacationRequest;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
@@ -18,8 +20,60 @@ class VacationController extends Controller
      */
     public function index()
     {
+  //  ISTO ESTA A FAZER A DIFF DE DATE START E END SEM WEEKENDS
+   function dif(){
+    $user = Auth::id();
+        $vacation_start= Vacation::where('user_id',$user)->pluck('date_start');
+        $vacation_end = Vacation::where('user_id',$user)->pluck('date_end');
+        $total= 0;
+        $totaldias=0;
+        foreach ($vacation_start as $x){
+            $total = $total +1;
+        }
+        for($i=0;$total>$i;$i++){
+       $diff_date = Carbon::parse($vacation_start[$i])->diffInDaysFiltered(function (Carbon $remover){
+           return !$remover->isWeekend();
+       },Carbon::parse($vacation_end[$i]));
+       $totaldias=$totaldias+$diff_date;
+        }
+print $totaldias;
+   }
+   dif();
+
+       $vacation = vacation::with('user')->orderBy('id', 'asc')->paginate(3);
+       return view('pages.vacations.show',['vacations' => $vacation]);
+
+
+
+
+        //  $diff=$vacation_start[2]->diffInDays($vacation_start[2]);
+        //   $dias_ferias= Vacation::select('date_start','date_end')->where('user_id',$user);
+        //   $dias_ferias= Vacation::pluck('date_start','date_end')->where('user_id',$user);
+        //$dias_ferias = Vacation::pluck('date_start','date_end')->where('user_id',$user);
+    //     Vacation::all('date_start','date_end')('user_id')->where($user);
+      //   dd( $vacation_end);
+      /*foreach(explode(':',$dias_ferias)as $dias[$i]){
+       //   print $dias[$i];
+         // print '<br>';
+          $i++;
+      }
+      dd($dias);
+           Destination::orderByDesc(
+                  Flight::select('arrived_at')
+                      ->whereColumn('destination_id', 'destinations.id')
+                      ->orderByDesc('arrived_at')
+                      ->limit(1)
+              )->get();
+            for($i=0;$i<2;$i++){
+                  $diff = now()->diffInDays(Carbon::parse($date));
+                 // print $diff[$i];
+              }
+      */
+//print $dias_ferias;
+
         $vacation = vacation::with('user')->orderBy('id', 'asc')->paginate(3);
         return view('pages.vacations.show', ['vacations' => $vacation]);
+
 
     }
 
@@ -28,6 +82,7 @@ class VacationController extends Controller
      */
     public function create()
     {
+
         return view ('pages.vacations.create');
     }
 
@@ -37,6 +92,9 @@ class VacationController extends Controller
     public function store(StoreVacationRequest $request)
     {
         $request->validate([
+            'date_start' => 'required|after:today,before:date_end' ,
+            'date_end' => 'required|after:tomorrow|after:date_start'
+
             'date_start' => 'required|after:tomorrow' ,
             'date_end' => 'required|after:tomorrow'
         ]);
@@ -73,6 +131,15 @@ class VacationController extends Controller
      */
     public function update(UpdateVacationRequest $request, Vacation $vacation)
     {
+        $request->validate([
+            'date_start' => 'required|after:today,before:date_end' ,
+            'date_end' => 'required|after:tomorrow|after:date_start',
+            'vacation_approval_states_id' => 'required'
+        ]);
+        $vacation = vacation::find($vacation->id);
+        //  if(find($vacation->approved_by))
+        $vacation->approved_by = null;
+        $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
         $vacation = vacation::find($vacation->id);
         //  if(find($vacation->approved_by))
         $vacation->approved_by = null;

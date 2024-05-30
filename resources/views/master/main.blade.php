@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Facades\Auth; @endphp
 <!DOCTYPE html>
 <html lang="{{app()->getLocale() }}">
 <head>
@@ -39,7 +40,7 @@
     <div class="main">
         <div class="topbar">
             <div class="toggle">
-                <ion-icon name="menu-outline"></ion-icon>
+                <img src="{{ asset('images/menu-arrow-open.svg') }}" alt="" style="width: 70%; height: auto;" id="menu-arrow-open">
             </div>
             <div class="user">
                 @if (Auth::check())
@@ -48,9 +49,20 @@
                         $nameParts = explode(' ', $fullName);
                         $firstName = $nameParts[0];
                         $lastName = count($nameParts) > 1 ? end($nameParts) : '';
+                        $role = (Auth::user()->role->role);
+
+                        $roleId = Auth::user()->role_id;
+                        if ($roleId == 3) {
+                             $role = 'Administrador';
+                        } elseif ($roleId == 2) {
+                            $role = 'Gestor';
+                        } else {
+                            $role = 'Utilizador';
+                        }
+
                     @endphp
                     <li class="nav-item">
-                        <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }} ({{ Auth::user()->role->role }})</a>
+                        <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }} ({{ $role }})</a>
                     </li>
                 @endif
             </div>
