@@ -13,6 +13,14 @@
             id="id"
 
         ><br>
+        <label for="vacation_approval_states_id">Aprovação de ferias</label>
+        <select name="vacation_approval_states_id" id="vacation_approval_states_id">
+        <option value="1">Aprovar</option>
+        <option value="2">Rejeitar</option>
+        <option value="3">Pendente</option>
+        </select>
+        <br>
+
         <input
             value="{{ $vacations->date_start}}"
             type="date"
@@ -20,6 +28,7 @@
             id="date_start"
 
         >
+
         <label for="date_end">end</label>
         <input
        value="{{$vacations->date_end }}"
