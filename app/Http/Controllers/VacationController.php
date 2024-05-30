@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
+use Mockery\Exception;
 
 class VacationController extends Controller
 {
@@ -19,7 +20,7 @@ class VacationController extends Controller
      * Display a listing of the resource.
      */
 
-    public function dif()
+    public function difTotal()
     {
         $user = Auth::id();
         $vacation_start= Vacation::where('user_id',$user)->pluck('date_start');
@@ -37,42 +38,28 @@ class VacationController extends Controller
         }
         return $totaldias;
     }
+    public function difInput($start, $end,$total): bool|int
+    {
+
+        $diff_date = Carbon::parse($start)->diffInDaysFiltered(function (Carbon $remover){
+            return !$remover->isWeekend();
+        },Carbon::parse($end));
+        if ($total + $diff_date > 22 ){
+            return false;
+        }
+        else
+        return true;
+        }
+
     public function index()
     {
   //  ISTO ESTA A FAZER A DIFF DE DATE START E END SEM WEEKENDS
 
-   $totaldias = $this->dif();
+   $totaldias = $this->difTotal();
 
        $vacation = vacation::with('user')->orderBy('id', 'asc')->paginate(3);
        return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias',$totaldias);
 
-
-
-
-        //  $diff=$vacation_start[2]->diffInDays($vacation_start[2]);
-        //   $dias_ferias= Vacation::select('date_start','date_end')->where('user_id',$user);
-        //   $dias_ferias= Vacation::pluck('date_start','date_end')->where('user_id',$user);
-        //$dias_ferias = Vacation::pluck('date_start','date_end')->where('user_id',$user);
-    //     Vacation::all('date_start','date_end')('user_id')->where($user);
-      //   dd( $vacation_end);
-      /*foreach(explode(':',$dias_ferias)as $dias[$i]){
-       //   print $dias[$i];
-         // print '<br>';
-          $i++;
-      }
-      dd($dias);
-           Destination::orderByDesc(
-                  Flight::select('arrived_at')
-                      ->whereColumn('destination_id', 'destinations.id')
-                      ->orderByDesc('arrived_at')
-                      ->limit(1)
-              )->get();
-            for($i=0;$i<2;$i++){
-                  $diff = now()->diffInDays(Carbon::parse($date));
-                 // print $diff[$i];
-              }
-      */
-//print $dias_ferias;
 
     }
 
@@ -82,7 +69,7 @@ class VacationController extends Controller
     public function create()
     {
 
-        $totaldias = $this->dif();
+        $totaldias = $this->difTotal();
         return view ('pages.vacations.create')->with('totaldias', $totaldias);
     }
 
@@ -95,14 +82,18 @@ class VacationController extends Controller
             'date_start' => 'required|after:today,before:date_end' ,
             'date_end' => 'required|after:tomorrow|after:date_start'
         ]);
-        $vacation = new Vacation();
-        $vacation->user_id = Auth::id();
-        $vacation->vacation_approval_states_id = 3;
-        $vacation->approved_by = null;
-        $vacation->date_start =$request->date_start ;
-        $vacation->date_end = $request->date_end ;
-        $vacation->save();
-        return redirect(url('/vacation'))->with('status','Item created successfully!');
+       if($this->difInput($request->date_start , $request->date_end ,$this->difTotal())!=null){
+
+           $vacation = new Vacation();
+           $vacation->user_id = Auth::id();
+           $vacation->vacation_approval_states_id = 3;
+           $vacation->approved_by = null;
+           $vacation->date_start =$request->date_start ;
+           $vacation->date_end = $request->date_end ;
+           $vacation->save();
+           return redirect(url('/vacation'))->with('status','Item created successfully!');
+    }
+else return redirect(url('/vacations/create'))->with('status','error!');
     }
 
 
@@ -119,7 +110,7 @@ class VacationController extends Controller
      */
     public function edit(Vacation $vacation)
     {
-        $totaldias= $this->dif();
+        $totaldias= $this->difTotal();
         return view('pages.vacations.edit', ['vacations' => $vacation])->with('totaldias', $totaldias);
 
     }
@@ -129,22 +120,26 @@ class VacationController extends Controller
      */
     public function update(UpdateVacationRequest $request, Vacation $vacation)
     {
+
         $request->validate([
             'date_start' => 'required|after:today,before:date_end' ,
             'date_end' => 'required|after:tomorrow|after:date_start',
             'vacation_approval_states_id' => 'required'
         ]);
-        $vacation = vacation::find($vacation->id);
-        //  if(find($vacation->approved_by))
-        $vacation->approved_by = null;
-        $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
-        $vacation->date_start = $request->date_start;
-        $vacation->date_end = $request->date_end;
+        if($this->difInput($request->date_start , $request->date_end ,$this->difTotal())!=null) {
 
+            $vacation = vacation::find($vacation->id);
+            //  if(find($vacation->approved_by))
+            $vacation->approved_by = null;
+            $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
+            $vacation->date_start = $request->date_start;
+            $vacation->date_end = $request->date_end;
 
         $vacation->save();
         return redirect(url('/vacation'))->with('status','Item edited successfully!');
 
+        }
+        else return redirect(url('/vacations/edit/' . $vacation->id))->with('status','error!');
     }
 
     /**

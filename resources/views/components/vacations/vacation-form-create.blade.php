@@ -3,6 +3,10 @@
 <form method="POST" action="{{ url('vacations') }}">
 
     @csrf
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('status') }}
+
+    </div>
     <div class="form-group">
         <label for="date_start">start</label>
         <input
