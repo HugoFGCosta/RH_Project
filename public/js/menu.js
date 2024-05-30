@@ -14,6 +14,7 @@ function selectLink() {
     clearSelected();
     this.classList.add("selected");
     localStorage.setItem('selectedMenuItem', this.id);
+    collapseMenu();
 }
 
 list.forEach((item) => {
@@ -64,7 +65,6 @@ if (userLink) {
         clearSelected();
     });
 }
-
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM fully loaded and parsed");
@@ -144,12 +144,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-
-
-
-/**
- * Toggle menu visibility
- */
+function collapseMenu() {
+    menu.classList.add('active');
+    main.classList.add('active');
+    content.classList.add('active');
+    localStorage.setItem('sidebarState', 'collapsed');
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     let menuArrowOpen = document.getElementById('menu-arrow-open');
@@ -161,9 +161,8 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('main').style.width = '100%';
         } else {
             menuArrowOpen.src = 'images/menu-arrow-open.svg';
-            document.getElementById('menu').style.display = 'block'; // or any other appropriate display property
-            document.getElementById('main').style.width = '80%'; // adjust width as needed
+            document.getElementById('menu').style.display = 'block';
+            document.getElementById('main').style.width = '80%';
         }
     };
 });
-
