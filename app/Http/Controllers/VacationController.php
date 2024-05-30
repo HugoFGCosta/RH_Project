@@ -71,6 +71,10 @@ print $totaldias;
       */
 //print $dias_ferias;
 
+        $vacation = vacation::with('user')->orderBy('id', 'asc')->paginate(3);
+        return view('pages.vacations.show', ['vacations' => $vacation]);
+
+
     }
 
     /**
@@ -90,6 +94,9 @@ print $totaldias;
         $request->validate([
             'date_start' => 'required|after:today,before:date_end' ,
             'date_end' => 'required|after:tomorrow|after:date_start'
+
+            'date_start' => 'required|after:tomorrow' ,
+            'date_end' => 'required|after:tomorrow'
         ]);
         $vacation = new Vacation();
         $vacation->user_id = Auth::id();
@@ -133,6 +140,10 @@ print $totaldias;
         //  if(find($vacation->approved_by))
         $vacation->approved_by = null;
         $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
+        $vacation = vacation::find($vacation->id);
+        //  if(find($vacation->approved_by))
+        $vacation->approved_by = null;
+        $vacation->vacation_approval_states_id = '3';
         $vacation->date_start = $request->date_start;
         $vacation->date_end = $request->date_end;
 

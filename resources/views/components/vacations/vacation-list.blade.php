@@ -40,6 +40,9 @@
                             <img src="" height="33px" width="33px" alt="">
                         @endif</td>
 
+                    <td>{{$vacation->vacation_approval_states_id}}</td>
+
+
                     <td>{{ $vacation->date_start}}</td>
                     <td>{{ $vacation->date_end }}</td>
 

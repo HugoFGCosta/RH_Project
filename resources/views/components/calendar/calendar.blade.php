@@ -12,6 +12,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/locale/pt-br.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <style>
+        .vacation-event {
+            background-color: green !important;
+            border-color: green !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -74,8 +80,13 @@
                                 id: this.id,
                                 title: this.title,
                                 start: this.start,
-                                end: this.end,
-                                allDay: this.allDay
+                                end: moment(this.end).add(1, 'days').format('YYYY-MM-DD'),
+                                allDay: this.allDay,
+                                className: this.is_vacation ? 'vacation-event' : '',
+                                durationEditable: false,
+                                editable: !this.is_vacation,
+                                eventStartEditable: !this.is_vacation,
+                                eventDurationEditable: !this.is_vacation
                             });
                         });
                         callback(events);
@@ -109,7 +120,7 @@
                             data: {
                                 title: title,
                                 start: startDate,
-                                end: moment(endDate).add(1, 'days').format('YYYY-MM-DD'), // Adiciona um dia para garantir o fim correto
+                                end: moment(endDate).format('YYYY-MM-DD'), // Adiciona um dia para garantir o fim correto
                                 type: 'add'
                             },
                             type: "POST",
@@ -120,7 +131,7 @@
                                     id: data.id,
                                     title: title,
                                     start: startDate,
-                                    end: moment(endDate).add(1, 'days').format('YYYY-MM-DD'), // Adiciona um dia para garantir o fim correto
+                                    end: moment(endDate).add(1, 'days').format('YYYY-MM-DD'),
                                     allDay: allDay
                                 }, true);
 
@@ -132,6 +143,10 @@
                 });
             },
             eventDrop: function(event, delta) {
+                // Se for um evento de férias, não permitir a edição
+                if (event.className.includes('vacation-event')) {
+                    return; // Não fazer nada
+                }
                 var start = event.start.format("YYYY-MM-DD");
                 var end = (event.end) ? event.end.format("YYYY-MM-DD") : start;
 
@@ -140,9 +155,9 @@
                     data: {
                         title: event.title,
                         start: start,
-                        end: end,
+                        end: moment(end).subtract(1, 'days').format('YYYY-MM-DD'),
                         id: event.id,
-                        type: 'update'
+                        type: 'update',
                     },
                     type: "POST",
                     success: function(response) {
@@ -152,10 +167,14 @@
                 });
             },
             eventClick: function(event) {
+                // Se for um evento de férias, não permitir abrir o modal
+                if (event.className.includes('vacation-event')) {
+                    return;
+                }
                 currentEvent = event;
                 $('#eventTitle').val(event.title);
                 $('#startDate').val(moment(event.start).format('YYYY-MM-DD'));
-                $('#endDate').val(moment(event.end).subtract(1, 'days').format('YYYY-MM-DD')); // Ajusta a data final para exibição correta
+                $('#endDate').val(moment(event.end).subtract(1, 'days').format('YYYY-MM-DD'));
                 $('#eventModal').css('display', 'block');
 
                 $('#saveEvent').off('click').on('click', function() {
@@ -169,20 +188,20 @@
                             data: {
                                 title: title,
                                 start: startDate,
-                                end: moment(endDate).add(1, 'days').format('YYYY-MM-DD'), // Adiciona um dia para garantir o fim correto
+                                end: moment(endDate).format('YYYY-MM-DD'),
                                 id: currentEvent.id,
                                 type: 'update'
                             },
                             type: "POST",
                             success: function(response) {
                                 displayMessage("Evento atualizado com sucesso");
-
                                 currentEvent.title = title;
                                 currentEvent.start = startDate;
-                                currentEvent.end = moment(endDate).add(1, 'days').format('YYYY-MM-DD'); // Adiciona um dia para garantir o fim correto
+                                currentEvent.end = moment(endDate).format('YYYY-MM-DD');
                                 calendar.fullCalendar('updateEvent', currentEvent);
 
                                 $('#eventModal').css('display', 'none');
+                                calendar.fullCalendar('refetchEvents');
                             }
                         });
                     }
@@ -221,7 +240,7 @@
         }
 
         window.onclick = function(event) {
-            if (event.target == modal) {
+            if (event.target === modal) {
                 modal.style.display = "none";
             }
         }
