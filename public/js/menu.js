@@ -146,3 +146,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+
+/**
+ * Toggle menu visibility
+ */
+
+document.addEventListener('DOMContentLoaded', function () {
+    let menuArrowOpen = document.getElementById('menu-arrow-open');
+
+    menuArrowOpen.onclick = function () {
+        if (menuArrowOpen.src.includes('menu-arrow-open')) {
+            menuArrowOpen.src = 'images/menu-arrow-closed.svg';
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('main').style.width = '100%';
+        } else {
+            menuArrowOpen.src = 'images/menu-arrow-open.svg';
+            document.getElementById('menu').style.display = 'block'; // or any other appropriate display property
+            document.getElementById('main').style.width = '80%'; // adjust width as needed
+        }
+    };
+});
+

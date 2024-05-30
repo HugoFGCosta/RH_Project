@@ -21,7 +21,7 @@
             <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name"
                    value="{{ old('name') }}" required autocomplete="name" autofocus>
             <div class="underline"></div>
-            <label for="name">{{ __('Name') }}</label>
+            <label for="name">{{ __('Nome') }}</label>
             @error('name')
             <span class="invalid-feedback" role="alert">
                     <strong>{{ $message }}</strong>
@@ -32,7 +32,7 @@
             <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
                    name="email" value="{{ old('email') }}" required autocomplete="email">
             <div class="underline"></div>
-            <label for="email">{{ __('E-Mail Address') }}</label>
+            <label for="email">{{ __('E-Mail') }}</label>
             @error('email')
             <span class="invalid-feedback" role="alert">
                     <strong>{{ $message }}</strong>
@@ -46,7 +46,7 @@
             <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
                    name="password" required autocomplete="new-password">
             <div class="underline"></div>
-            <label for="password">{{ __('Password') }}</label>
+            <label for="password">{{ __('Palavra-Passe') }}</label>
             @error('password')
             <span class="invalid-feedback" role="alert">
                     <strong>{{ $message }}</strong>
@@ -57,7 +57,7 @@
             <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required
                    autocomplete="new-password">
             <div class="underline"></div>
-            <label for="password-confirm">{{ __('Confirm Password') }}</label>
+            <label for="password-confirm">{{ __('Confirmar Palavra-Passe') }}</label>
         </div>
     </div>
 
@@ -70,12 +70,12 @@
                 @endforeach
             </select>
             <div class="underline"></div>
-            <label for="role_id">Role</label>
+            <label for="role_id">Função</label>
         </div>
         <div class="input-data">
             <input id="address" type="text" class="form-control" name="address" required>
             <div class="underline"></div>
-            <label for="address">{{ __('Address') }}</label>
+            <label for="address">{{ __('Morada') }}</label>
         </div>
     </div>
 
@@ -88,7 +88,7 @@
         <div class="input-data">
             <input id="tel" type="text" class="form-control" name="tel" required>
             <div class="underline"></div>
-            <label for="tel">{{ __('Tel') }}</label>
+            <label for="tel">{{ __('Telemóvel') }}</label>
         </div>
     </div>
 
@@ -96,7 +96,7 @@
         <div class="input-data">
             <input id="birth_date" type="text" class="form-control" name="birth_date" required>
             <div class="underline"></div>
-            <label for="birth_date">{{ __('Birth Date') }}</label>
+            <label for="birth_date">{{ __('Data Nascimento') }}</label>
         </div>
         <div class="input-data">
             <select name="work_shift_id" id="work_shift_id" class="form-control" required>
@@ -108,13 +108,13 @@
                 @endforeach
             </select>
             <div class="underline"></div>
-            <label for="work_shift_id">{{ __('Work Shift') }}</label>
+            <label for="work_shift_id">{{ __('Horário de Trabalho') }}</label>
         </div>
     </div>
 
     <div class="form-row">
         <button type="submit" class="btn showform-btn">
-            <span>{{ __('Registe') }}</span>
+            <span>{{ __('Confirmar') }}</span>
         </button>
     </div>
 </form>
