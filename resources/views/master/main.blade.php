@@ -20,16 +20,16 @@
     <link href="{{ asset('css/showform.css') }}" rel="stylesheet">
     <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
     @yield("styles")
-
     <!-- Script de js para correr primeiro para resolver problema de expansão no recarregamento da página -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        (function() {
             const sidebarState = localStorage.getItem('sidebarState');
             if (sidebarState === 'collapsed') {
                 document.documentElement.classList.add('sidebar-collapsed');
             }
-        });
+        })();
     </script>
+
 </head>
 <body>
 
