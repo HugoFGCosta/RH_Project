@@ -17,6 +17,7 @@ class Vacation extends Model
         'date_end',
     ];
 
+
     public function vacation_approval_state()
     {
         return $this->belongsTo(Vacation_Approval_State::class);
