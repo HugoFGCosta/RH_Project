@@ -32,7 +32,7 @@
                     <td>{{ $vacation->user_id}}</td>
                     <td>{{ $vacation->user->name}}</td>
                     <td>@if($vacation->vacation_approval_states_id == 3 )
-                           <a href="{{url('vacations/'.'edit/' . $vacation->id  )}}"  ><img src="https://as1.ftcdn.net/v2/jpg/00/65/91/40/1000_F_65914012_2seEI4hEtMxEGcU3T64D9y66yM1t9UL2.jpg" height="33px" width="40px" alt=""></a>
+                           <img src="https://as1.ftcdn.net/v2/jpg/00/65/91/40/1000_F_65914012_2seEI4hEtMxEGcU3T64D9y66yM1t9UL2.jpg" height="33px" width="40px" alt="">
                         @elseif($vacation->vacation_approval_states_id == 2 )
                             <img src="https://as2.ftcdn.net/v2/jpg/05/10/34/11/1000_F_510341127_8GUXvIyznz4hekgbCzt0YC0mOoIgo4od.jpg" height="33px" width="40px" alt="">
                         @elseif($vacation->vacation_approval_states_id == 1 )
@@ -40,7 +40,7 @@
                         @else
                             <img src="" height="33px" width="63px" alt="">
                         @endif</td>
-
+                    <td>{{$vacation->approved_by}}</td>
                     <td>{{ $vacation->date_start}}</td>
                     <td>{{ $vacation->date_end }}</td>
 

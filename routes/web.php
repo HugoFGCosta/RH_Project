@@ -82,7 +82,7 @@ Route::get('/vacations/create', [VacationController::class, 'create'])->name('va
 Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
 Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
 Route::get('/vacations/edit/{vacation}', [VacationController::class, 'edit'])->name('vacations.edit');
-Route::put('/vacations/edit/{vacation}', [VacationController::class, 'update'])->name('vacations.update');
+Route::put('/vacations/{vacation}', [VacationController::class, 'update'])->name('vacations.update');
 Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destroy'])->name('vacations.destroy');
 
 /*Rotas Import Export*/
