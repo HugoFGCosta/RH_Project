@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Vacation;
 use App\Http\Requests\StoreVacationRequest;
 use App\Http\Requests\UpdateVacationRequest;
@@ -103,36 +104,38 @@ else return redirect(url('/vacations/create'))->with('status','error!');
 
     public function update(UpdateVacationRequest $request, Vacation $vacation)
     {
+        $user_role_id_table =  Vacation::with('user')->where('user_id',$vacation->user_id)->get() ;
+
+
+
+
+
         $request->validate([
             'date_start' => 'required|after:today,before:date_end' ,
             'date_end' => 'required|after:tomorrow|after:date_start',
 
         ]);
         $roleId = auth()->user()->role_id;
-       if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::user())) ) {
+      if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::user())) && ($user_role_id_table[0]['user']['role_id'] < $roleId || $roleId >= 3 || auth()->user()->id == $vacation->user_id  )) {
 
+          $vacation = Vacation::find($vacation->id);
+          if($roleId >= 2 ){
+              $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
+              $vacation->approved_by= auth()->user()->id;
+          }
+          else{
+              $vacation->vacation_approval_states_id = 3;
+              $vacation->approved_by= null;
+          }
+          $vacation->date_start = $request->date_start;
+          $vacation->date_end = $request->date_end;
 
-           $vacation = Vacation::find($vacation->id);
-           //  if(find($vacation->approved_by))
-           $vacation->approved_by = null;
-
-           if($roleId > 2){
-               $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
-           $vacation->approved_by=auth::id();
-           }
-           else
-               $vacation->vacation_approval_states_id = 3;
-
-           $vacation->date_start = $request->date_start;
-           $vacation->date_end = $request->date_end;
-
-           $vacation->save();
-           print $roleId;
-           return redirect(url('/vacation'))->with('status', 'Item edited successfully!');
-       }
-       else
-           return redirect('/vacation')->with('status', 'Erro!');
-        }
+          $vacation->save();
+          return redirect(url('/vacation'))->with('status', 'Item edited successfully!');
+      }
+      else
+          return redirect('/vacation')->with('status', 'Erro!');
+    }
 
 
     public function destroy(Vacation $vacation)
