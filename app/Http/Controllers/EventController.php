@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Absence;
 use App\Models\Event;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use App\Models\Vacation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EventController extends Controller
 {
@@ -17,9 +20,9 @@ class EventController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $userId = auth()->user()->id;
+            $userId = Auth::id();
 
-            // Busca eventos normais
+            //  eventos normais
             $events = Event::where('user_id', $userId)
                 ->where(function($query) use ($request) {
                     $query->whereBetween('start', [$request->start, $request->end])
@@ -31,7 +34,7 @@ class EventController extends Controller
                 })
                 ->get(['id', 'title', 'start', 'end']);
 
-            // Busca eventos de férias
+            //  eventos de férias
             $vacations = Vacation::where('user_id', $userId)
                 ->where('vacation_approval_states_id', 1) // Apenas férias aprovadas
                 ->where(function($query) use ($request) {
@@ -44,21 +47,37 @@ class EventController extends Controller
                 })
                 ->get(['id', 'date_start as start', 'date_end as end']);
 
-            // Adiciona uma propriedade 'is_vacation' aos eventos de férias
             foreach ($vacations as $vacation) {
                 $vacation->title = 'Férias';
                 $vacation->is_vacation = true;
             }
 
-            // Une eventos e férias
-            $data = $events->merge($vacations);
+            // eventos de faltas
+            $absences = Absence::where('user_id', $userId)
+                ->where(function($query) use ($request) {
+                    $query->whereBetween('absence_start_date', [$request->start, $request->end])
+                        ->orWhereBetween('absence_end_date', [$request->start, $request->end])
+                        ->orWhere(function($query) use ($request) {
+                            $query->where('absence_start_date', '<', $request->start)
+                                ->where('absence_end_date', '>', $request->end);
+                        });
+                })
+                ->get(['id', 'absence_start_date as start', 'absence_end_date as end']);
+
+            foreach ($absences as $absence) {
+                $absence->title = 'Falta';
+                $absence->is_absence = true;
+            }
+
+            // Une eventos normais, férias e faltas
+            $data = $events->merge($vacations)->merge($absences);
 
             return response()->json($data);
         }
 
-        $events = Event::all();
-        return view('fullcalender', ['events' => $events]);
+        return view('fullcalender');
     }
+
 
 
 
@@ -110,20 +129,18 @@ class EventController extends Controller
         //
     }
 
-    public function ajax(Request $request): JsonResponse
+    public function ajax(Request $request)
     {
-        $userId = auth()->user()->id; // Obtém o ID do usuário logado
+        $userId = Auth::id();
 
         switch ($request->type) {
             case 'add':
-                // Verifica se já existe um evento para o usuário na data selecionada
                 $eventExists = Event::where('user_id', $userId)
                     ->whereDate('start', $request->start)
                     ->whereDate('end', $request->end)
                     ->exists();
 
                 if (!$eventExists) {
-                    // Cria um novo evento para o usuário
                     $event = new Event([
                         'user_id' => $userId,
                         'title' => $request->title,
@@ -140,7 +157,7 @@ class EventController extends Controller
                 break;
 
             case 'update':
-                $event = Event::where('user_id', $userId) // Verifica se o evento pertence ao usuário logado
+                $event = Event::where('user_id', $userId)
                     ->find($request->id)
                     ->update([
                         'title' => $request->title,
@@ -152,7 +169,7 @@ class EventController extends Controller
                 break;
 
             case 'delete':
-                $event = Event::where('user_id', $userId) // Verifica se o evento pertence ao usuário logado
+                $event = Event::where('user_id', $userId)
                     ->find($request->id)
                     ->delete();
 
@@ -160,11 +177,7 @@ class EventController extends Controller
                 break;
 
             default:
-                # code...
-                break;
+                return response()->json(['error' => 'Tipo de ação inválida'], 400);
         }
     }
-
-
-
 }
