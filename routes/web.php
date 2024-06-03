@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkShiftController;
 use App\Http\Controllers\VacationController;
+use App\Http\Controllers\DashboardController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -128,3 +130,7 @@ Route::get('users/{user}/absences', [\App\Http\Controllers\AbsenceController::cl
 
 Route::get('export/work-shifts', [\App\Http\Controllers\WorkShiftController::class, 'export'])->name('exportWorkShifts');
 Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift');
+
+/*Rotas estatisticas*/
+Route::get('/dashboard-statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
+Route::post('/dashboard-statistics/filter', [DashboardController::class, 'filterStatistics'])->name('dashboard.filter');
