@@ -18,19 +18,22 @@
                         ])
                     @endcomponent
                 </div>
-                <div class="notifications">
-                    <p>Aqui ficam as notificações.
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium dolor ea earum eum ex, fuga iste, labore mollitia placeat porro quaerat qui quia ratione repellendus reprehenderit sunt tempore unde.
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet, commodi deleniti dolorem eum expedita, fugit id laborum natus nulla, officia omnis placeat possimus quas unde velit. Cupiditate neque possimus soluta?</p>
 
-                </div>
-            </div>
-            <div class="right-column">
                 <div class="calendar">
                     @component('components.calendar.calendar', [
                             'events' => $events,
                         ])
                     @endcomponent
+                </div>
+
+
+            </div>
+            <div class="right-column">
+                <div class="notifications">
+                    <p>Aqui ficam as notificações.
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium dolor ea earum eum ex, fuga iste, labore mollitia placeat porro quaerat qui quia ratione repellendus reprehenderit sunt tempore unde.
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet, commodi deleniti dolorem eum expedita, fugit id laborum natus nulla, officia omnis placeat possimus quas unde velit. Cupiditate neque possimus soluta?
+                    </p>
                 </div>
             </div>
         </div>

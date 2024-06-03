@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkShiftController;
 use App\Http\Controllers\VacationController;
+use App\Http\Controllers\DashboardController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +47,7 @@ Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class,
 Route::get('/daily-tasks', [App\Http\Controllers\ButtonController::class, 'dailyTasks']);
 Route::get('/requests', [App\Http\Controllers\ButtonController::class, 'requests']);
 Route::get('/settings', [App\Http\Controllers\ButtonController::class, 'settings']);
+Route::get('/attendance-record', [App\Http\Controllers\ButtonController::class, 'attendanceRecord']);
 
 
 /*Rotas Users*/
@@ -81,7 +84,7 @@ Route::get('/vacations/create', [VacationController::class, 'create'])->name('va
 Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
 Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
 Route::get('/vacations/edit/{vacation}', [VacationController::class, 'edit'])->name('vacations.edit');
-Route::put('/vacations/edit/{vacation}', [VacationController::class, 'update'])->name('vacations.update');
+Route::put('/vacations/{vacation}', [VacationController::class, 'update'])->name('vacations.update');
 Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destroy'])->name('vacations.destroy');
 
 /*Rotas Import Export*/
@@ -133,11 +136,11 @@ Route::put('users/shift-list/edit/{user_shift}', [UserShiftController::class, 'u
 Route::delete('users/shift-list/{user_shift}', [UserShiftController::class, 'destroy'])->name('user_shift.destroy');
 
 
-
-
-
-
-
-
 Route::get('export/work-shifts', [\App\Http\Controllers\WorkShiftController::class, 'export'])->name('exportWorkShifts');
 Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift');
+Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift');
+
+/*Rotas estatisticas*/
+Route::get('/dashboard-statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
+Route::post('/dashboard-statistics/filter', [DashboardController::class, 'filterStatistics'])->name('dashboard.filter');
+

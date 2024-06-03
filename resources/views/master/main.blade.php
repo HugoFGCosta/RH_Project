@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Facades\Auth; @endphp
 <!DOCTYPE html>
 <html lang="{{app()->getLocale() }}">
 <head>
@@ -19,16 +20,16 @@
     <link href="{{ asset('css/showform.css') }}" rel="stylesheet">
     <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
     @yield("styles")
-
     <!-- Script de js para correr primeiro para resolver problema de expansão no recarregamento da página -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        (function() {
             const sidebarState = localStorage.getItem('sidebarState');
             if (sidebarState === 'collapsed') {
                 document.documentElement.classList.add('sidebar-collapsed');
             }
-        });
+        })();
     </script>
+
 </head>
 <body>
 
@@ -39,7 +40,7 @@
     <div class="main">
         <div class="topbar">
             <div class="toggle">
-                <ion-icon name="menu-outline"></ion-icon>
+                <img src="{{ asset('images/menu-arrow-open.svg') }}" alt="" style="width: 70%; height: auto;" id="menu-arrow-open">
             </div>
             <div class="user">
                 @if (Auth::check())
@@ -48,9 +49,20 @@
                         $nameParts = explode(' ', $fullName);
                         $firstName = $nameParts[0];
                         $lastName = count($nameParts) > 1 ? end($nameParts) : '';
+                        $role = (Auth::user()->role->role);
+
+                        $roleId = Auth::user()->role_id;
+                        if ($roleId == 3) {
+                             $role = 'Administrador';
+                        } elseif ($roleId == 2) {
+                            $role = 'Gestor';
+                        } else {
+                            $role = 'Utilizador';
+                        }
+
                     @endphp
                     <li class="nav-item">
-                        <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }} ({{ Auth::user()->role->role }})</a>
+                        <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }} ({{ $role }})</a>
                     </li>
                 @endif
             </div>
