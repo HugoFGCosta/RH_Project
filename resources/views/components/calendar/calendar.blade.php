@@ -17,6 +17,16 @@
             background-color: green !important;
             border-color: green !important;
         }
+
+        .absence-event {
+            background-color: red !important;
+            border-color: red !important;
+        }
+
+        .absence-day {
+            background-color: red !important;
+            color: white !important;
+        }
     </style>
 </head>
 
@@ -55,6 +65,7 @@
     $(document).ready(function() {
         var SITEURL = "{{ url('/') }}";
         var currentEvent;
+        var absenceDays = {};
 
         $.ajaxSetup({
             headers: {
@@ -74,6 +85,7 @@
                         end: end.format()
                     },
                     success: function(data) {
+                        console.log('Eventos carregados', data);
                         var events = [];
                         $(data).each(function() {
                             events.push({
@@ -82,18 +94,35 @@
                                 start: this.start,
                                 end: moment(this.end).add(1, 'days').format('YYYY-MM-DD'),
                                 allDay: this.allDay,
-                                className: this.is_vacation ? 'vacation-event' : '',
+                                className: this.is_vacation ? 'vacation-event' : (this.is_absence ? 'absence-event' : ''),
                                 durationEditable: false,
-                                editable: !this.is_vacation,
-                                eventStartEditable: !this.is_vacation,
-                                eventDurationEditable: !this.is_vacation
+                                editable: !(this.is_vacation || this.is_absence),
+                                eventStartEditable: !(this.is_vacation || this.is_absence),
+                                eventDurationEditable: !(this.is_vacation || this.is_absence)
                             });
+
+                            if (this.is_absence) {
+                                var startDate = moment(this.start).format('YYYY-MM-DD');
+                                var endDate = moment(this.end).format('YYYY-MM-DD');
+                                absenceDays[startDate] = 'Falta';
+                                absenceDays[endDate] = 'Falta';
+                            }
                         });
                         callback(events);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Erro ao carregar eventos:', xhr.responseText);
                     }
                 });
             },
             displayEventTime: false,
+            dayRender: function(date, cell) {
+                var formattedDate = date.format('YYYY-MM-DD');
+                if (absenceDays[formattedDate]) {
+                    cell.addClass('absence-day');
+                    cell.append('<div class="fc-day-number">Falta</div>');
+                }
+            },
             eventRender: function(event, element, view) {
                 if (event.allDay === 'true') {
                     event.allDay = true;
@@ -143,9 +172,8 @@
                 });
             },
             eventDrop: function(event, delta) {
-                // Se for um evento de férias, não permitir a edição
-                if (event.className.includes('vacation-event')) {
-                    return; // Não fazer nada
+                if (event.className.includes('vacation-event') || event.className.includes('absence-event')) {
+                    return; // Não permitir edição para eventos de férias ou faltas
                 }
                 var start = event.start.format("YYYY-MM-DD");
                 var end = (event.end) ? event.end.format("YYYY-MM-DD") : start;
@@ -167,9 +195,8 @@
                 });
             },
             eventClick: function(event) {
-                // Se for um evento de férias, não permitir abrir o modal
-                if (event.className.includes('vacation-event')) {
-                    return;
+                if (event.className.includes('vacation-event') || event.className.includes('absence-event')) {
+                    return; // Não permitir abrir o modal para eventos de férias ou faltas
                 }
                 currentEvent = event;
                 $('#eventTitle').val(event.title);
