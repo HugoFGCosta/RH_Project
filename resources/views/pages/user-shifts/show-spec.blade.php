@@ -7,7 +7,7 @@
 @section('content')
     <div class="container p-5">
         <div class="form-container">
-            @component('components.user-shifts.user-shift', ['user_shifts' => $user_shifts])
+            @component('components.user-shifts.user-shift-form-show', ['user_shifts' => $user_shifts])
             @endcomponent
         </div>
     </div>

@@ -90,7 +90,7 @@ Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destr
 
 Route::post('user/presence/storeSimulated', [PresenceController::class, 'storeSimulated']); //ROTA SIMULADA
 /*Route::post('/user/presence', [PresenceController::class, 'presence']);*/
-Route::post('/user/presence/store', [PresenceController::class, 'store']);
+Route::post('/user/presence/store', [PresenceController::class, 'store']); /* <<<<<<<<<<< ESSA ROTA  */
 /*Route::get('/user/presence', [PresenceController::class, 'getPresence']);*/
 Route::get('/user/presence/status', [PresenceController::class, 'getStatus']);
 
@@ -124,6 +124,17 @@ Route::get('users/{user}/absences', [\App\Http\Controllers\AbsenceController::cl
 /* Rotas Turnos */
 Route::get('users/shift-list', [UserShiftController::class, 'show']); // LISTA DE TODOS
 Route::get('user/shifts', [UserShiftController::class, 'show_spec']); // PESSOA LOGADA
+
+/* Route::get('users/shift-list/edit/{user_shift}', [UserShiftController::class, 'edit']);
+Route::put('/users/shift-list/edit/{user_shift}', [UserShiftController::class, 'update']); */
+
+Route::get('users/shift-list/edit/{user_shift}', [UserShiftController::class, 'edit'])->name('user_shift.edit');
+Route::put('users/shift-list/edit/{user_shift}', [UserShiftController::class, 'update'])->name('user_shift.update');
+Route::delete('users/shift-list/{user_shift}', [UserShiftController::class, 'destroy'])->name('user_shift.destroy');
+
+
+
+
 
 
 
