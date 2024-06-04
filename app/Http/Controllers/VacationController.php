@@ -17,6 +17,50 @@ use Mockery\Exception;
 
 class VacationController extends Controller
 {
+    public function dateValidation($date_start,$date_end,$date_start_request,$date_end_request) : bool
+    {
+
+        if((($date_start >= $date_start_request) && ($date_start <= $date_end_request) ) || ( ($date_end >= $date_start_request) &&($date_end <= $date_end_request)  )){
+            return true;
+        }
+        else return false;
+    }
+
+    public function timeCollide($current_table,$userId,$date_start_request,$date_end_request)
+    {
+
+        $vacations=Vacation::where('user_id',$userId)->get();
+        $date_start_request= date('Y-m-d', strtotime($date_start_request));
+        $date_end_request= date('Y-m-d', strtotime($date_end_request));
+
+        foreach ($vacations as &$vacation){
+
+            if($current_table == $vacation->id){ //check if it's the same table from edit
+                print '<p> same table </p>';
+            }
+            else{
+            $vacation->date_start= date('Y-m-d', strtotime($vacation->date_start));
+            $vacation->date_end= date('Y-m-d', strtotime($vacation->date_end));
+            if($this->dateValidation($vacation->date_start,$vacation->date_end,$date_start_request,$date_end_request)){
+                print '<p> same table </p>';
+               return false;
+            }
+            else {
+                print '<p></p>';
+                print '$date_start :'. $vacation->date_start;
+                print '<p></p>';
+                print '$date_end :'.$vacation->date_end;
+                print '<p></p>';
+                print '$date_start_request :'. $date_start_request;
+                print '<p></p>';
+                print  '$date_end_request :' .  $date_end_request;
+                print '<p></p>';
+            }
+            }
+        }
+
+        return true;
+    }
     public function difTotal($user)
     {
 
@@ -33,6 +77,7 @@ class VacationController extends Controller
             },Carbon::parse($vacation_end[$i]));
             $totaldias=$totaldias+$diff_date;
         }
+
         return $totaldias;
     }
     public function difInput($start, $end,$total): bool|int
@@ -64,16 +109,17 @@ return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias'
     {
         $roleId = auth()->user()->role_id;
         $totaldias = $this->difTotal(Auth::id());
-        return view ('pages.vacations.create')->with('totaldias', $totaldias)->with('role',$roleId);;
+        return view ('pages.vacations.create')->with('totaldias', $totaldias)->with('role',$roleId);
     }
 
     public function store(StoreVacationRequest $request)
     {
+
         $request->validate([
             'date_start' => 'required|after:today,before:date_end' ,
             'date_end' => 'required|after:tomorrow|after:date_start'
         ]);
-       if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::id()))!=null){
+       if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::id()))!=null && $this->timeCollide(0,auth::id(),$request->date_start,$request->date_end)){
 
            $vacation = new Vacation();
            $vacation->user_id = Auth::id();
@@ -85,6 +131,7 @@ return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias'
            return redirect(url('/vacation'))->with('status','Item created successfully!');
     }
 else return redirect(url('/vacations/create'))->with('status','error!');
+
     }
 
 
@@ -104,9 +151,6 @@ else return redirect(url('/vacations/create'))->with('status','error!');
 
     public function update(UpdateVacationRequest $request, Vacation $vacation)
     {
-        $user_role_id_table =  Vacation::with('user')->where('user_id',$vacation->user_id)->get() ;
-
-
 
 
 
@@ -116,10 +160,10 @@ else return redirect(url('/vacations/create'))->with('status','error!');
 
         ]);
         $roleId = auth()->user()->role_id;
-      if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::user())) && ($user_role_id_table[0]['user']['role_id'] < $roleId || $roleId >= 3 || auth()->user()->id == $vacation->user_id  )) {
+      if($this->timeCollide($vacation->id,$vacation->user_id,$request->date_start,$request->date_end)){
 
           $vacation = Vacation::find($vacation->id);
-          if($roleId >= 2 ){
+          if($roleId >= 2){
               $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
               $vacation->approved_by= auth()->user()->id;
           }
@@ -136,6 +180,7 @@ else return redirect(url('/vacations/create'))->with('status','error!');
       else
           return redirect('/vacation')->with('status', 'Erro!');
     }
+
 
 
     public function destroy(Vacation $vacation)
