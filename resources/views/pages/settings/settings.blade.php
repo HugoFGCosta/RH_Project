@@ -6,6 +6,6 @@
         <a href="/work-shifts"><button class="sub-menu">Horários</button></a>
         <a href="/admin-register"><button class="sub-menu">Criar Funcionário</button></a>
         <a href="/users/show-all"><button class="sub-menu">Listar Funcionários</button></a>
-        <a href="/justifications"><button class="sub-menu">Justificações</button></a>
+        <a href="/pending-justifications"><button class="sub-menu">Justificações</button></a>
     </div>
 @endsection

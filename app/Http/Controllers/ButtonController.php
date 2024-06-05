@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Absence;
 use App\Models\Presence;
 use Illuminate\Http\Request;
 
@@ -46,7 +47,9 @@ class ButtonController extends Controller
 
     public function approveAbsences()
     {
-        return view('pages.approve-absence.approve-absence');
+        $absences = Absence::all();
+
+        return view('pages.approve-absence.approve-absence', ['absences' => $absences]);
     }
 
     public function importExportData(){

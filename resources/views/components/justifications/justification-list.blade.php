@@ -30,6 +30,7 @@
                 <th> Motivo <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Data da Justificação <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Observações <span class="icon-arrow">&UpArrow;</span></th>
+                <th> Estado <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Ações <span class="icon-arrow">&UpArrow;</span></th>
             </tr>
             </thead>
@@ -39,9 +40,20 @@
                     <td>{{ $justification->motive }}</td>
                     <td>{{ $justification->justification_date }}</td>
                     <td>{{ $justification->observation }}</td>
+                    <td>
+                        @if($justification->absence->absence_states_id == 1)
+                            Aprovado
+                        @elseif($justification->absence->absence_states_id == 2)
+                            Rejeitado
+                        @elseif($justification->absence->absence_states_id == 3)
+                            Pendente
+                        @else
+                            Por justificar
+                        @endif
+                    </td>
 
                     <td>
-                        <a href="{{ url('/justification/'. $justification->id.'/approve') }}" class="btn-detail-edit">Aprovar/Rejeitar</a>
+                        <a href="{{ url('/justification/'. $justification->id.'/manage') }}" class="btn-detail-edit">Aprovar/Rejeitar</a>
                     </td>
 
                 </tr>

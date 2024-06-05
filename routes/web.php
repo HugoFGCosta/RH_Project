@@ -40,7 +40,6 @@ Route::get('/dashboard-statistics', [App\Http\Controllers\ButtonController::clas
 Route::get('/view-absences', [App\Http\Controllers\ButtonController::class, 'viewAbsences']);
 Route::get('/manage-data', [App\Http\Controllers\ButtonController::class, 'manageData']);
 Route::get('/vacation-plans', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
-Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
 Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData'])->name('importExportData');
 Route::get('/daily-tasks', [App\Http\Controllers\ButtonController::class, 'dailyTasks']);
 Route::get('/requests', [App\Http\Controllers\ButtonController::class, 'requests']);
@@ -109,6 +108,7 @@ Route::controller(EventController::class)->group(function () {
 
 /* Rotas Absences */
 Route::get('users/{user}/absences', [\App\Http\Controllers\AbsenceController::class, 'absencesByUser']);
+Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
 
 
 /* Rotas Justificações */
@@ -118,7 +118,12 @@ Route::post('absences/{absence}/justification', [\App\Http\Controllers\Justifica
 Route::get('/justifications/show', [\App\Http\Controllers\JustificationController::class, 'show']);
 Route::get('/justifications/edit/{justifications}', [\App\Http\Controllers\JustificationController::class, 'edit']);
 Route::put('/justifications/{justifications}', [\App\Http\Controllers\JustificationController::class, 'update']);
+Route::get('/justification/{justification}/manage', [\App\Http\Controllers\JustificationController::class, 'justificationManage']);
+Route::get('/justification/{justification}/reject', [\App\Http\Controllers\JustificationController::class, 'justificationReject']);
 Route::get('/justification/{justification}/approve', [\App\Http\Controllers\JustificationController::class, 'justificationApprove']);
+Route::get('/pending-justifications', [\App\Http\Controllers\JustificationController::class, 'pendingJustifications']);
+
+Route::get('/justification/{absence}/download', [\App\Http\Controllers\JustificationController::class, 'justificationDownload']);
 
 Route::get('export/work-shifts', [\App\Http\Controllers\WorkShiftController::class, 'export'])->name('exportWorkShifts');
 Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift');

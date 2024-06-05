@@ -22,9 +22,21 @@ class JustificationController extends Controller
         //
         $justifications = Justification::all();
 
+
         return view ('pages.justifications.index',['justifications'=>$justifications]);
 
     }
+
+    public function pendingJustifications()
+    {
+        //
+        $justifications = Justification::all();
+
+        return view ('pages.justifications.index',['justifications'=>$justifications]);
+
+    }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -124,7 +136,7 @@ class JustificationController extends Controller
 
     }
 
-    public function justificationApprove(Justification $justification){
+    public function justificationManage(Justification $justification){
 
         $absences= Absence::all();
         $absencefound = $absences->find($justification->absence->id);
@@ -141,6 +153,44 @@ class JustificationController extends Controller
         $duration = $interval->format('%H:%I');
 
         return view ('pages.justifications.justification-approve', ['justification'=>$justification,'duration'=>$duration]);
+
+    }
+
+    public function justificationDownload($id){
+
+        $justification = Justification::find($id);
+
+        $filepath = public_path('storage\\' . $justification->file);
+
+        return Response::download($filepath);
+
+    }
+
+    public function justificationReject($id){
+
+        $justification = Justification::find($id);
+
+        $absence = Absence::find($justification->absence_id);
+
+        $absence->absence_states_id = 2;
+        $absence->approved_by = Auth::user()->id;
+        $absence->save();
+
+        return redirect('/justifications/')->with('error', 'Justificação Rejeitada');
+
+    }
+
+    public function justificationApprove($id){
+
+        $justification = Justification::find($id);
+
+        $absence = Absence::find($justification->absence_id);
+
+        $absence->absence_states_id = 1;
+        $absence->approved_by = Auth::user()->id;
+        $absence->save();
+
+        return redirect('/justifications/')->with('success', 'Justificação Aprovada');
 
     }
 

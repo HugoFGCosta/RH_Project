@@ -44,7 +44,11 @@
                     <td>
                         @foreach($absences_states as $absences_state)
                             @if($absence->absence_states_id == $absences_state->id)
-                                {{ $absences_state->description}}
+                                @if($absences_state->description == "Injustificado")
+                                    Por Justificar
+                                @else
+                                    {{ $absences_state->description}}
+                                @endif
                             @endif
                         @endforeach
                     </td>
@@ -55,9 +59,17 @@
                             @endif
                         @endforeach
                     </td>
-                    <td>
-                        <a href="{{ url('absences/' . $absence->id . '/justification/create') }}" class="btn-detail-edit">Justificar</a>
-                    </td>
+                    @if ($absence->absence_states_id!=4)
+                        <td>
+                            <a href="#" class="btn-detail-edit disabled">Justificado</a>
+                        </td>
+
+                    @else
+                        <td>
+                            <a href="{{ url('absences/' . $absence->id . '/justification/create') }}" class="btn-detail-edit">Justificar</a>
+                        </td>
+
+                    @endif
                 </tr>
             @endforeach
             </tbody>

@@ -50,8 +50,9 @@
 
     </section>
 
-    <a href="{{ asset('storage/app/public',$justification->file) }}" download>Download File</a>
+    <a href="{{ url('/justification/'. $justification->id.'/download') }}" class="btn-detail-edit">Download</a>
 
-
+    <a href="{{ url('/justification/'. $justification->id.'/approve') }}" class="btn-detail-edit">Aprovar</a>
+    <a href="{{ url('/justification/'. $justification->id.'/reject') }}" class="btn-detail-edit">Rejeitar</a>
 
 </div>
