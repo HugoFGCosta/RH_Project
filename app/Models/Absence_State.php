@@ -9,6 +9,10 @@ class Absence_State extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'description'
+    ];
+
     protected $table = 'absence_states';
 
 

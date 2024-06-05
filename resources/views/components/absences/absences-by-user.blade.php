@@ -56,6 +56,7 @@
                         @endforeach
                     </td>
                     <td>
+                        <a href="{{ url('absences/' . $absence->id . '/justification/create') }}" class="btn-detail-edit">Justificar</a>
                     </td>
                 </tr>
             @endforeach

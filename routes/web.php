@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminRegisterController;
 use App\Http\Controllers\AuthenticatedRegisterController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\JustificationController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -110,9 +111,14 @@ Route::controller(EventController::class)->group(function () {
 Route::get('users/{user}/absences', [\App\Http\Controllers\AbsenceController::class, 'absencesByUser']);
 
 
-
-
-
+/* Rotas Justificações */
+Route::get('absences/{absence}/justification/create', [\App\Http\Controllers\JustificationController::class, 'create']);
+Route::resource('justifications', \App\Http\Controllers\JustificationController::class);
+Route::post('absences/{absence}/justification', [\App\Http\Controllers\JustificationController::class, 'store']);
+Route::get('/justifications/show', [\App\Http\Controllers\JustificationController::class, 'show']);
+Route::get('/justifications/edit/{justifications}', [\App\Http\Controllers\JustificationController::class, 'edit']);
+Route::put('/justifications/{justifications}', [\App\Http\Controllers\JustificationController::class, 'update']);
+Route::get('/justification/{justification}/approve', [\App\Http\Controllers\JustificationController::class, 'justificationApprove']);
 
 Route::get('export/work-shifts', [\App\Http\Controllers\WorkShiftController::class, 'export'])->name('exportWorkShifts');
 Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift');
