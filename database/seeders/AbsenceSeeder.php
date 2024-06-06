@@ -13,7 +13,6 @@ class AbsenceSeeder extends Seeder
      */
     public function run(): void
     {
-        //
         // Verificar se a tabela work_shifts já contém os dados antes de inserir
         if (DB::table('absences')->count() == 0) {
             DB::table('absences')->insert([

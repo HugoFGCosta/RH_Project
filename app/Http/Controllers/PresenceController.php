@@ -38,7 +38,7 @@ class PresenceController extends Controller
 
 
     /*  public function store(Request $request)
-     { 
+     {
         // metodo antigo
 
          $user = auth()->user();
@@ -129,6 +129,76 @@ class PresenceController extends Controller
 
 
 
+
+    public function verifyPresence()
+    {
+        // METODO das 15 horas auto-picagem
+
+        /*  $presences = Presence::all()->where('first_start', '>=', Carbon::now()->subHours(15))
+             ->whereNull('first_end'); */
+
+        /* $presences = Presence::where('first_start', '>=', Carbon::now()->subHours(15))
+            ->whereNull('first_end')
+            ->get(); */
+        //$presences = Presence::all();
+
+        $presences = Presence::whereNull('first_end')
+            ->orWhereNull('second_start')
+            ->orWhereNull('second_end')
+            ->get();
+
+
+        //dd($presences);
+
+
+        foreach ($presences as $presence) {
+            //dd($presence);
+            $first_start = Carbon::parse($presence->first_start);
+            if ($first_start->addHours(15) <= Carbon::now()->addHour()) {
+                //dd($presence);
+                if ($presence->first_end == null) {
+                    //dd($presence);
+                    $presence->first_end = $first_start;
+                    $presence->second_start = $first_start;
+                    $presence->second_end = $first_start;
+                    $presence->extra_hour = 0;
+                    $presence->effective_hour = 0;
+                    $presence->save();
+                    //dd($presence);
+
+                } elseif ($presence->second_end == null) {
+                    $presence->second_end = $first_start;
+                    $presence->extra_hour = 0;
+                    $presence->effective_hour = 0;
+                    $presence->save();
+                }
+            }
+        }
+
+        /* 
+                $presences_second = Presence::WhereNull('second_end')->get();
+
+                foreach ($presences_second as $presence) {
+
+                    $first_start = Carbon::parse($presence->first_start);
+
+                    if ($first_start->addHours(15) <= Carbon::now()) {
+
+                        if ($presence->second_end === null) {
+                            $presence->second_end = $first_start;
+                            $presence->extra_hour = 0;
+                            $presence->effective_hour = 0;
+                            $presence->save();
+                        }
+                    }
+                } */
+    }
+
+
+
+
+
+
     public function store(Request $request)
     {
         $user = auth()->user();
@@ -142,23 +212,23 @@ class PresenceController extends Controller
 
         // VERIFICA se todos os 4 registros já foram preenchidos
         if ($presence && $presence->first_start && $presence->first_end && $presence->second_start && $presence->second_end) {
-            return redirect()->to(url('user/presence'))->with('error', 'Já existe um registro de presença completo para hoje.');
+            return redirect()->to(url('menu'))->with('error', 'Já existe um registro de presença completo para hoje.');
         }
 
         if (!$presence) {
             $presence = new Presence;
             $presence->user_id = $user->id;
-            $presence->first_start = Carbon::parse($request->first_start);
+            $presence->first_start = Carbon::parse($request->first_start)->addHour();
         } elseif (!$presence->first_end) {
-            $presence->first_end = Carbon::parse($request->first_end);
+            $presence->first_end = Carbon::parse($request->first_end)->addHour();
         } elseif (!$presence->second_start) {
-            $presence->second_start = Carbon::parse($request->second_start);
+            $presence->second_start = Carbon::parse($request->second_start)->addHour();
         } else {
-            $presence->second_end = Carbon::parse($request->second_end);
+            $presence->second_end = Carbon::parse($request->second_end)->addHour();
         }
 
-        /*  // teste de 1 minuto
-
+        /*  // teste de 1 minuto       
+        
          if ($presence->first_start && is_null($presence->first_end)) {
              $first_start = Carbon::parse($presence->first_start);
              if (Carbon::now()->diffInMinutes($first_start) >= 1) {
@@ -173,12 +243,17 @@ class PresenceController extends Controller
              }
          } */
 
-        // Adiciona a verificação de 15 horas desde o início do trabalho do usuário
+
+
+
+        // Adiciona a verificação de 15 horas desde o início do trabalho do user
 
         if ($presence->first_start && is_null($presence->first_end)) {
             $first_start = Carbon::parse($presence->first_start);
             if (Carbon::now()->diffInHours($first_start) >= 15) {
                 $presence->first_end = Carbon::now();
+                $presence->second_start = Carbon::now();
+                $presence->second_end = Carbon::now();
             }
         }
 

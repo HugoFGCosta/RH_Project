@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Absence;
+use App\Models\Event;
 use App\Models\Presence;
+use App\Models\User_Shift;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ButtonController extends Controller
@@ -16,7 +19,8 @@ class ButtonController extends Controller
     {
         $user = auth()->user();
         $presence = Presence::where('user_id', $user->id)->first();
-        return view('pages.menu.menu', ['user' => $user,'presence' => $presence]);
+        $events = Event::where('user_id', $user->id)->get();
+        return view('pages.menu.menu', ['user' => $user,'presence' => $presence, 'events' => $events]);
     }
 
 
@@ -42,7 +46,7 @@ class ButtonController extends Controller
 
     public function vacationPlans()
     {
-        return view('pages.schedule-vacations.schedule-vacations');
+        return view('pages.vacations.show');
     }
 
     public function approveAbsences()
@@ -67,6 +71,20 @@ class ButtonController extends Controller
     public function settings(){
         return view('pages.settings.settings');
     }
+
+
+
+    public function attendanceRecord(){
+        $user = auth()->user();
+        $presences = Presence::all()->where('user_id', $user->id);
+        $user_shifts = User_Shift::all()->where('user_id', $user->id);
+
+        return view('pages.attendance-record.attendance-record', ['user' => $user, 'presences' => $presences, 'user_shifts' => $user_shifts]);
+    }
+
+
+
+
 
     /**
      * Show the form for creating a new resource.

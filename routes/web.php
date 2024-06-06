@@ -1,14 +1,17 @@
 <?php
 
 use App\Http\Controllers\AdminRegisterController;
-use App\Http\Controllers\AuthenticatedRegisterController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\JustificationController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserShiftController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkShiftController;
+use App\Http\Controllers\VacationController;
+use App\Http\Controllers\DashboardController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -40,10 +43,13 @@ Route::get('/dashboard-statistics', [App\Http\Controllers\ButtonController::clas
 Route::get('/view-absences', [App\Http\Controllers\ButtonController::class, 'viewAbsences']);
 Route::get('/manage-data', [App\Http\Controllers\ButtonController::class, 'manageData']);
 Route::get('/vacation-plans', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
+Route::get('/vacation', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
+Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
 Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData'])->name('importExportData');
 Route::get('/daily-tasks', [App\Http\Controllers\ButtonController::class, 'dailyTasks']);
 Route::get('/requests', [App\Http\Controllers\ButtonController::class, 'requests']);
 Route::get('/settings', [App\Http\Controllers\ButtonController::class, 'settings']);
+Route::get('/attendance-record', [App\Http\Controllers\ButtonController::class, 'attendanceRecord']);
 
 
 /*Rotas Users*/
@@ -73,14 +79,25 @@ Route::get('/work-shifts/edit/{work_shift}', [WorkShiftController::class, 'edit'
 Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update']);
 
 
+//rotas vacation
+
+Route::get('/vacation', [VacationController::class, 'index'])->name('vacations.index');
+Route::get('/vacation-plans', [VacationController::class, 'index'])->name('vacations.index');
+Route::get('/vacations/create', [VacationController::class, 'create'])->name('vacations.create');
+Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
+Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
+Route::get('/vacations/edit/{vacation}', [VacationController::class, 'edit'])->name('vacations.edit');
+Route::put('/vacations/{vacation}', [VacationController::class, 'update'])->name('vacations.update');
+Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destroy'])->name('vacations.destroy');
+
 /*Rotas Import Export*/
 
 /* ROTA PRESENÇA */
 
 Route::post('user/presence/storeSimulated', [PresenceController::class, 'storeSimulated']); //ROTA SIMULADA
-Route::post('/user/presence', [PresenceController::class, 'presence']);
-Route::post('/user/presence/store', [PresenceController::class, 'store']);
-Route::get('/user/presence', [PresenceController::class, 'getPresence']);
+/*Route::post('/user/presence', [PresenceController::class, 'presence']);*/
+Route::post('/user/presence/store', [PresenceController::class, 'store']); /* <<<<<<<<<<< ESSA ROTA  */
+/*Route::get('/user/presence', [PresenceController::class, 'getPresence']);*/
 Route::get('/user/presence/status', [PresenceController::class, 'getStatus']);
 
 
@@ -125,5 +142,21 @@ Route::get('/pending-justifications', [\App\Http\Controllers\JustificationContro
 
 Route::get('/justification/{absence}/download', [\App\Http\Controllers\JustificationController::class, 'justificationDownload']);
 
+/* Rotas Turnos */
+Route::get('users/shift-list', [UserShiftController::class, 'show']); // LISTA DE TODOS
+Route::get('user/shifts', [UserShiftController::class, 'show_spec']); // PESSOA LOGADA
+
+/* Route::get('users/shift-list/edit/{user_shift}', [UserShiftController::class, 'edit']);
+Route::put('/users/shift-list/edit/{user_shift}', [UserShiftController::class, 'update']); */
+
+Route::get('users/shift-list/edit/{user_shift}', [UserShiftController::class, 'edit'])->name('user_shift.edit');
+Route::put('users/shift-list/edit/{user_shift}', [UserShiftController::class, 'update'])->name('user_shift.update');
+Route::delete('users/shift-list/{user_shift}', [UserShiftController::class, 'destroy'])->name('user_shift.destroy');
+
 Route::get('export/work-shifts', [\App\Http\Controllers\WorkShiftController::class, 'export'])->name('exportWorkShifts');
 Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift');
+
+/*Rotas estatisticas*/
+Route::get('/dashboard-statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
+Route::post('/dashboard-statistics/filter', [DashboardController::class, 'filterStatistics'])->name('dashboard.filter');
+

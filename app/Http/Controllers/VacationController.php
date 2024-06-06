@@ -2,70 +2,193 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Vacation;
 use App\Http\Requests\StoreVacationRequest;
 use App\Http\Requests\UpdateVacationRequest;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
+use Mockery\Exception;
 
 class VacationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function dateValidation($date_start,$date_end,$date_start_request,$date_end_request) : bool
+    {
+
+        if((($date_start >= $date_start_request) && ($date_start <= $date_end_request) ) || ( ($date_end >= $date_start_request) &&($date_end <= $date_end_request)  )){
+            return true;
+        }
+        else return false;
+    }
+
+    public function timeCollide($current_table,$userId,$date_start_request,$date_end_request)
+    {
+
+        $vacations=Vacation::where('user_id',$userId)->get();
+        $date_start_request= date('Y-m-d', strtotime($date_start_request));
+        $date_end_request= date('Y-m-d', strtotime($date_end_request));
+
+        foreach ($vacations as &$vacation){
+
+            if($current_table == $vacation->id){ //check if it's the same table from edit
+                print '<p> same table </p>';
+            }
+            else{
+            $vacation->date_start= date('Y-m-d', strtotime($vacation->date_start));
+            $vacation->date_end= date('Y-m-d', strtotime($vacation->date_end));
+            if($this->dateValidation($vacation->date_start,$vacation->date_end,$date_start_request,$date_end_request)){
+                print '<p> same table </p>';
+               return false;
+            }
+            else {
+                print '<p></p>';
+                print '$date_start :'. $vacation->date_start;
+                print '<p></p>';
+                print '$date_end :'.$vacation->date_end;
+                print '<p></p>';
+                print '$date_start_request :'. $date_start_request;
+                print '<p></p>';
+                print  '$date_end_request :' .  $date_end_request;
+                print '<p></p>';
+            }
+            }
+        }
+
+        return true;
+    }
+    public function difTotal($user)
+    {
+
+        $vacation_start= Vacation::where('user_id',$user)->pluck('date_start');
+        $vacation_end = Vacation::where('user_id',$user)->pluck('date_end');
+        $total= 0;
+        $totaldias=0;
+        foreach ($vacation_start as $x){
+            $total = $total +1;
+        }
+        for($i=0;$total>$i;$i++){
+            $diff_date = Carbon::parse($vacation_start[$i])->diffInDaysFiltered(function (Carbon $remover){
+                return !$remover->isWeekend();
+            },Carbon::parse($vacation_end[$i]));
+            $totaldias=$totaldias+$diff_date;
+        }
+
+        return $totaldias;
+    }
+    public function difInput($start, $end,$total): bool|int
+    {
+
+        $diff_date = Carbon::parse($start)->diffInDaysFiltered(function (Carbon $remover){
+            return !$remover->isWeekend();
+        },Carbon::parse($end));
+        if ($total + $diff_date <= 22 ){
+            return true;
+        }
+        else
+        return false;
+        }
+
     public function index()
     {
-        //
-    }
+   $totaldias = $this->difTotal(Auth::id());
+   $roleId = auth()->user()->role_id;
+if ($roleId >1)
+    $vacation = vacation::with('user')->orderBy('id', 'asc')->paginate(3);
+else
+    $vacation = vacation::with('user')->orderBy('id', 'asc')->where('user_id',Auth::id())->paginate(3);
 
-    /**
-     * Show the form for creating a new resource.
-     */
+return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias',$totaldias)->with('role',$roleId);
+
+    }
     public function create()
     {
-        //
+        $roleId = auth()->user()->role_id;
+        $totaldias = $this->difTotal(Auth::id());
+        return view ('pages.vacations.create')->with('totaldias', $totaldias)->with('role',$roleId);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreVacationRequest $request)
     {
-        //
+
+        $request->validate([
+            'date_start' => 'required|after:today,before:date_end' ,
+            'date_end' => 'required|after:tomorrow|after:date_start'
+        ]);
+       if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::id()))!=null && $this->timeCollide(0,auth::id(),$request->date_start,$request->date_end)){
+
+           $vacation = new Vacation();
+           $vacation->user_id = Auth::id();
+           $vacation->vacation_approval_states_id = 3;
+           $vacation->approved_by = null;
+           $vacation->date_start =$request->date_start ;
+           $vacation->date_end = $request->date_end ;
+           $vacation->save();
+           return redirect(url('/vacation'))->with('status','Item created successfully!');
+    }
+else return redirect(url('/vacations/create'))->with('status','error!');
+
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(Vacation $vacation)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Vacation $vacation)
     {
-        //
+    //   print   Vacation::with('user')->where('role_id', auth::id())->pluck("role_id");
+        $roleId = Auth::user()->role_id;
+        $totaldias= $this->difTotal($roleId);
+        return view('pages.vacations.edit', ['vacations' => $vacation])->with('totaldias', $totaldias)->with('role',$roleId);;
+
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateVacationRequest $request, Vacation $vacation)
     {
-        //
+
+
+
+        $request->validate([
+            'date_start' => 'required|after:today,before:date_end' ,
+            'date_end' => 'required|after:tomorrow|after:date_start',
+
+        ]);
+        $roleId = auth()->user()->role_id;
+      if($this->timeCollide($vacation->id,$vacation->user_id,$request->date_start,$request->date_end)){
+
+          $vacation = Vacation::find($vacation->id);
+          if($roleId >= 2){
+              $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
+              $vacation->approved_by= auth()->user()->id;
+          }
+          else{
+              $vacation->vacation_approval_states_id = 3;
+              $vacation->approved_by= null;
+          }
+          $vacation->date_start = $request->date_start;
+          $vacation->date_end = $request->date_end;
+
+          $vacation->save();
+          return redirect(url('/vacation'))->with('status', 'Item edited successfully!');
+      }
+      else
+          return redirect('/vacation')->with('status', 'Erro!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
+
     public function destroy(Vacation $vacation)
     {
-        //
+        $vacation = vacation::find($vacation->id);
+        $vacation->delete();
+        return redirect('vacation')->with('status','Item deleted successfully!');
+
     }
 
     public function import(Request $request)
@@ -143,7 +266,6 @@ class VacationController extends Controller
         // Retorna para a página anterior com uma mensagem de sucesso
         return redirect()->back()->with('success', 'Férias importadas com sucesso.');
     }
-
 
     public function export(){
 

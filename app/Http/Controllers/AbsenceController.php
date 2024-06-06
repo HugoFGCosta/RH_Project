@@ -442,7 +442,5 @@ class AbsenceController extends Controller
         }
 
         return false;   //Caso o utilizador não tenha falta no turno da manhã retorna false
-
     }
-
 }

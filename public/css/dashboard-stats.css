@@ -1,0 +1,111 @@
+.container-dashboard {
+    width: 100%;
+}
+.custom-container{
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.row2 {
+    display: flex;
+    width: 200%;
+    max-width: 1200px;
+    margin-bottom: 20px;
+}
+
+.col1{
+    margin-right: 10px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.col2 {
+    flex: 1;
+    margin-right: 10px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.custom-table th, .custom-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.custom-table th {
+    background-color: #f2f2f2;
+}
+
+.custom-canvas {
+    max-width: 100%;
+    height: auto;
+}
+.table-container {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .col2 {
+        width: 100px;
+    }
+}
+
+.filter-options {
+    margin: 20px 0 20px 0;
+    color: var(--blue);
+}
+.filter-options {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.filter-options label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.filter-options select, .filter-options input {
+    margin-right: 10px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    transition: border-color 0.3s;
+}
+
+.filter-options select:focus, .filter-options input:focus {
+    border-color: #005999;
+    outline: none;
+}
+
+.filter-options input[type="date"] {
+    display: none;
+}
+
+.filter-options .show {
+    display: inline-block;
+}
+
+@media (min-width: 768px) {
+    .filter-options {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .filter-options label, .filter-options select, .filter-options input {
+        margin-right: 10px;
+        margin-bottom: 0;
+    }
+}
