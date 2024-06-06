@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminRegisterController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\JustificationController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserShiftController;
@@ -41,6 +42,7 @@ Route::get('/register-schedule', [App\Http\Controllers\ButtonController::class, 
 Route::get('/dashboard-statistics', [App\Http\Controllers\ButtonController::class, 'dashboardStatistics']);
 Route::get('/view-absences', [App\Http\Controllers\ButtonController::class, 'viewAbsences']);
 Route::get('/manage-data', [App\Http\Controllers\ButtonController::class, 'manageData']);
+Route::get('/vacation-plans', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
 Route::get('/vacation', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
 Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
 Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData'])->name('importExportData');
@@ -123,7 +125,22 @@ Route::controller(EventController::class)->group(function () {
 
 /* Rotas Absences */
 Route::get('users/{user}/absences', [\App\Http\Controllers\AbsenceController::class, 'absencesByUser']);
+Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
 
+
+/* Rotas Justificações */
+Route::get('absences/{absence}/justification/create', [\App\Http\Controllers\JustificationController::class, 'create']);
+Route::resource('justifications', \App\Http\Controllers\JustificationController::class);
+Route::post('absences/{absence}/justification', [\App\Http\Controllers\JustificationController::class, 'store']);
+Route::get('/justifications/show', [\App\Http\Controllers\JustificationController::class, 'show']);
+Route::get('/justifications/edit/{justifications}', [\App\Http\Controllers\JustificationController::class, 'edit']);
+Route::put('/justifications/{justifications}', [\App\Http\Controllers\JustificationController::class, 'update']);
+Route::get('/justification/{justification}/manage', [\App\Http\Controllers\JustificationController::class, 'justificationManage']);
+Route::get('/justification/{justification}/reject', [\App\Http\Controllers\JustificationController::class, 'justificationReject']);
+Route::get('/justification/{justification}/approve', [\App\Http\Controllers\JustificationController::class, 'justificationApprove']);
+Route::get('/pending-justifications', [\App\Http\Controllers\JustificationController::class, 'pendingJustifications']);
+
+Route::get('/justification/{absence}/download', [\App\Http\Controllers\JustificationController::class, 'justificationDownload']);
 
 /* Rotas Turnos */
 Route::get('users/shift-list', [UserShiftController::class, 'show']); // LISTA DE TODOS
@@ -136,9 +153,7 @@ Route::get('users/shift-list/edit/{user_shift}', [UserShiftController::class, 'e
 Route::put('users/shift-list/edit/{user_shift}', [UserShiftController::class, 'update'])->name('user_shift.update');
 Route::delete('users/shift-list/{user_shift}', [UserShiftController::class, 'destroy'])->name('user_shift.destroy');
 
-
 Route::get('export/work-shifts', [\App\Http\Controllers\WorkShiftController::class, 'export'])->name('exportWorkShifts');
-Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift');
 Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift');
 
 /*Rotas estatisticas*/

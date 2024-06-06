@@ -37,6 +37,7 @@ class AbsenceController extends Controller
 
     public function absencesByUser($id){
 
+        //Vai buscar todas as faltas do utilizador e com absences_states_id = 3 (pendentes) e nenhuma justificação
         $absences = Absence::where('user_id', $id)->get();
         $absences_states = Absence_State::all();
         $absences_types = AbsenceType::all();

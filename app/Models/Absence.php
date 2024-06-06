@@ -19,6 +19,11 @@ class Absence extends Model
         'justification',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function absence_state()
     {
         return $this->belongsTo(Absence_State::class);
@@ -27,6 +32,11 @@ class Absence extends Model
     public function absence_type()
     {
         return $this->belongsTo(AbsenceType::class);
+    }
+
+    public function justification()
+    {
+        return $this->hasMany(Justification::class);
     }
 
 }
