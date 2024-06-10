@@ -27,6 +27,7 @@
         <table>
             <thead>
             <tr>
+                <th> Colaborador <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Motivo <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Data da Justificação <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Observações <span class="icon-arrow">&UpArrow;</span></th>
@@ -37,6 +38,7 @@
             <tbody>
             @foreach ($justifications as $justification)
                 <tr>
+                    <td>{{ $justification->absence->user->name }}</td>
                     <td>{{ $justification->motive }}</td>
                     <td>{{ $justification->justification_date }}</td>
                     <td>{{ $justification->observation }}</td>

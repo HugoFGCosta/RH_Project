@@ -34,7 +34,7 @@
                 <th> Horario de Almoço <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Dias da Semana <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Detalhe/Editar <span class="icon-arrow">&UpArrow;</span></th>
-                <th clasS="delete_cell"> Delete <span class="icon-arrow">&UpArrow;</span></th>
+                <th class="delete_cell"> Delete <span class="icon-arrow">&UpArrow;</span></th>
             </tr>
             </thead>
             <tbody>
