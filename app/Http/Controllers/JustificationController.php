@@ -154,7 +154,7 @@ class JustificationController extends Controller
 
         $justification = Justification::find($id);
 
-        $filepath = public_path('storage\\' . $justification->file);
+        $filepath = public_path('storage/' . $justification->file);
 
         return Response::download($filepath);
 
