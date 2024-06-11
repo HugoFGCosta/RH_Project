@@ -209,7 +209,7 @@ class AbsenceController extends Controller
     }
 
     public function verifyFirstShiftAbsence(){
-        
+
         $users = User::all();
         $presences = Presence::all();
 
@@ -441,7 +441,5 @@ class AbsenceController extends Controller
         }
 
         return false;   //Caso o utilizador não tenha falta no turno da manhã retorna false
-
     }
-
 }
