@@ -1,6 +1,6 @@
 :root {
     --blue: #005999;
-    --white: #fff;
+    --white: #ffffff;
     --gray: #E9E9E9;
     --black: #222;
     --black2: #999;
@@ -124,7 +124,16 @@
     padding: 20px;
     border-radius: 20px;
     border: 1px solid #888;
-    width: 80%;
+    width: 30%;
+    height: 70%;
+    align-self: center;
+}
+
+.calendar-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 80px;
+    margin-bottom: 5px;
 }
 
 .close {

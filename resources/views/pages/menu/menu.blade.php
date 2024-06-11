@@ -30,11 +30,16 @@
             </div>
             <div class="right-column">
                 <div class="notifications">
-                    <p>Aqui ficam as notificações.
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium dolor ea earum eum ex, fuga iste, labore mollitia placeat porro quaerat qui quia ratione repellendus reprehenderit sunt tempore unde.
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet, commodi deleniti dolorem eum expedita, fugit id laborum natus nulla, officia omnis placeat possimus quas unde velit. Cupiditate neque possimus soluta?
-                    </p>
+                    <h2>Notificações</h2>
                 </div>
+
+                <table>
+                    <tr>
+                        <td style="width: 60px">
+                            <img src="{{ asset('images/notifications.svg') }}" alt="notifications">
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
