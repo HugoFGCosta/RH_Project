@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Work_Shift;
+use Illuminate\Http\Request;
 use App\Models\User_Shift;
 use App\Http\Requests\StoreUser_ShiftRequest;
 use App\Http\Requests\UpdateUser_ShiftRequest;
-use App\Models\Work_Shift;
-use Illuminate\Http\Request;
 
 
 
@@ -42,13 +42,13 @@ class UserShiftController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User_shift $user_shift)
+    public function show(User_Shift $user_shift)
     {
-        $users_shifts = User_shift::all();
+        $users_shifts = User_Shift::all();
 
         return view('pages.user-shifts.show-all', ['users_shifts' => $users_shifts]);
     }
-    public function show_spec(User_shift $user_shift)
+    public function show_spec(User_Shift $user_shift)
     {
 
         $user = auth()->user();
