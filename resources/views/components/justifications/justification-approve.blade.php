@@ -1,11 +1,14 @@
 
 <link rel="stylesheet" href="{{ asset('css/show-all.css') }}">
+<link rel="stylesheet" href="{{ asset('css/justification-approve.css') }}">
 
-<div class="container">
+<div class="container justificationContainer">
+
+<h3 class="tableTitle">Falta</h3>
 
     <section class="table__body">
 
-        <table>
+        <table class="absenceTable">
             <thead>
             <tr>
                 <th> Nome </th>
@@ -25,6 +28,8 @@
         </table>
 
     </section>
+
+    <h3 class="tableTitle">Justificação</h3>
 
     <section class="table__body">
 
@@ -50,9 +55,11 @@
 
     </section>
 
-    <a href="{{ url('/justification/'. $justification->id.'/download') }}" class="btn-detail-edit">Download</a>
-
-    <a href="{{ url('/justification/'. $justification->id.'/approve') }}" class="btn-detail-edit">Aprovar</a>
-    <a href="{{ url('/justification/'. $justification->id.'/reject') }}" class="btn-detail-edit">Rejeitar</a>
+    <div class="buttonsDiv">
+    <a href="{{ url('/justification/'. $justification->id.'/download') }}" class="btn-detail-edit buttonJustification">Download</a>
+    <a href="{{ url('/justification/'. $justification->id.'/approve') }}" class="btn-detail-edit buttonJustification">Aprovar</a>
+    <a href="{{ url('/justification/'. $justification->id.'/reject') }}" class="btn-detail-edit buttonJustification">Rejeitar</a>
+    </div>
+    
 
 </div>
