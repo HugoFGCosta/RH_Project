@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
-use App\Models\User_shift;
-use App\Http\Requests\StoreUser_shiftRequest;
-use App\Http\Requests\UpdateUser_shiftRequest;
+use App\Models\User_Shift;
+use App\Http\Requests\StoreUser_ShiftRequest;
+use App\Http\Requests\UpdateUser_ShiftRequest;
 use App\Models\Work_Shift;
 use Illuminate\Http\Request;
 
