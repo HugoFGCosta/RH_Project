@@ -42,13 +42,6 @@
                     <td>{{ $absence->absence_start_date }}</td>
                     <td>{{ $absence->absence_end_date}}</td>
                     <td>
-                        @foreach($absences_states as $absences_state)
-                            @if($absence->absence_states_id == $absences_state->id)
-                                {{ $absences_state->description}}
-                            @endif
-                        @endforeach
-                    </td>
-                    <td>
                         @foreach($absences_types as $absences_type)
                             @if($absence->absence_types_id == $absences_type->id)
                                 {{ $absences_type->description}}
@@ -56,7 +49,27 @@
                         @endforeach
                     </td>
                     <td>
+                        @foreach($absences_states as $absences_state)
+                            @if($absence->absence_states_id == $absences_state->id)
+                                @if($absences_state->description == "Injustificado")
+                                    Por Justificar
+                                @else
+                                    {{ $absences_state->description}}
+                                @endif
+                            @endif
+                        @endforeach
                     </td>
+                    @if ($absence->absence_states_id!=4)
+                        <td>
+                            <a href="#" class="btn-detail-edit disabled">Justificado</a>
+                        </td>
+
+                    @else
+                        <td>
+                            <a href="{{ url('absences/' . $absence->id . '/justification/create') }}" class="btn-detail-edit">Justificar</a>
+                        </td>
+
+                    @endif
                 </tr>
             @endforeach
             </tbody>
