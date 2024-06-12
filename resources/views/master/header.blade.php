@@ -29,7 +29,7 @@
                 </div>
             </li>
 
-            <div id="daily-tasks-content">
+            <div id="daily-tasks-content" class="dropdown-content">
                     <li><a href="/register-schedule">Registo de Horário</a></li>
                     <li><a href="/dashboard-statistics">Dashboard Estatísticas</a></li>
                     <li><a href="/attendance-record">Registo de Assiduidade</a></li>
@@ -45,7 +45,7 @@
                     <img src="{{ asset('images/dropdown-arrow.svg') }}" alt="arrow" id="dropdown-arrow">
                 </div>
             </li>
-            <div id="requests-content">
+            <div id="requests-content" class="dropdown-content">
                 <li><a href="/users/{{Auth::user()->id}}/absences">Ver faltas</a></li>
                 <li><a href="//users/{{Auth::user()->id}}/edit">Gerir dados</a></li>
                 <li><a href="{{ url('user/edit') }}">Gerir Dados</a></li>

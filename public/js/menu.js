@@ -29,6 +29,7 @@ class Sidebar {
         main.classList.add('active');
         content.classList.add('active');
         this.arrowImg.src = 'images/menu-arrow-open.svg';
+        rootListItems.forEach((item) => toggleSubMenu(item, false));
     }
 
     expand(updateState = true) {
@@ -52,27 +53,35 @@ function leaveLink() {
 }
 
 
-function expandTasks() {
-    sidebar.expand(false);
-    const content = document.querySelector('#daily-tasks-content');
-    content.classList.add('expanded-item');
+function toggleSubMenu(item, open = undefined) {
+    const dropdown = item.querySelector('.dropdown-main')
+    const dropdownContent = item.nextElementSibling
+
+    if(dropdown && dropdownContent){
+        if(open == null) {
+
+            dropdownContent.classList.toggle('expanded-item');
+        }else{
+            const isExpanded = dropdownContent.classList.contains('expanded-item')
+            open && !isExpanded && dropdownContent.classList.add('expanded-item');
+            !open && isExpanded && dropdownContent.classList.remove('expanded-item');
+        }
+    }
 }
 
 function navigateToRoute (listItem) {
 
     const href = listItem.querySelector('a').href;
 
-    const dropdown = listItem.classList.contains('dropdown-main')
+    const dropdown = listItem && listItem.querySelector('.dropdown-main')
 
     if(dropdown){
-        if (listItem.id === 'daily-tasks') {
-            expandTasks();
+        if(!sidebar.isCollapsed){
+            toggleSubMenu(listItem);
         }
-        /*if(this.id === 'daily-tasks'){
-            sidebar.expand(false)
-            const content = document.querySelector('#daily-tasks-content')
-            content.classList.toggle('expanded-item')
-        }*/
+        else{
+            sidebar.expand()
+        }
     }
     else {
         if (sidebar.isCollapsed) {
@@ -95,12 +104,6 @@ function navigateToRoute (listItem) {
         }
     }
 }
-
-const dailyTaskItem = document.getElementById('daily-tasks');
-dailyTaskItem.addEventListener('click', function () {
-    expandTasks();
-    navigateToRoute(this);
-});
 
 function selectLink(e) {
     e.preventDefault();
@@ -139,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function clearSelected() {
-    allListItems.forEach((item) => item.classList.remove("selected"));
+    rootListItems.forEach((item) => item.classList.remove("selected"));
     localStorage.removeItem('selectedMenuItem');
 }
 

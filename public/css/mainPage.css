@@ -241,7 +241,7 @@ h1 {
     color: var(--blue);
 }
 
-.menu #daily-tasks-content > li {
+.menu .dropdown-content > li {
     padding-left: 20px;
     position: relative;
     width: 100%;
@@ -251,7 +251,7 @@ h1 {
     padding-bottom: 5px;
 }
 
-.menu #daily-tasks-content > li > a {
+.menu .dropdown-content > li > a {
     position: relative;
     width: 100%;
     display: flex;
@@ -260,18 +260,18 @@ h1 {
 }
 
 
-.menu #daily-tasks-content > li:hover,
-.menu #daily-tasks-content > li.hovered {
+.menu .dropdown-content > li:hover,
+.menu .dropdown-content > li.hovered {
     background-color: var(--white);
 }
 
-.menu #daily-tasks-content > li:hover a,
-.menu #daily-tasks-content > li.hovered a{
+.menu .dropdown-content > li:hover a,
+.menu .dropdown-content > li.hovered a{
     color:var( --blue);
 }
 
-.menu #daily-tasks-content > li.hovered > a::before,
-.menu #daily-tasks-content > li.hovered > a::before{
+.menu .dropdown-content > li.hovered > a::before,
+.menu .dropdown-content > li.hovered > a::before{
     content: "";
     position: absolute;
     right: 0;
@@ -284,8 +284,8 @@ h1 {
     pointer-events: none;
 }
 
-.menu #daily-tasks-content > li.hovered > a::after,
-.menu #daily-tasks-content > li.hovered > a::after{
+.menu .dropdown-content > li.hovered > a::after,
+.menu .dropdown-content > li.hovered > a::after{
     content: "";
     position: absolute;
     right: 0;
@@ -413,15 +413,15 @@ h1 {
 
 
 /*Dropdown Menu Content*/
-#daily-tasks-content:not(.expanded-item) {
+.dropdown-content:not(.expanded-item) {
     display: none;
 }
 
-#daily-tasks-content .expanded-item {
+.dropdown-content .expanded-item {
     display: block;
 }
 
-#daily-tasks-content {
+.dropdown-content {
     overflow: hidden;
     padding-top: 20px;
     padding-bottom: 20px;
