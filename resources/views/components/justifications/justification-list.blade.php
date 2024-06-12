@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="{{ asset('css/work-shifts.css') }}">
 <link rel="stylesheet" href="{{ asset('css/show-all.css') }}">
+<link rel="stylesheet" href="{{ asset('css/justification-list.css') }}">
 
 
 <main class="table" id="users_table">
@@ -27,22 +28,22 @@
         <table>
             <thead>
             <tr>
-                <th> Colaborador <span class="icon-arrow">&UpArrow;</span></th>
+                <th class="leftCell"> Colaborador <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Motivo <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Data da Justificação <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Observações <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Estado <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Ações <span class="icon-arrow">&UpArrow;</span></th>
+                <th class="rightCell"> Ações <span class="icon-arrow">&UpArrow;</span></th>
             </tr>
             </thead>
             <tbody>
             @foreach ($justifications as $justification)
                 <tr>
-                    <td>{{ $justification->absence->user->name }}</td>
-                    <td>{{ $justification->motive }}</td>
-                    <td>{{ $justification->justification_date }}</td>
-                    <td>{{ $justification->observation }}</td>
-                    <td>
+                    <td class="usernameCell">{{ $justification->absence->user->name }}</td>
+                    <td class="motiveCell">{{ $justification->motive }}</td>
+                    <td class="justificationDateCell">{{ $justification->justification_date }}</td>
+                    <td class="observationCell">{{ $justification->observation }}</td>
+                    <td class="stateCell">
                         @if($justification->absence->absence_states_id == 1)
                             Aprovado
                         @elseif($justification->absence->absence_states_id == 2)
@@ -66,5 +67,6 @@
 </main>
 
 <script src="{{ asset('js/show-all.js') }}"></script>
+<script src="{{ asset('js/justification-list.js') }}"></script>
 
 
