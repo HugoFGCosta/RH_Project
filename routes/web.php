@@ -126,7 +126,20 @@ Route::controller(EventController::class)->group(function () {
 
 /* Rotas Absences   ->  AINDA NAO IMPLEMENTADO MIDDLEWARE*/
 Route::get('users/{user}/absences', [\App\Http\Controllers\AbsenceController::class, 'absencesByUser']);
+Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
 
+/* Rotas Justificações */
+Route::get('absences/{absence}/justification/create', [\App\Http\Controllers\JustificationController::class, 'create']);
+Route::resource('justifications', \App\Http\Controllers\JustificationController::class);
+Route::post('absences/{absence}/justification', [\App\Http\Controllers\JustificationController::class, 'store']);
+Route::get('/justifications/show', [\App\Http\Controllers\JustificationController::class, 'show']);
+Route::get('/justifications/edit/{justifications}', [\App\Http\Controllers\JustificationController::class, 'edit']);
+Route::put('/justifications/{justifications}', [\App\Http\Controllers\JustificationController::class, 'update']);
+Route::get('/justification/{justification}/manage', [\App\Http\Controllers\JustificationController::class, 'justificationManage']);
+Route::get('/justification/{justification}/reject', [\App\Http\Controllers\JustificationController::class, 'justificationReject']);
+Route::get('/justification/{justification}/approve', [\App\Http\Controllers\JustificationController::class, 'justificationApprove']);
+Route::get('/pending-justifications', [\App\Http\Controllers\JustificationController::class, 'pendingJustifications']);
+Route::get('/justification/{absence}/download', [\App\Http\Controllers\JustificationController::class, 'justificationDownload']);
 
 /* Rotas Turnos   ->  IMPLEMENTADO MIDDLEWARE ADMIN/MANAGER*/
 Route::get('users/shift-list', [UserShiftController::class, 'show'])->middleware('AdminOrManagerMiddleware'); // LISTA DE TODOS, apenas Admin e Gestor tem acesso
