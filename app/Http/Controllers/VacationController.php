@@ -112,10 +112,18 @@ class VacationController extends Controller
     public function store(StoreVacationRequest $request)
     {
 
-        $request->validate([
-            'date_start' => 'required|after:today|before:date_end' ,
-            'date_end' => 'required|after:tomorrow|after:date_start'
-        ]);
+        $messages = [
+            'date_start.required' => 'The start date is required.',
+            'date_start.after' => 'The start date must be a date after today.',
+            'date_start.before' => 'The start date must be before the end date.',
+            'date_end.required' => 'The end date is required.',
+            'date_end.after' => 'The end date must be a date after tomorrow.',
+            'date_end.after:date_start' => 'The end date must be after the start date.',
+        ];
+        $validatedData = $request->validate([
+            'date_start' => 'required|date|after:today|before:date_end',
+            'date_end' => 'required|date|after:tomorrow|after:date_start',
+        ], $messages);
         if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::id()))!=null && $this->timeCollide(0,auth::id(),$request->date_start,$request->date_end)){
 
             $vacation = new Vacation();
@@ -127,7 +135,7 @@ class VacationController extends Controller
             $vacation->save();
             return redirect(url('/vacation'))->with('status','Item created successfully!');
         }
-        else return redirect(url('/vacations/create'))->with('status','error!');
+        else return redirect(url('/vacations/create'))->with('status','O Utilizador já marcou ferias neste(s) dia(s)!!');
 
     }
 
@@ -139,7 +147,6 @@ class VacationController extends Controller
 
     public function edit(Vacation $vacation)
     {
-//print   Vacation::with('user')->where('role_id', auth::id())->pluck("role_id");
         $roleId = Auth::user()->role_id;
         $role_id_table= Vacation::with('User')->where('id',$vacation->id)->get();
 
@@ -150,25 +157,31 @@ class VacationController extends Controller
 
     public function update(UpdateVacationRequest $request, Vacation $vacation)
     {
+        $messages = [
+            'date_start.required' => 'The start date is required.',
+            'date_start.after' => 'The start date must be a date after today.',
+            'date_start.before' => 'The start date must be before the end date.',
+            'date_end.required' => 'The end date is required.',
+            'date_end.after' => 'The end date must be a date after tomorrow.',
+            'date_end.after:date_start' => 'The end date must be after the start date.',
+        ];
+        $validatedData = $request->validate([
+            'date_start' => 'required|date|after:today|before:date_end',
+            'date_end' => 'required|date|after:tomorrow|after:date_start',
+        ], $messages);
 
-
-
-        $request->validate([
-            'date_start' => 'required|after:today|before:date_end' ,
-            'date_end' => 'required|after:tomorrow|after:date_start',
-
-        ]);
         $roleId = auth()->user()->role_id;
         if($this->timeCollide($vacation->id,$vacation->user_id,$request->date_start,$request->date_end)){
 
             $vacation = Vacation::find($vacation->id);
-            if($roleId >= 2){
+            if($roleId >= 2 && $vacation->vacation_approval_states_id != $request->vacation_approval_states_id){
                 $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
                 $vacation->approved_by= auth()->user()->id;
             }
             else{
                 $vacation->vacation_approval_states_id = 3;
                 $vacation->approved_by= null;
+
             }
             $vacation->date_start = $request->date_start;
             $vacation->date_end = $request->date_end;
@@ -177,7 +190,7 @@ class VacationController extends Controller
             return redirect(url('/vacation'))->with('status', 'Item edited successfully!');
         }
         else
-            return redirect('/vacation')->with('status', 'Erro!');
+            return redirect('/vacation')->with('status', 'O Utilizador já marcou ferias neste(s) dia(s)!');
     }
 
 
@@ -290,3 +303,4 @@ class VacationController extends Controller
         return Response::make('', 200, $headers);
     }
 }
+
