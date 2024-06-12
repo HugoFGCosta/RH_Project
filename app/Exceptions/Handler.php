@@ -45,4 +45,18 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
+    /* public function render($request, Throwable $exception)
+    {
+        if (
+            $exception instanceof \Symfony\Component\HttpKernel\Exception\HttpException &&
+            $exception->getStatusCode() === 403
+        ) {
+            return response()->view('pages.menu.menu')->header('Refresh', '10;url=/menu');
+        }
+
+        return parent::render($request, $exception);
+    } */
+
+
 }
