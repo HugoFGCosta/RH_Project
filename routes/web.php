@@ -41,9 +41,9 @@ Route::get('/register-schedule', [App\Http\Controllers\ButtonController::class, 
 Route::get('/dashboard-statistics', [App\Http\Controllers\ButtonController::class, 'dashboardStatistics']); // dashboard das horas extras
 Route::get('/view-absences', [App\Http\Controllers\ButtonController::class, 'viewAbsences']);
 Route::get('/manage-data', [App\Http\Controllers\ButtonController::class, 'manageData']);
-Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences'])->middleware('AdminOrManager'); // Aprovar faltas, ADMIN e Gestor
+Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences'])->middleware('AdminOrManagerMiddleware'); // Aprovar faltas, ADMIN e Gestor
 Route::get('/vacation', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
-Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData'])->name('importExportData')->middleware('AdminOrManager'); // APENAS ADMIN E GESTOR
+Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData'])->name('importExportData')->middleware('AdminMiddleware'); // APENAS ADMIN E GESTOR
 Route::get('/daily-tasks', [App\Http\Controllers\ButtonController::class, 'dailyTasks']);
 Route::get('/requests', [App\Http\Controllers\ButtonController::class, 'requests']);
 Route::get('/settings', [App\Http\Controllers\ButtonController::class, 'settings']);

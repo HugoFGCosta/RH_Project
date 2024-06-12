@@ -260,9 +260,6 @@ h1 {
 }
 
 
-
-
-
 .menu .dropdown-content > li:hover,
 .menu .dropdown-content > li.hovered {
     background-color: var(--white);
@@ -278,12 +275,14 @@ h1 {
     content: "";
     position: absolute;
     right: 0;
+
     top: -35px;
     width: 35px;
     height: 35px;
     background-color: transparent;
     border-radius: 100%;
     box-shadow: 15px 15px 0 -1px var(--white);
+
     pointer-events: none;
 }
 
@@ -292,12 +291,14 @@ h1 {
     content: "";
     position: absolute;
     right: 0;
+
     bottom: -40px;
     width: 35px;
     height: 35px;
     background-color: transparent;
     border-radius: 50%;
     box-shadow: 14px -14px 0 -4px var(--white);
+
     pointer-events: none;
 }
 
