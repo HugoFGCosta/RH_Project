@@ -79,15 +79,14 @@ Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update']);
 
 //rotas vacation
 
-
 Route::get('/vacation', [VacationController::class, 'index'])->name('vacations.index');
-Route::get('/vacation-plans', [VacationController::class, 'index'])->name('vacations.index');
 Route::get('/vacations/create', [VacationController::class, 'create'])->name('vacations.create');
 Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
 Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
 Route::get('/vacations/edit/{vacation}', [VacationController::class, 'edit'])->name('vacations.edit');
 Route::put('/vacations/{vacation}', [VacationController::class, 'update'])->name('vacations.update');
 Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destroy'])->name('vacations.destroy');
+
 /*Rotas Import Export*/
 
 /* ROTA PRESENÇA */
