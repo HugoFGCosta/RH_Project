@@ -58,6 +58,11 @@ class User extends Authenticatable
         return $this->role_id == 2; // Verifica se o usuário é um gestor
     }
 
+    public function isWorker()
+    {
+        return $this->role_id == 1; // Verifica se o usuário é um trabalhador
+    }
+
     public function presences()
     {
         return $this->hasMany(Presence::class);

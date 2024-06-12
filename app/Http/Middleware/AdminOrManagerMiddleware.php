@@ -7,7 +7,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminMiddleware
+class AdminOrManagerMiddleware
 {
     /**
      * Handle an incoming request.
@@ -16,10 +16,11 @@ class AdminMiddleware
      */
     public function handle($request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->isAdmin()) {
+        if (Auth::check() && (Auth::user()->isAdmin() || Auth::user()->isManager())) {
             return $next($request);
         }
 
         return response()->view('pages.error-page.error-page');
     }
+
 }
