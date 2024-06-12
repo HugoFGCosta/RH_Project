@@ -1,5 +1,3 @@
-
-
 @extends('master.main')
 
 @section('content')
