@@ -46,14 +46,14 @@
 
                     <td>
                         @auth
-                            <a href="{{url('vacations/'.'edit/' . $vacation->id  )}}" type="button" class="btn btn-primary">Edit</a></td>
+                            <a href="{{url('vacations/'.'edit/' . $vacation->id  )}}" type="button" class="btn btn-primary">Editar</a></td>
                         <form  action="{{url('vacations/' .'delete/' .$vacation->id)}}" method="POST">
                         @csrf
                               @method('DELETE')
-                            <td><button type="submit" class="btn btn-primary">Delete</button>
+                            <td><button type="submit" class="btn btn-primary">Apagar</button>  </td>
                         </form>
                         @endauth
-                    </td>
+
                 </tr>
             @endforeach
         </tbody>
