@@ -2,7 +2,6 @@
 <html>
 
 <head>
-    <title>Laravel FullCalendar Tutorial - ItSolutionStuff.com</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -21,11 +20,6 @@
         .absence-event {
             background-color: red !important;
             border-color: red !important;
-        }
-
-        .absence-day {
-            background-color: red !important;
-            color: white !important;
         }
     </style>
 </head>
@@ -53,7 +47,7 @@
                 <label for="endDate">Data de Fim</label>
                 <input type="date" id="endDate" required>
             </div>
-            <div class="form-group-event">
+            <div class="form-group-event calendar-buttons">
                 <button type="button" id="saveEvent">Salvar Evento</button>
                 <button type="button" id="deleteEvent" class="btn-delete">Apagar Evento</button>
             </div>
@@ -88,8 +82,18 @@
                         console.log('Eventos carregados', data);
                         var events = [];
                         $(data).each(function() {
+                            var eventIdPrefix = '';
+                            if (this.is_vacation) {
+                                eventIdPrefix = 'vacation-';
+                            } else if (this.is_absence) {
+                                eventIdPrefix = 'absence-';
+                            } else {
+                                eventIdPrefix = 'event-';
+                            }
+                            var eventId = eventIdPrefix + this.id;
+
                             events.push({
-                                id: this.id,
+                                id: eventId,
                                 title: this.title,
                                 start: this.start,
                                 end: moment(this.end).add(1, 'days').format('YYYY-MM-DD'),
@@ -116,18 +120,18 @@
                 });
             },
             displayEventTime: false,
-            dayRender: function(date, cell) {
-                var formattedDate = date.format('YYYY-MM-DD');
-                if (absenceDays[formattedDate]) {
-                    cell.addClass('absence-day');
-                    cell.append('<div class="fc-day-number">Falta</div>');
-                }
-            },
-            eventRender: function(event, element, view) {
+            eventRender: function(event, element) {
                 if (event.allDay === 'true') {
                     event.allDay = true;
                 } else {
                     event.allDay = false;
+                }
+
+                // Adiciona classes específicas para eventos de férias e faltas
+                if (event.className.includes('vacation-event')) {
+                    element.addClass('vacation-event');
+                } else if (event.className.includes('absence-event')) {
+                    element.addClass('absence-event');
                 }
             },
             selectable: true,
@@ -149,7 +153,7 @@
                             data: {
                                 title: title,
                                 start: startDate,
-                                end: moment(endDate).format('YYYY-MM-DD'), // Adiciona um dia para garantir o fim correto
+                                end: moment(endDate).format('YYYY-MM-DD'),
                                 type: 'add'
                             },
                             type: "POST",
@@ -157,7 +161,7 @@
                                 displayMessage("Evento criado com sucesso");
 
                                 calendar.fullCalendar('renderEvent', {
-                                    id: data.id,
+                                    id: 'event-' + data.id,
                                     title: title,
                                     start: startDate,
                                     end: moment(endDate).add(1, 'days').format('YYYY-MM-DD'),
@@ -171,8 +175,9 @@
                     }
                 });
             },
-            eventDrop: function(event, delta) {
+            eventDrop: function(event, delta, revertFunc) {
                 if (event.className.includes('vacation-event') || event.className.includes('absence-event')) {
+                    revertFunc(); // Reverter se for um evento de férias ou ausência
                     return; // Não permitir edição para eventos de férias ou faltas
                 }
                 var start = event.start.format("YYYY-MM-DD");
@@ -184,13 +189,15 @@
                         title: event.title,
                         start: start,
                         end: moment(end).subtract(1, 'days').format('YYYY-MM-DD'),
-                        id: event.id,
+                        id: event.id.replace('event-', ''),
                         type: 'update',
                     },
                     type: "POST",
                     success: function(response) {
                         displayMessage("Evento atualizado com sucesso");
-                        calendar.fullCalendar('updateEvent', event);
+                    },
+                    error: function() {
+                        revertFunc(); // Reverter a posição se houver erro
                     }
                 });
             },
@@ -216,7 +223,7 @@
                                 title: title,
                                 start: startDate,
                                 end: moment(endDate).format('YYYY-MM-DD'),
-                                id: currentEvent.id,
+                                id: currentEvent.id.replace('event-', ''),
                                 type: 'update'
                             },
                             type: "POST",
@@ -241,7 +248,7 @@
                             type: "POST",
                             url: SITEURL + '/fullcalenderAjax',
                             data: {
-                                id: currentEvent.id,
+                                id: currentEvent.id.replace('event-', ''),
                                 type: 'delete'
                             },
                             success: function(response) {
@@ -272,8 +279,6 @@
             }
         }
     });
-
-
 </script>
 
 </body>

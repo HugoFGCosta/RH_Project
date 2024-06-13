@@ -1,5 +1,5 @@
-<link rel="stylesheet" href="{{ asset('css/work-shifts.css') }}">
 <link rel="stylesheet" href="{{ asset('css/show-all.css') }}">
+<link rel="stylesheet" href="{{ asset('css/absences-by-user.css') }}">
 
 
 <main class="table" id="users_table">
@@ -38,17 +38,17 @@
             <tbody>
             @foreach ($absences as $absence)
                 <tr>
-                    <td>{{ $absence->id }}</td>
-                    <td>{{ $absence->absence_start_date }}</td>
-                    <td>{{ $absence->absence_end_date}}</td>
-                    <td>
+                    <td class="idCell">{{ $absence->id }}</td>
+                    <td class="absenceStartCell">{{ $absence->absence_start_date }}</td>
+                    <td class="absenceEndCell">{{ $absence->absence_end_date}}</td>
+                    <td class="absenceTypeCell">
                         @foreach($absences_types as $absences_type)
                             @if($absence->absence_types_id == $absences_type->id)
                                 {{ $absences_type->description}}
                             @endif
                         @endforeach
                     </td>
-                    <td>
+                    <td class="absenceStateCell">
                         @foreach($absences_states as $absences_state)
                             @if($absence->absence_states_id == $absences_state->id)
                                 @if($absences_state->description == "Injustificado")
@@ -60,12 +60,12 @@
                         @endforeach
                     </td>
                     @if ($absence->absence_states_id!=4)
-                        <td>
+                        <td class="justificationStateCell">
                             <a href="#" class="btn-detail-edit disabled">Justificado</a>
                         </td>
 
                     @else
-                        <td>
+                        <td class="justificationState">
                             <a href="{{ url('absences/' . $absence->id . '/justification/create') }}" class="btn-detail-edit">Justificar</a>
                         </td>
 
@@ -78,5 +78,6 @@
 </main>
 
 <script src="{{ asset('js/show-all.js') }}"></script>
+<script src="{{asset('js/absences-by-user.js')}}"></script>
 
 

@@ -4,25 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Absence;
 use App\Models\Event;
-use App\Http\Requests\StoreEventRequest;
-use App\Http\Requests\UpdateEventRequest;
 use App\Models\Vacation;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class EventController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         if ($request->ajax()) {
             $userId = Auth::id();
 
-            //  eventos normais
+            // Eventos normais
             $events = Event::where('user_id', $userId)
                 ->where(function($query) use ($request) {
                     $query->whereBetween('start', [$request->start, $request->end])
@@ -34,7 +28,9 @@ class EventController extends Controller
                 })
                 ->get(['id', 'title', 'start', 'end']);
 
-            //  eventos de férias
+            Log::info('Eventos normais recuperados', ['events' => $events]);
+
+            // Eventos de férias
             $vacations = Vacation::where('user_id', $userId)
                 ->where('vacation_approval_states_id', 1) // Apenas férias aprovadas
                 ->where(function($query) use ($request) {
@@ -52,7 +48,9 @@ class EventController extends Controller
                 $vacation->is_vacation = true;
             }
 
-            // eventos de faltas
+            Log::info('Eventos de férias recuperados', ['vacations' => $vacations]);
+
+            // Eventos de faltas
             $absences = Absence::where('user_id', $userId)
                 ->where(function($query) use ($request) {
                     $query->whereBetween('absence_start_date', [$request->start, $request->end])
@@ -69,15 +67,18 @@ class EventController extends Controller
                 $absence->is_absence = true;
             }
 
-            // Une eventos normais, férias e faltas
-            $data = $events->merge($vacations)->merge($absences);
+            Log::info('Eventos de faltas recuperados', ['absences' => $absences]);
 
-            return response()->json($data);
+            // Mesclar eventos
+            $allEvents = $events->concat($vacations)->concat($absences);
+
+            Log::info('Todos os eventos mesclados', ['allEvents' => $allEvents]);
+
+            return response()->json($allEvents);
         }
 
         return view('fullcalender');
     }
-
 
 
 
