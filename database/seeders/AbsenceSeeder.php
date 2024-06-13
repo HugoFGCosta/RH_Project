@@ -40,8 +40,7 @@ class AbsenceSeeder extends Seeder
                     'updated_at'=>now(),
                 ],
 
-            ]); 
-        }*/
             ]);
+        }*/
     }
 }
