@@ -7,6 +7,7 @@ use App\Http\Requests\StoreAbsenceRequest;
 use App\Http\Requests\UpdateAbsenceRequest;
 use App\Models\Absence_State;
 use App\Models\AbsenceType;
+use App\Models\Justification;
 use App\Models\Presence;
 use App\Models\User;
 use App\Models\User_Shift;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
+use Termwind\Components\Anchor;
 
 class AbsenceController extends Controller
 {
@@ -26,6 +28,13 @@ class AbsenceController extends Controller
     public function index()
     {
         //
+        $absences = Absence::all();
+        $absences_states = Absence_State::all();
+        $absences_types = AbsenceType::all();
+        $justifications = Justification::all();
+
+        return view('pages.absences.absences-list', ['absences'=>$absences, 'absences_states'=>$absences_states, 'absences_types'=>$absences_types, 'justifications'=>$justifications]);
+
     }
 
     public function approvedAbsences(){
