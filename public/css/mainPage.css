@@ -81,6 +81,30 @@ h1 {
     width: 80px;
 }
 
+.menu li .dropdown-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/*Posição da dropdown-arrow*/
+.menu.active ul li #dropdown-arrow {
+    display: none;
+}
+.menu > ul > li #dropdown-arrow {
+    height: 25px;
+    width: 25px;
+    z-index: 99;
+    padding-right: 8px;
+}
+
+/*styling da dropdown-arrow*/
+.menu > ul > li:not(.selected):not(.hovered) #dropdown-arrow {
+    filter: invert(100%) brightness(200%) saturate(0%);
+}
+
+
+
 .menu ul {
     position: absolute;
     top: 0;
@@ -88,7 +112,7 @@ h1 {
     width: 100%;
 }
 
-.menu ul li {
+.menu > ul > li {
     position: relative;
     width: 100%;
     list-style: none;
@@ -96,31 +120,30 @@ h1 {
     border-bottom-left-radius: 30px;
 }
 
-.menu ul li:hover,
-.menu ul li.hovered {
+.menu > ul > li:hover,
+.menu > ul > li.hovered {
     background-color: var(--white);
 }
 
-.menu ul li:nth-child(1) {
+#menu-logo {
     margin-bottom:40px;
     pointer-events:none;
 }
 
-.menu ul li a{
+.menu > ul > li a{
     position: relative;
-    display: block;
     width: 100%;
     display: flex;
     text-decoration: none;
     color: var(--white);
 }
 
-.menu ul li:hover a,
-.menu ul li.hovered a{
+.menu > ul > li:hover a,
+.menu > ul > li.hovered a{
     color:var( --blue);
 }
 
-.menu ul li a .icon {
+.menu > ul > li a .icon {
     position: relative;
     display: block;
     min-width: 60px;
@@ -129,11 +152,11 @@ h1 {
     text-align: center;
 }
 
-.menu ul li a .icon ion-icon {
+.menu > ul > li a .icon ion-icon {
     font-size: 1.75rem;
 }
 
-.menu ul li a .title {
+.menu > ul > li a .title {
     position: relative;
     display: block;
     padding: 0 10px;
@@ -143,8 +166,8 @@ h1 {
     white-space: nowrap;
 }
 
-.menu ul li:hover a::before,
-.menu ul li.hovered a::before{
+.menu > ul > li:hover a::before,
+.menu > ul > li.hovered a::before{
     content: "";
     position: absolute;
     right: 0;
@@ -157,8 +180,8 @@ h1 {
     pointer-events: none;
 }
 
-.menu ul li:hover a::after,
-.menu ul li.hovered a::after{
+.menu > ul > li:hover a::after,
+.menu > ul > li.hovered a::after{
     content: "";
     position: absolute;
     right: 0;
@@ -172,8 +195,8 @@ h1 {
 }
 
 /*selecionado*/
-.menu ul li.selected a::before,
-.menu ul li.selected a::after {
+.menu > ul > li.selected a::before,
+.menu > ul > li.selected a::after {
     content: "";
     position: absolute;
     width: 50px;
@@ -183,25 +206,102 @@ h1 {
     pointer-events: none;
 }
 
-.menu ul li.selected a::before {
+
+
+.menu > ul > li.selected a::before {
     right: 0;
     top: -50px;
     box-shadow: 35px 35px 0 10px var(--white);
 }
 
-.menu ul li.selected a::after {
+.menu > ul > li.selected a::after {
     right: 0;
     bottom: -50px;
     box-shadow: 35px -35px 0 10px var(--white);
 }
 
+
+/*
+    Ajusta o efeito visual quando os list item têm uma dropdown
+    É necessário ajustar a width com o tamanho exato da seta do dropdown
+*/
+.menu:not(.active) ul li .dropdown-main a::before {
+    right: -25px;
+}
+.menu:not(.active) ul li .dropdown-main a::after {
+    right: -25px;
+}
+
+
 .selected {
     background-color: var(--white);
 }
 
-.menu ul li.selected a {
+.menu > ul > li.selected a {
     color: var(--blue);
 }
+
+.menu .dropdown-content > li {
+    padding-left: 20px;
+    position: relative;
+    width: 100%;
+    list-style: none;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+    padding-bottom: 5px;
+}
+
+.menu .dropdown-content > li > a {
+    position: relative;
+    width: 100%;
+    display: flex;
+    text-decoration: none;
+    color: var(--white);
+}
+
+
+.menu .dropdown-content > li:hover,
+.menu .dropdown-content > li.hovered {
+    background-color: var(--white);
+}
+
+.menu .dropdown-content > li:hover a,
+.menu .dropdown-content > li.hovered a{
+    color:var( --blue);
+}
+
+.menu .dropdown-content > li.hovered > a::before,
+.menu .dropdown-content > li.hovered > a::before{
+    content: "";
+    position: absolute;
+    right: 0;
+
+    top: -35px;
+    width: 35px;
+    height: 35px;
+    background-color: transparent;
+    border-radius: 100%;
+    box-shadow: 15px 15px 0 -1px var(--white);
+
+    pointer-events: none;
+}
+
+.menu .dropdown-content > li.hovered > a::after,
+.menu .dropdown-content > li.hovered > a::after{
+    content: "";
+    position: absolute;
+    right: 0;
+
+    bottom: -40px;
+    width: 35px;
+    height: 35px;
+    background-color: transparent;
+    border-radius: 50%;
+    box-shadow: 14px -14px 0 -4px var(--white);
+
+    pointer-events: none;
+}
+
 
 /*MainBlade*/
 .main {
@@ -276,6 +376,8 @@ h1 {
     font-size: 1.2rem;
 }
 
+
+
 /*Content*/
 .content-area {
     position: absolute;
@@ -290,6 +392,7 @@ h1 {
     margin-left: 80px;
     width: calc(100% - 80px);
 }
+
 
 /*Erros and success messages*/
 /*Messages after import Styles*/
@@ -312,6 +415,35 @@ h1 {
 }
 
 
+
+/*Dropdown Menu Content*/
+.dropdown-content:not(.expanded-item) {
+    display: none;
+}
+
+.dropdown-content .expanded-item {
+    display: block;
+}
+
+.dropdown-content {
+    overflow: hidden;
+    padding-top: 20px;
+    padding-bottom: 20px;
+
+}
+
+
+/*Menu Content*/
+#logout {
+    margin-top: 300px;
+    position: fixed;
+    text-align: center;
+    color: var(--white);
+    bottom: 10px;
+    width: 244px;
+}
+
+
 /*Footer*/
 footer {
     position: fixed;
@@ -326,7 +458,3 @@ footer {
     transition: 0.5s;
     box-sizing: border-box;
 }
-
-
-
-

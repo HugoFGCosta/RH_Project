@@ -6,8 +6,9 @@
 
     </div>
     <div class="form-group">
-
+    <h1>Editar ferias</h1>
         @method('PUT')
+        @if($role >= 3 || $role > $role_id_table)
         <label for="id">id</label>
         <input
             disabled
@@ -17,7 +18,6 @@
             id="id"
 
         ><br>
-        @if($role > 1)
 
         <label for="vacation_approval_states_id">Aprovação de ferias</label>
         <select name="vacation_approval_states_id" id="vacation_approval_states_id">

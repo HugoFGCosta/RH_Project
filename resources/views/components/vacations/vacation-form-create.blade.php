@@ -8,6 +8,7 @@
 
     </div>
     <div class="form-group">
+        <h1>Criar ferias</h1>
         <label for="date_start">start</label>
         <input
             @if($totaldias>=22)
