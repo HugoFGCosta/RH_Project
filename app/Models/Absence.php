@@ -16,7 +16,6 @@ class Absence extends Model
         'approved_by',
         'absence_start_date',
         'absence_end_date',
-        'justification',
     ];
 
     public function user()
@@ -36,7 +35,7 @@ class Absence extends Model
 
     public function justification()
     {
-        return $this->hasMany(Justification::class);
+        return $this->hasOne(Justification::class);
     }
 
 }
