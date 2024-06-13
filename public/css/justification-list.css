@@ -158,6 +158,12 @@ tbody tr.hide td p {
     td:not(:first-of-type) {
         min-width: 12.1rem;
     }
+
+    /* Efeito de foco na busca */
+    .table__header .input-group:hover {
+        width: 95%;
+        box-shadow: 0 .1rem .4rem #0002;
+    }
 }
 
 /* Estilos das setas de ordenação */
