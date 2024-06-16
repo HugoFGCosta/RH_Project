@@ -8,5 +8,6 @@
         <a href="/users/show-all"><button class="sub-menu">Listar Funcionários</button></a>
         <a href="/pending-justifications"><button class="sub-menu">Justificações</button></a>
         <a href="/absences"><button class="sub-menu">Gestão de Faltas</button></a>
+        <a href="/work-times"><button class="sub-meu">Períodos de trabalho</button></a>
     </div>
 @endsection
