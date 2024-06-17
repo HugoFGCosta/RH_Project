@@ -18,7 +18,6 @@ return new class extends Migration {
             $table->unsignedBigInteger('approved_by')->nullable();
             $table->dateTime('absence_start_date');
             $table->dateTime('absence_end_date');
-            $table->string('justification');
             $table->timestamps();
         });
     }
