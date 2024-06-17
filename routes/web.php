@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkShiftController;
 use App\Http\Controllers\VacationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\WorkTimeController;
+
 
 
 /*
@@ -162,3 +164,7 @@ Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftControll
 /*Rotas estatisticas*/
 Route::get('/dashboard-statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
 Route::post('/dashboard-statistics/filter', [DashboardController::class, 'filterStatistics'])->name('dashboard.filter');
+
+/*Rotas de gestão do horário mensal*/
+Route::get('/work-times', [UserController::class, 'manageWorkTimes'])->name('work-times.index');
+Route::post('/work-times', [UserController::class, 'storeWorkTime'])->name('work-times.store');
