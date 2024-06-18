@@ -42,7 +42,7 @@ class Sidebar {
 }
 
 
-const sidebar = new Sidebar()
+const sidebar = new Sidebar();
 
 function hoverLink() {
     this.classList.add("hovered");
@@ -52,52 +52,50 @@ function leaveLink() {
     this.classList.remove("hovered");
 }
 
-
 function toggleSubMenu(item, open = undefined) {
-    const dropdown = item.querySelector('.dropdown-main')
-    const dropdownContent = item.nextElementSibling
+    const dropdown = item.querySelector('.dropdown-main');
+    const dropdownContent = item.nextElementSibling;
 
-    if(dropdown && dropdownContent){
-        if(open == null) {
-
+    if (dropdown && dropdownContent) {
+        if (open == null) {
             dropdownContent.classList.toggle('expanded-item');
-        }else{
-            const isExpanded = dropdownContent.classList.contains('expanded-item')
+        } else {
+            const isExpanded = dropdownContent.classList.contains('expanded-item');
             open && !isExpanded && dropdownContent.classList.add('expanded-item');
             !open && isExpanded && dropdownContent.classList.remove('expanded-item');
         }
     }
 }
 
-function navigateToRoute (listItem) {
+function closeAllSubMenus() {
+    document.querySelectorAll('.menu .expanded-item').forEach(item => {
+        item.classList.remove('expanded-item');
+    });
+}
 
+function navigateToRoute(listItem) {
     const href = listItem.querySelector('a').href;
+    const dropdown = listItem && listItem.querySelector('.dropdown-main');
 
-    const dropdown = listItem && listItem.querySelector('.dropdown-main')
-
-    if(dropdown){
-        if(!sidebar.isCollapsed){
+    if (dropdown) {
+        if (!sidebar.isCollapsed) {
+            closeAllSubMenus();
             toggleSubMenu(listItem);
+        } else {
+            sidebar.expand();
         }
-        else{
-            sidebar.expand()
-        }
-    }
-    else {
+    } else {
         if (sidebar.isCollapsed) {
-
-            sidebar.expand(false)
+            sidebar.expand(false);
 
             setTimeout(() => {
                 if (href) {
                     window.location.href = href;
                 }
-
             }, 500);
 
             setTimeout(() => sidebar.collapse(), 2000);
-
-        }else {
+        } else {
             if (href) {
                 window.location.href = href;
             }
@@ -110,24 +108,22 @@ function selectLink(e) {
     e.stopPropagation();
     e.stopImmediatePropagation();
 
-    const dropdown = this.querySelector('.dropdown-main')
+    const dropdown = this.querySelector('.dropdown-main');
 
-    if(!dropdown){
+    if (!dropdown) {
         clearSelected();
         this.classList.add("selected");
         localStorage.setItem('selectedMenuItem', this.id);
     }
 
-    navigateToRoute(this)
+    navigateToRoute(this);
 }
-
 
 allListItems.forEach((item) => {
     item.addEventListener('mouseover', hoverLink);
     item.addEventListener('mouseout', leaveLink);
     item.addEventListener('click', selectLink);
 });
-
 
 document.addEventListener('DOMContentLoaded', () => {
     const selectedId = localStorage.getItem('selectedMenuItem');
@@ -137,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (sidebar.isCollapsed) {
-        sidebar.collapse()
+        sidebar.collapse();
     }
 });
 
@@ -147,7 +143,7 @@ function clearSelected() {
 }
 
 toggle.onclick = function() {
-    sidebar.toggle()
+    sidebar.toggle();
 };
 
 const userLink = document.querySelector('.user a');
@@ -246,14 +242,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-
-
-
-// The function is called when the document is loaded and toggles the menu visibility
-// when the menu arrow is clicked by changing the image and the display style of the menu
 document.addEventListener('DOMContentLoaded', function () {
-
     toggle.onclick = function () {
-        sidebar.toggle()
+        sidebar.toggle();
     };
 });
