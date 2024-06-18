@@ -382,7 +382,7 @@ h1 {
 .content-area {
     position: absolute;
     margin-top: 40px;
-    margin-left: 300px;
+    margin-left: 250px;
     padding: 20px;
     overflow: auto;
     transition: margin-left 0.5s, width 0.5s;
