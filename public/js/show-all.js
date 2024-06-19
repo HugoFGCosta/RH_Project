@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
         table_rows = document.querySelectorAll('tbody tr'),
         table_headings = document.querySelectorAll('thead th');
 
-    //  Evento de input para a busca na tabela
+    // Evento de input para a busca na tabela
     search.addEventListener('input', searchTable);
 
     function searchTable() {
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     row.style.display = 'table-row';
                 }
             }, 1000);
-        })
+        });
 
         // Altera a cor de fundo das linhas visíveis
         document.querySelectorAll('tbody tr:not(.hide)').forEach((visible_row, i) => {
@@ -43,15 +43,15 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('td').forEach(td => td.classList.remove('active'));
             table_rows.forEach(row => {
                 row.querySelectorAll('td')[i].classList.add('active');
-            })
+            });
 
             // Alterna a classe 'asc' para determinar a ordem de classificação
             head.classList.toggle('asc', sort_asc);
             sort_asc = !head.classList.contains('asc');
 
             sortTable(i, sort_asc);
-        }
-    })
+        };
+    });
 
     // Função para ordenar a tabela
     function sortTable(column, sort_asc) {
@@ -92,11 +92,11 @@ document.addEventListener('DOMContentLoaded', function () {
             new_window.print();
             new_window.close();
         }, 400);
-    }
+    };
 
     pdf_btn.onclick = () => {
         toPDF(users_table);
-    }
+    };
 
     //Converte a tabela HTML para JSON
 
@@ -124,17 +124,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (cell_index < t_cells.length - 2) {
                     row_object[t_head[cell_index]] = t_cell.textContent.trim();
                 }
-            })
+            });
             table_data.push(row_object);
-        })
+        });
 
         return JSON.stringify(table_data, null, 4);
-    }
+    };
 
     json_btn.onclick = () => {
         const json = toJSON(users_table);
-        downloadFile(json, 'json')
-    }
+        downloadFile(json, 'json');
+    };
 
     // Converte a tabela HTML para CSV
 
@@ -162,12 +162,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }).join('\n');
 
         return headings + '\n' + table_data;
-    }
+    };
 
     csv_btn.onclick = () => {
         const csv = toCSV(users_table);
         downloadFile(csv, 'csv', 'user_data');
-    }
+    };
 
     //Converte a tabela HTML para EXCEL
 
@@ -193,12 +193,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }).join('\n');
 
         return headings + '\n' + table_data;
-    }
+    };
 
     excel_btn.onclick = () => {
         const excel = toExcel(users_table);
         downloadFile(excel, 'excel');
-    }
+    };
 
     // Função para baixar arquivos em diferentes formatos
     const downloadFile = function (data, fileType, fileName = '') {
@@ -208,12 +208,22 @@ document.addEventListener('DOMContentLoaded', function () {
             'json': 'application/json',
             'csv': 'text/csv',
             'excel': 'application/vnd.ms-excel',
-        }
+        };
         a.href = `
             data:${mime_types[fileType]};charset=utf-8,${encodeURIComponent(data)}
         `;
         document.body.appendChild(a);
         a.click();
-        a.remove();
-    }
+        document.body.removeChild(a);
+    };
+
+    // Fecha o modal se clicar fora dele
+    document.addEventListener('click', (event) => {
+        const exportFileCheckbox = document.querySelector('#export-file');
+        const exportFileOptions = document.querySelector('.export__file-options');
+
+        if (!exportFileOptions.contains(event.target) && event.target !== exportFileCheckbox && exportFileCheckbox.checked) {
+            exportFileCheckbox.checked = false;
+        }
+    });
 });
