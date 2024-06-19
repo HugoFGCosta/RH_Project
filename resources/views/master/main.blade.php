@@ -1,5 +1,5 @@
 @php use Illuminate\Support\Facades\Auth; @endphp
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="{{app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
@@ -40,7 +40,7 @@
     <div class="main">
         <div class="topbar">
             <div class="toggle">
-                <img src="{{ asset('images/menu-arrow-open.svg') }}" alt="" style="width: 70%; height: auto;" id="menu-arrow-open">
+                <img src="{{ asset('images/menu-arrow-open.svg') }}" alt="" id="menu-arrow-open">
             </div>
             <div class="user">
                 @if (Auth::check())
@@ -62,7 +62,7 @@
 
                     @endphp
                     <li class="nav-item">
-                        <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }} ({{ $role }})</a>
+                        <a href="/user/show" class="user-name">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }} ({{ $role }})</a>
                     </li>
                 @endif
             </div>

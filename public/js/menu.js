@@ -247,5 +247,3 @@ document.addEventListener('DOMContentLoaded', function () {
         sidebar.toggle();
     };
 });
-
-
