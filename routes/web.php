@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkShiftController;
 use App\Http\Controllers\VacationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\WorkTimeController;
+
 
 
 /*
@@ -165,3 +167,7 @@ Route::post('/dashboard-statistics/filter', [DashboardController::class, 'filter
 
 /* Rota Saldo */
 Route::get('/time-bank-balance', [\App\Http\Controllers\BankHourController::class, 'index']);
+
+/*Rotas de gestão do horário mensal*/
+Route::get('/work-times', [UserController::class, 'manageWorkTimes'])->name('work-times.index');
+Route::post('/work-times', [UserController::class, 'storeWorkTime'])->name('work-times.store');
