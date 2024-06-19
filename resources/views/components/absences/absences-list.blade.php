@@ -98,8 +98,10 @@
                                     Aprovado
                                 @elseif ($absences_state->description == "Rejeitado")
                                     Rejeitado
+                                @elseif ($absences_state->description == "Injustificado Permanentemente")
+                                    Injustificado Permanentemente
                                 @else
-                                    <a href="{{ url('absences/' . $absence->id . '/justification/create') }}" class="btn-detail-edit">Justificar</a>
+                                    <a class="btn-detail-edit">Por Justificar</a>
                                 @endif
                             @endif
                         @endforeach

@@ -51,6 +51,9 @@
                         @elseif($justification->absence->absence_states_id == 3)
                             Pendente
                         @else
+                        @elseif($justification->absence->absence_states_id == 5)
+                            Injustificado Permanentemente
+                        @else
                             Por justificar
                         @endif
                     </td>

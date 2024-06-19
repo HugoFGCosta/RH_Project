@@ -42,6 +42,12 @@ class AbsenceStateSeeder extends Seeder
                     'created_at'=>now(),
                     'updated_at'=>now(),
                 ],
+                [
+                    'id' => 5,
+                    'description' => 'Injustificado Permanentemente',
+                    'created_at'=>now(),
+                    'updated_at'=>now(),
+                ],
 
 
             ]);

@@ -165,6 +165,9 @@ Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftControll
 Route::get('/dashboard-statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
 Route::post('/dashboard-statistics/filter', [DashboardController::class, 'filterStatistics'])->name('dashboard.filter');
 
+/* Rota Saldo */
+Route::get('/time-bank-balance', [\App\Http\Controllers\BankHourController::class, 'index']);
+
 /*Rotas de gestão do horário mensal*/
 Route::get('/work-times', [UserController::class, 'manageWorkTimes'])->name('work-times.index');
 Route::post('/work-times', [UserController::class, 'storeWorkTime'])->name('work-times.store');
