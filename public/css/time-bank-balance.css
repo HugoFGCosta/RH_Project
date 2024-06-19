@@ -1,0 +1,76 @@
+.divGeral{
+    margin-top: 100px;
+    margin-left: 40%;
+}
+
+.content-area{
+    position: relative;
+    margin-top: 0px;
+}
+
+.inputClass{
+    font-size: 16px;
+}
+
+.spanTimeOne{
+    margin-right: 50px;
+}
+
+.spanTimeTwo{
+    margin-right: 75px;
+}
+
+.spanTimeThree{
+    margin-right: 108px;
+}
+
+.groupYear{
+    margin-top: 10px;
+}
+
+.submitButton{
+    margin-top: 10px;
+}
+
+.submitButton{
+    font-size: 16px;
+    transition: background-color 0.3s;
+    margin-bottom: 20px;
+}
+
+.submitButton:hover{
+    background-color: #005999;
+    color: white;
+    border-radius: 2px;
+    border: 1px solid #005999;
+}
+
+.textsDiv{
+    margin-left: 10px;
+}
+
+.divMonth{
+    margin-top: 20px;
+    width: 250px;
+}
+
+/* Estilo adicional para responsividade */
+@media (max-width: 750px) {
+
+    .divGeral{
+        margin-top: 100px;
+        margin-left: 0;
+    }
+
+}
+
+/* Estilo adicional para responsividade */
+@media (max-width: 700px) {
+
+    .container form{
+        padding: 10px 20px 10px 20px;
+    }
+
+}
+
+

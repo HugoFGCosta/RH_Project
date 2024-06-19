@@ -93,8 +93,8 @@ Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destr
 
 /* ROTA PRESENÇA   ->  AINDA NAO IMPLEMENTADO MIDDLEWARE */
 
-Route::post('/user/presence/store', [PresenceController::class, 'store']); /* <<<<<<<<<<< ESSA ROTA  */
-Route::get('/user/presence/status', [PresenceController::class, 'getStatus']);
+Route::get('/get-status', [PresenceController::class, 'getStatus']);
+Route::post('/store-presence', [PresenceController::class, 'store']);
 //Route::post('user/presence/storeSimulated', [PresenceController::class, 'storeSimulated']); //ROTA SIMULADA
 /*Route::post('/user/presence', [PresenceController::class, 'presence']);*/
 /*Route::get('/user/presence', [PresenceController::class, 'getPresence']);*/
@@ -164,6 +164,9 @@ Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftControll
 /*Rotas estatisticas*/
 Route::get('/dashboard-statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
 Route::post('/dashboard-statistics/filter', [DashboardController::class, 'filterStatistics'])->name('dashboard.filter');
+
+/* Rota Saldo */
+Route::get('/time-bank-balance', [\App\Http\Controllers\BankHourController::class, 'index']);
 
 /*Rotas de gestão do horário mensal*/
 Route::get('/work-times', [UserController::class, 'manageWorkTimes'])->name('work-times.index');
