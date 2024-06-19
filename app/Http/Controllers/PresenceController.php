@@ -290,6 +290,7 @@ class PresenceController extends Controller
 
 
 
+
     /* public function store(Request $request)
     {
         $user = auth()->user();
@@ -692,7 +693,7 @@ class PresenceController extends Controller
             }
 
             // Verifica se os IDs são inteiros
-            if (!is_integer($data[0])) {
+            if (!is_numeric($data[0])) {
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
             }
 

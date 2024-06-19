@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Vacation;
 use App\Http\Requests\StoreVacationRequest;
 use App\Http\Requests\UpdateVacationRequest;
@@ -17,62 +16,20 @@ use Mockery\Exception;
 
 class VacationController extends Controller
 {
-    public function dateValidation($date_start,$date_end,$date_start_request,$date_end_request) : bool
-    {
-
-        if((($date_start >= $date_start_request) && ($date_start <= $date_end_request) ) || ( ($date_end >= $date_start_request) &&($date_end <= $date_end_request)  )){
-            return true;
-        }
-        else return false;
-    }
-
-    public function timeCollide($current_table,$userId,$date_start_request,$date_end_request)
-    {
-
-        $vacations=Vacation::where('user_id',$userId)->get();
-        $date_start_request= date('Y-m-d', strtotime($date_start_request));
-        $date_end_request= date('Y-m-d', strtotime($date_end_request));
-
-        foreach ($vacations as &$vacation){
-
-            if($current_table == $vacation->id){ //check if it's the same table from edit
-                print '<p> same table </p>';
-            }
-            else{
-                $vacation->date_start= date('Y-m-d', strtotime($vacation->date_start));
-                $vacation->date_end= date('Y-m-d', strtotime($vacation->date_end));
-                if($this->dateValidation($vacation->date_start,$vacation->date_end,$date_start_request,$date_end_request)){
-                    print '<p> same table </p>';
-                    return false;
-                }
-                else {
-                    print '<p></p>';
-                    print '$date_start :'. $vacation->date_start;
-                    print '<p></p>';
-                    print '$date_end :'.$vacation->date_end;
-                    print '<p></p>';
-                    print '$date_start_request :'. $date_start_request;
-                    print '<p></p>';
-                    print  '$date_end_request :' .  $date_end_request;
-                    print '<p></p>';
-                }
-            }
-        }
-
-        return true;
-    }
     public function difTotal($user)
     {
 
-        $vacations= Vacation::where('user_id',$user)->get();
-
+        $vacation_start= Vacation::where('user_id',$user)->pluck('date_start');
+        $vacation_end = Vacation::where('user_id',$user)->pluck('date_end');
         $total= 0;
         $totaldias=0;
-        foreach ($vacations as $vacation){
+        foreach ($vacation_start as $x){
             $total = $total +1;
-            $diff_date = Carbon::parse($vacation->date_start)->diffInDaysFiltered(function (Carbon $remover){
+        }
+        for($i=0;$total>$i;$i++){
+            $diff_date = Carbon::parse($vacation_start[$i])->diffInDaysFiltered(function (Carbon $remover){
                 return !$remover->isWeekend();
-            },Carbon::parse($vacation->date_end));
+            },Carbon::parse($vacation_end[$i]));
             $totaldias=$totaldias+$diff_date;
         }
         return $totaldias;
@@ -87,31 +44,30 @@ class VacationController extends Controller
             return true;
         }
         else
-            return false;
-    }
+        return false;
+        }
 
     public function index()
     {
-        $totaldias = $this->difTotal(Auth::id());
-        $roleId = auth()->user()->role_id;
-        if ($roleId >1)
-            $vacation = vacation::with('user')->orderBy('id', 'asc')->paginate(15);
-        else
-            $vacation = vacation::with('user')->orderBy('id', 'asc')->where('user_id',Auth::id())->paginate(15);
+   $totaldias = $this->difTotal(Auth::id());
+   $roleId = auth()->user()->role_id;
+if ($roleId >1)
+    $vacation = vacation::with('user')->orderBy('id', 'asc')->paginate(3);
+else
+    $vacation = vacation::with('user')->orderBy('id', 'asc')->where('user_id',Auth::id())->paginate(3);
 
-        return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias',$totaldias)->with('role',$roleId);
+return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias',$totaldias)->with('role',$roleId);
 
     }
     public function create()
     {
         $roleId = auth()->user()->role_id;
         $totaldias = $this->difTotal(Auth::id());
-        return view ('pages.vacations.create')->with('totaldias', $totaldias)->with('role',$roleId);
+        return view ('pages.vacations.create')->with('totaldias', $totaldias)->with('role',$roleId);;
     }
 
     public function store(StoreVacationRequest $request)
     {
-
         $messages = [
             'date_start.required' => 'A data de inicio é obrigatória.',
             'date_start.after' => 'A data de inicio deve ser uma data após hoje.',
@@ -147,11 +103,10 @@ class VacationController extends Controller
 
     public function edit(Vacation $vacation)
     {
+    //   print   Vacation::with('user')->where('role_id', auth::id())->pluck("role_id");
         $roleId = Auth::user()->role_id;
-        $role_id_table= Vacation::with('User')->where('id',$vacation->id)->get();
-
         $totaldias= $this->difTotal($roleId);
-        return view('pages.vacations.edit', ['vacations' => $vacation])->with('totaldias', $totaldias)->with('role',$roleId)->with('role_id_table',$role_id_table[0]->user->role_id);
+        return view('pages.vacations.edit', ['vacations' => $vacation])->with('totaldias', $totaldias)->with('role',$roleId);;
 
     }
 
@@ -194,7 +149,6 @@ class VacationController extends Controller
     }
 
 
-
     public function destroy(Vacation $vacation)
     {
         $vacation = vacation::find($vacation->id);
@@ -233,7 +187,7 @@ class VacationController extends Controller
 
             // Verifica se os IDs são inteiros
             if (!is_numeric($data[0]) || !is_numeric($data[1]) || !is_numeric($data[2])) {
-                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador, de estado de Aprovação, e Aprovado_Por são números válidos.');
             }
 
             // Valida se os campos date_start e date_end são datas válidas
@@ -270,6 +224,8 @@ class VacationController extends Controller
                 'approved_by' => $data[2],
                 'date_start' => $data[3],
                 'date_end' => $data[4],
+                'created_at'=>now(),
+                'updated_at'=>now()
             ]);
         }
 
@@ -290,11 +246,11 @@ class VacationController extends Controller
         ];
 
         $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['User_id','Vacation_approval_states_id', 'Approved_by','Date_start','Date_end']); // Add more headers as needed
+        fputcsv($handle, ['Id_Utilizador','Id_Estado_Aprovacao_Falta', 'Aprovado_Por','Data_Comeco','Data_Fim','Criado_A','Atualizado_A']); // Add more headers as needed
 
         //Percorre o vetor com as férias e escreve no ficheiro
         foreach ($vacations as $vacation) {
-            fputcsv($handle, [$vacation->user_id,$vacation->vacation_approval_states_id, $vacation->approved_by,$vacation->date_start,$vacation->date_end]); // Add more fields as needed
+            fputcsv($handle, [$vacation->user_id,$vacation->vacation_approval_states_id, $vacation->approved_by,$vacation->date_start,$vacation->date_end,$vacation->created_at,$vacation->updated_at]); // Add more fields as needed
         }
 
         fclose($handle);
@@ -303,4 +259,3 @@ class VacationController extends Controller
         return Response::make('', 200, $headers);
     }
 }
-
