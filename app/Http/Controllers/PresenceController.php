@@ -175,7 +175,7 @@ class PresenceController extends Controller
             }
         }
 
-        /* 
+        /*
                 $presences_second = Presence::WhereNull('second_end')->get();
 
                 foreach ($presences_second as $presence) {
@@ -227,8 +227,8 @@ class PresenceController extends Controller
             $presence->second_end = Carbon::parse($request->second_end)->addHour();
         }
 
-        /*  // teste de 1 minuto       
-        
+        /*  // teste de 1 minuto
+
          if ($presence->first_start && is_null($presence->first_end)) {
              $first_start = Carbon::parse($presence->first_start);
              if (Carbon::now()->diffInMinutes($first_start) >= 1) {
@@ -704,7 +704,7 @@ class PresenceController extends Controller
             }
 
             // Verifica se os IDs são inteiros
-            if (!is_integer($data[0])) {
+            if (!is_numeric($data[0])) {
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
             }
 

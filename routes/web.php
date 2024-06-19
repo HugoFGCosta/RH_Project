@@ -162,3 +162,6 @@ Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftControll
 /*Rotas estatisticas*/
 Route::get('/dashboard-statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
 Route::post('/dashboard-statistics/filter', [DashboardController::class, 'filterStatistics'])->name('dashboard.filter');
+
+/* Rota Saldo */
+Route::get('/time-bank-balance', [\App\Http\Controllers\BankHourController::class, 'index']);
