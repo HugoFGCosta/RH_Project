@@ -32,35 +32,35 @@ class VacationController extends Controller
         $vacations=Vacation::where('user_id',$userId)->get();
         $date_start_request= date('Y-m-d', strtotime($date_start_request));
         $date_end_request= date('Y-m-d', strtotime($date_end_request));
+        $maisdez=0;
+        $maisdez += $this->date_require($date_start_request,$date_end_request);
+
 
         foreach ($vacations as &$vacation){
 
-            if($current_table == $vacation->id){ //check if it's the same table from edit
-                print '<p> same table </p>';
-            }
-            else{
-                $vacation->date_start= date('Y-m-d', strtotime($vacation->date_start));
-                $vacation->date_end= date('Y-m-d', strtotime($vacation->date_end));
-                if($this->dateValidation($vacation->date_start,$vacation->date_end,$date_start_request,$date_end_request)){
-                    print '<p> same table </p>';
-                    return false;
-                }
-                else {
-                    print '<p></p>';
-                    print '$date_start :'. $vacation->date_start;
-                    print '<p></p>';
-                    print '$date_end :'.$vacation->date_end;
-                    print '<p></p>';
-                    print '$date_start_request :'. $date_start_request;
-                    print '<p></p>';
-                    print  '$date_end_request :' .  $date_end_request;
-                    print '<p></p>';
-                }
-            }
-        }
+           $maisdez += $this->date_require($vacation->date_start,$vacation->date_end);
+           if(end($vacations)){
+               dd($maisdez);
+           }
+                if ($current_table == $vacation->id) { //check if it's the same table from edit
+                    print '<p> same table </p>' . $vacation->id;
+                } else {
 
+                    $date_start = date('Y-m-d', strtotime($vacation->date_start));
+                    $date_end = date('Y-m-d', strtotime($vacation->date_end));
+                    if ($this->dateValidation($date_start, $date_end, $date_start_request, $date_end_request)) {
+                       return false;
+                    }
+
+                }
+
+        }
+        if($maisdez >= 1 ){
         return true;
+    }else
+       return false;
     }
+
     public function difTotal($user)
     {
 
@@ -77,18 +77,35 @@ class VacationController extends Controller
         }
         return $totaldias;
     }
-    public function difInput($start, $end,$total): bool|int
+    public function difInput($start, $end)
     {
 
         $diff_date = Carbon::parse($start)->diffInDaysFiltered(function (Carbon $remover){
             return !$remover->isWeekend();
         },Carbon::parse($end));
-        if ($total + $diff_date <= 22 ){
+        if ($this->difTotal(Auth::id()) + $diff_date <= 22 ){
             return true;
         }
+
         else
             return false;
     }
+
+    public function date_require($start, $end) : int
+    {
+
+
+        $diff_date =  Carbon::parse($start)->diffInDaysFiltered(function (Carbon $remover) {
+            return !$remover->isWeekend();
+        }, Carbon::parse($end));
+
+        if ( $diff_date >= 10) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
 
     public function index()
     {
@@ -124,7 +141,7 @@ class VacationController extends Controller
             'date_start' => 'required|date|after:today|before:date_end',
             'date_end' => 'required|date|after:tomorrow|after:date_start',
         ], $messages);
-        if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::id()))!=null && $this->timeCollide(0,auth::id(),$request->date_start,$request->date_end)){
+        if($this->difInput($request->date_start,$request->date_end) && $this->timeCollide(0,auth::id(),$request->date_start,$request->date_end)){
 
             $vacation = new Vacation();
             $vacation->user_id = Auth::id();
@@ -135,7 +152,7 @@ class VacationController extends Controller
             $vacation->save();
             return redirect(url('/vacation'))->with('status','Item created successfully!');
         }
-        else return redirect(url('/vacations/create'))->with('status','O Utilizador já marcou ferias neste(s) dia(s)!!');
+        else return redirect(url('/vacations/create'))->with($messages);
 
     }
 
@@ -171,7 +188,8 @@ class VacationController extends Controller
         ], $messages);
 
         $roleId = auth()->user()->role_id;
-        if($this->timeCollide($vacation->id,$vacation->user_id,$request->date_start,$request->date_end)){
+        if($this->timeCollide($vacation->id,$vacation->user_id,$request->date_start,$request->date_end) && $this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::id()))){
+
 
             $vacation = Vacation::find($vacation->id);
             if($roleId >= 2 && $vacation->vacation_approval_states_id != $request->vacation_approval_states_id){
@@ -190,7 +208,7 @@ class VacationController extends Controller
             return redirect(url('/vacation'))->with('status', 'Item edited successfully!');
         }
         else
-            return redirect('/vacation')->with('status', 'O Utilizador já marcou ferias neste(s) dia(s)!');
+            return redirect('/vacation')->with('status', 'O ' . auth()->user()->name . ' já marcou ferias neste(s) dia(s)!');
     }
 
 
@@ -303,4 +321,3 @@ class VacationController extends Controller
         return Response::make('', 200, $headers);
     }
 }
-

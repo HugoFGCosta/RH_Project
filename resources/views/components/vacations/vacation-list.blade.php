@@ -1,7 +1,7 @@
 
 <div class="container mt-5">
-    <h1>vacations List</h1>
-   <h1>{{22 - $totaldias}} dias de ferias por marcar</h1>
+    <h1>Lista de Férias</h1>
+   <h1>{{22 - $totaldias}} dias de férias por marcar</h1>
 
 @if (session('status'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -12,7 +12,7 @@
         </div>
     @endif
 
-    <table class="table table-striped table-bordered">
+    <table>
         <thead>
             <tr>
                 <th scope="col">#</th>
@@ -22,6 +22,7 @@
                 <th scope="col">Aprovado por</th>
                 <th scope="col">De</th>
                 <th scope="col">Até</th>
+                <th colspan="2" scope="col">Ações</th>
             </tr>
         </thead>
         <tbody>

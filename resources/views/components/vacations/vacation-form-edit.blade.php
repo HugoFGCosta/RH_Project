@@ -1,12 +1,16 @@
 
 <form method="POST" action="{{ url('vacations') }}/{{$vacations->id}}">
     @csrf
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('status') }}
-
-    </div>
+    @if (session('status'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('status') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
     <div class="form-group">
-    <h1>Editar ferias</h1>
+    <h1>Editar férias</h1>
         @method('PUT')
         @if($role >= 3 || $role > $role_id_table)
         <label for="id">id</label>
@@ -19,7 +23,7 @@
 
         ><br>
 
-        <label for="vacation_approval_states_id">Aprovação de ferias</label>
+        <label for="vacation_approval_states_id">Aprovação de férias</label>
         <select name="vacation_approval_states_id" id="vacation_approval_states_id">
         <option value="3">Pendente</option>
         <option value="1">Aprovar</option>

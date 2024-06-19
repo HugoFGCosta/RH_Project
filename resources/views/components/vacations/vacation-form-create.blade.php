@@ -3,12 +3,16 @@
 <form method="POST" action="{{ url('vacations') }}">
 
     @csrf
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('status') }}
-
-    </div>
+    @if (session('status'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('status') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
     <div class="form-group">
-        <h1>Criar ferias</h1>
+        <h1>Criar férias</h1>
         <label for="date_start">start</label>
         <input
             @if($totaldias>=22)
