@@ -32,6 +32,7 @@
                 <li><a href="/dashboard-statistics">Dashboard Estatísticas</a></li>
                 <li><a href="/attendance-record">Registo de Assiduidade</a></li>
                 <li><a href="/users/{{Auth::user()->id}}/absences">Ver faltas</a></li>
+                <li><a href="/time-bank-balance">Ver Saldo</a></li>
                 <li><a href="/export/work-shifts/{{Auth::user()->id}}">Exportar Horário</a></li>
             </div>
 
