@@ -15,11 +15,12 @@ class AbsenceSeeder extends Seeder
     {
 
         // Verificar se a tabela work_shifts já contém os dados antes de inserir
-        /* if (DB::table('absences')->count() == 0) {
+        if (DB::table('absences')->count() == 0) {
             DB::table('absences')->insert([
                 [
                     'id' => 1,
                     'user_id' => 1,
+                    'justification_id' => null,
                     'absence_states_id' => 4,
                     'absence_types_id' => 1,
                     'approved_by' => null,
@@ -31,6 +32,7 @@ class AbsenceSeeder extends Seeder
                 [
                     'id' => 2,
                     'user_id' => 1,
+                    'justification_id' => null,
                     'absence_states_id' => 4,
                     'absence_types_id' => 1,
                     'approved_by' => null,
@@ -41,6 +43,6 @@ class AbsenceSeeder extends Seeder
                 ],
 
             ]);
-        }*/
+        }
     }
 }

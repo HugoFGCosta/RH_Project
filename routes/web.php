@@ -131,10 +131,12 @@ Route::get('users/{user}/absences', [\App\Http\Controllers\AbsenceController::cl
 Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
 
 /* Rotas Justificações */
-Route::get('absences/{absence}/justification/create', [\App\Http\Controllers\JustificationController::class, 'create']);
+//Route::get('absences/{absence}/justification/create', [\App\Http\Controllers\JustificationController::class, 'create']);
+Route::get('/justification/create', [\App\Http\Controllers\JustificationController::class, 'create']);
 Route::get('absences', [\App\Http\Controllers\AbsenceController::class, 'index']);
 Route::resource('justifications', \App\Http\Controllers\JustificationController::class);
-Route::post('absences/{absence}/justification', [\App\Http\Controllers\JustificationController::class, 'store']);
+//Route::post('absences/{absence}/justification', [\App\Http\Controllers\JustificationController::class, 'store']);
+Route::post('absences/justification/store', [\App\Http\Controllers\JustificationController::class, 'store']);
 Route::get('/justifications/show', [\App\Http\Controllers\JustificationController::class, 'show']);
 Route::get('/justifications/edit/{justifications}', [\App\Http\Controllers\JustificationController::class, 'edit']);
 Route::put('/justifications/{justifications}', [\App\Http\Controllers\JustificationController::class, 'update']);

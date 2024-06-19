@@ -7,7 +7,8 @@
                 <h1>Aprovar Justificação</h1>
                 @component('components.justifications.justification-approve', [
                     'justification' => $justification,
-                    'duration'=> $duration,
+                    'durations'=> $durations,
+                    'states'=> $states,
                 ])
                 @endcomponent
             </div>
