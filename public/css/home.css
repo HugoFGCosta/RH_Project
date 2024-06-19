@@ -40,7 +40,31 @@
 .button-In-Out {
     margin-bottom: 10px;
     display: flex;
-    justify-content: center; /* Center button horizontally */
+    justify-content: center;
+}
+
+.btn-in {
+    padding: 20px 40px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-right: 10px;
+    color: var(--white);
+    font-size: larger;
+}
+
+.btn-out {
+    padding: 20px 40px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    color: var(--white);
+    font-size: larger;
+}
+
+.btn-in .btn-completed {
+    background-color: var(--green);
+    color: white;
 }
 
 .notifications {

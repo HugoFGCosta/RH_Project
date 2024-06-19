@@ -381,8 +381,8 @@ h1 {
 /*Content*/
 .content-area {
     position: absolute;
-    margin-top: 40px;
-    margin-left: 300px;
+    margin-top: 30px;
+    margin-left: 250px;
     padding: 20px;
     overflow: auto;
     transition: margin-left 0.5s, width 0.5s;
@@ -448,8 +448,8 @@ h1 {
 footer {
     position: fixed;
     bottom: 0;
-    left: 300px;
-    width: calc(100% - 300px);
+    left: 250px;
+    width: calc(100% - 250px);
     text-align: center;
     color: var(--black2);
     padding: 20px 0;

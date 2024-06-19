@@ -93,8 +93,8 @@ Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destr
 
 /* ROTA PRESENÇA   ->  AINDA NAO IMPLEMENTADO MIDDLEWARE */
 
-Route::post('/user/presence/store', [PresenceController::class, 'store']); /* <<<<<<<<<<< ESSA ROTA  */
-Route::get('/user/presence/status', [PresenceController::class, 'getStatus']);
+Route::get('/get-status', [PresenceController::class, 'getStatus']);
+Route::post('/store-presence', [PresenceController::class, 'store']);
 //Route::post('user/presence/storeSimulated', [PresenceController::class, 'storeSimulated']); //ROTA SIMULADA
 /*Route::post('/user/presence', [PresenceController::class, 'presence']);*/
 /*Route::get('/user/presence', [PresenceController::class, 'getPresence']);*/

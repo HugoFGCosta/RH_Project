@@ -1,42 +1,6 @@
 @php
     use Carbon\Carbon;
 @endphp
-{{--<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Role</th>
-        <th>Horário</th>
-        <th>Detalhe/Editar</th>
-        <th>Delete</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach ($users as $user)
-        <tr>
-            <td>{{ $user->id }}</td>
-            <td>{{ $user->name }}</td>
-            <td>{{ $user->role->role }}</td>
-            <td>
-                @if ($user->shift)
-                    {{ 'Das ' . Carbon::parse($user->shift->work_shift->start_hour)->format('H:i') . ' às ' . Carbon::parse($user->shift->work_shift->end_hour)->format('H:i') }}
-                @else
-                    O usuário não tem um turno de trabalho atribuído.
-                @endif
-            </td>
-            <td><a href="{{ url('/user/edit', $user->id) }}">Detalhe/Editar</a></td>
-            <td>
-                <form action="{{ url('/user/delete', $user->id) }}" method="POST" style="display:inline;" class="no-form">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" >Apagar</button>
-                </form>
-            </td>
-        </tr>
-    @endforeach
-    </tbody>
-</table>--}}
 <main class="table" id="users_table">
     <section class="table__header">
         <h1>Lista de Usuários</h1>
@@ -85,7 +49,7 @@
                         <a href="{{ url('/user/edit', $user->id) }}" class="btn-detail-edit">Detalhe/Editar</a>
                     </td>
                     <td>
-                        <form action="{{ url('/user/delete', $user->id) }}" method="POST" style="display:inline;" class="no-form">
+                        <form action="{{ url('/user/delete', $user->id) }}" method="POST" style="display:inline;" class="delete-form">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="delete-button">Apagar</button>
@@ -97,7 +61,3 @@
         </table>
     </section>
 </main>
-
-
-
-
