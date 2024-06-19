@@ -57,7 +57,7 @@
                     <td>{{ $vacation->date_end }}</td>
                     <td>
                         @auth
-                            <a href="{{ url('vacations/edit/' . $vacation->id) }}" type="button" class="btn btn-primary">Editar</a>
+                            <a href="{{ url('vacations/edit/' . $vacation->id) }}" type="button" class="btn-detail-edit">Editar</a>
                         @endauth
                     </td>
                     <td>

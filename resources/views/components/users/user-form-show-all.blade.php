@@ -49,7 +49,7 @@
                         <a href="{{ url('/user/edit', $user->id) }}" class="btn-detail-edit">Detalhe/Editar</a>
                     </td>
                     <td>
-                        <form action="{{ url('/user/delete', $user->id) }}" method="POST" style="display:inline;" class="no-form">
+                        <form action="{{ url('/user/delete', $user->id) }}" method="POST" style="display:inline;" class="delete-form">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="delete-button">Apagar</button>
