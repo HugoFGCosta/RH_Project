@@ -1,10 +1,10 @@
 <link rel="stylesheet" href="{{ asset('css/show-all.css') }}">
 <link rel="stylesheet" href="{{ asset('css/absences-by-user.css') }}">
 
+<p class="messageError" id="messageError"></p>
+
 <form id="abcenseForm" action="/justification/create">
     @csrf
-
-    <p id="messageError"></p>
 
     <main class="table" id="users_table">
 
