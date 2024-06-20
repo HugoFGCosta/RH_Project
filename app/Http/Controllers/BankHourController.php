@@ -307,7 +307,7 @@ class BankHourController extends Controller
         $meses = array("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
             "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro");
 
-        if($month != null  && $month != ""){
+        if($month == "Todos"){
             $month = 0;
         }
         if($month != 0){
@@ -324,9 +324,8 @@ class BankHourController extends Controller
         $horas = floor($totalMinutes / 60);
         $minutos = $totalMinutes % 60;
         $bankTotal = sprintf('%d:%02d', $horas, $minutos);
-
         return view('pages.time-bank-balance.time-bank-balance ', ['month'=>$month, 'year'=>$year,'totalMinutes'=>$totalMinutes, 'bankFormattedFaltas'=>$bankFormattedFaltas, 'bankFormattedPresencas'=>$bankFormattedPresencas, 'bankTotal'=>$bankTotal]);
 
     }
-    
+
 }

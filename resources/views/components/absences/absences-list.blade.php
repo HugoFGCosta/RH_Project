@@ -43,7 +43,7 @@
                 <tr>
                     <td class="idCell">{{$absence->id}}</td>
                     <td class="nameCell">{{$absence->user->name}}</td>
-                    <td class="dateAbsenceCell">{{$absence->absences_start_date." ". $absence->absence_end_date}}</td>
+                    <td class="dateAbsenceCell">{{$absence->absence_start_date."-". $absence->absence_end_date}}</td>
                     <td class="motiveCell">
                         @if ($absence->justification)
                             {{ $absence->justification->motive }}
