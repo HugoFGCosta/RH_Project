@@ -55,10 +55,10 @@ class VacationController extends Controller
                 }
 
         }
-        if($maisdez >= 1 ){
+        if($maisdez >= 1 || $this->difTotal($userId) < 12){
         return true;
     }else
-       return false;
+      return false;
     }
 
     public function difTotal($user)
