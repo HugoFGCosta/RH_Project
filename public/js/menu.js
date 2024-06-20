@@ -160,22 +160,25 @@ if (userLink) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM fully loaded and parsed");
     var entryExitButton = document.getElementById('entryExitButton');
+    var presenceStatusUrl = '/get-status';
 
-    function updateButtonStatus(status) {
-        var entryExitButton = document.getElementById('entryExitButton');
-
+    function updateButtonStatus(status, shift) {
         if (entryExitButton) {
             if (status === 'in') {
                 entryExitButton.textContent = 'Saída';
                 entryExitButton.classList.add('btn-out');
                 entryExitButton.classList.remove('btn-in');
+            } else if (status === 'completed') {
+                entryExitButton.textContent = 'Presença Completa';
+                entryExitButton.disabled = true;
+                entryExitButton.classList.add('btn-completed');
             } else {
                 entryExitButton.textContent = 'Entrada';
                 entryExitButton.classList.add('btn-in');
                 entryExitButton.classList.remove('btn-out');
+                entryExitButton.dataset.shift = shift;
             }
         }
-
     }
 
     function fetchStatusAndUpdateButton() {
@@ -188,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 console.log("Status fetched:", data);
-                updateButtonStatus(data.status);
+                updateButtonStatus(data.status, data.shift);
             })
             .catch(error => {
                 console.error('Erro ao verificar status:', error);
@@ -211,17 +214,20 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 console.log("Status fetched after click:", data);
                 if (data.status === 'out') {
-                    if (!document.getElementById('first_start').value) {
+                    if (!document.getElementById('first_start').value && data.shift === 'first') {
                         document.getElementById('first_start').value = currentTime;
-                    } else if (!document.getElementById('second_start').value) {
+                    } else if (!document.getElementById('second_start').value && data.shift === 'second') {
                         document.getElementById('second_start').value = currentTime;
                     }
                 } else if (data.status === 'in') {
-                    if (!document.getElementById('first_end').value) {
+                    if (!document.getElementById('first_end').value && data.shift === 'first') {
                         document.getElementById('first_end').value = currentTime;
-                    } else if (!document.getElementById('second_end').value) {
+                    } else if (!document.getElementById('second_end').value && data.shift === 'second') {
                         document.getElementById('second_end').value = currentTime;
                     }
+                } else if (data.status === 'completed') {
+                    alert('Presença já registrada completamente para hoje.');
+                    return;
                 }
 
                 console.log("Submitting form with data:", {
@@ -239,6 +245,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 });
+
+
+
 
 // The function is called when the document is loaded and toggles the menu visibility
 // when the menu arrow is clicked by changing the image and the display style of the menu
