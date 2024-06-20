@@ -13,6 +13,7 @@ use App\Models\Work_Shift;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 
@@ -51,17 +52,19 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
+
     public function show()
     {
         $this->checkAndExtendUserShifts();
         $user = auth()->user();
-        $today = Carbon::today();
+        $today = Carbon::today()->toDateString();
+        $user_shifts = User_Shift::where('user_id', $user->id)->get();
         $user_shift = User_Shift::where('user_id', $user->id)
-            ->where(function($query) use ($today) {
+            ->where(function ($query) use ($today) {
                 $query->whereNull('end_date')
-                    ->orWhere('end_date', '>=', $today);
+                    ->orWhereDate('end_date', '>=', $today);
             })
-            ->where('start_date', '<=', $today)
+            ->whereDate('start_date', '<=', $today)
             ->orderBy('start_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->first();
@@ -73,38 +76,45 @@ class UserController extends Controller
     {
         $this->checkAndExtendUserShifts();
         $user = User::find($id);
-        $today = Carbon::today();
+        $today = Carbon::today()->toDateString();
+        $user_shifts = User_Shift::where('user_id', $user->id)->get();
         $user_shift = User_Shift::where('user_id', $user->id)
-            ->where(function($query) use ($today) {
+            ->where(function ($query) use ($today) {
                 $query->whereNull('end_date')
-                    ->orWhere('end_date', '>=', $today);
+                    ->orWhereDate('end_date', '>=', $today);
             })
-            ->where('start_date', '<=', $today)
+            ->whereDate('start_date', '<=', $today)
             ->orderBy('start_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->first();
-
         return view('pages.users.show', ['user' => $user, 'user_shift' => $user_shift]);
     }
+
+
+
 
     public function showAll()
     {
         $this->checkAndExtendUserShifts();
-        $today = Carbon::today();
+        $today = Carbon::today()->toDateString();
         $users = User::all();
         foreach ($users as $user) {
-            $user->shift = User_Shift::where('user_id', $user->id)
-                ->where(function($query) use ($today) {
+            $user_shifts = User_Shift::where('user_id', $user->id)
+                ->where(function ($query) use ($today) {
                     $query->whereNull('end_date')
-                        ->orWhere('end_date', '>=', $today);
+                        ->orWhereDate('end_date', '>=', $today);
                 })
-                ->where('start_date', '<=', $today)
+                ->whereDate('start_date', '<=', $today)
                 ->orderBy('start_date', 'desc')
                 ->orderBy('created_at', 'desc')
-                ->first();
+                ->get();
+            $user_shift = $user_shifts->sortByDesc('created_at')->first();
+            $user->shift = $user_shift;
         }
         return view('pages.users.show-all', ['users' => $users]);
     }
+
+
 
     /**
      * Show the form for editing the specified resource.
@@ -114,9 +124,8 @@ class UserController extends Controller
         $this->checkAndExtendUserShifts();
         $work_shifts = Work_Shift::all();
         $roles = Role::all();
-
         $user = auth()->user();
-        $today = Carbon::today();
+        $today = Carbon::now();
         $user_shift = User_Shift::where('user_id', $user->id)
             ->where(function($query) use ($today) {
                 $query->whereNull('end_date')
@@ -135,9 +144,8 @@ class UserController extends Controller
         $this->checkAndExtendUserShifts();
         $work_shifts = Work_Shift::all();
         $roles = Role::all();
-
         $user = User::find($id);
-        $today = Carbon::today();
+        $today = Carbon::now();
         $user_shift = User_Shift::where('user_id', $user->id)
             ->where(function($query) use ($today) {
                 $query->whereNull('end_date')
@@ -218,12 +226,13 @@ class UserController extends Controller
         User_Shift::create([
             'user_id' => $user->id,
             'work_shift_id' => $request->input('work_shift_id'),
-            'start_date' => now(),
+            'start_date' => now(), // Salva a data e hora atuais
             'end_date' => null,
         ]);
 
         return redirect('/users/show-all')->with('success', 'Especificações do usuário atualizadas com sucesso!');
     }
+
 
     /**
      * Remove the specified resource from storage.
