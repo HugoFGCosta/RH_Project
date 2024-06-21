@@ -10,18 +10,22 @@
 
 .inputClass{
     font-size: 16px;
+    width: 110px;
 }
 
 .spanTimeOne{
     margin-right: 50px;
+    margin-left: -10px;
 }
 
 .spanTimeTwo{
     margin-right: 75px;
+    margin-left: -10px;
 }
 
 .spanTimeThree{
     margin-right: 108px;
+    margin-left: -10px;
 }
 
 .groupYear{
@@ -29,15 +33,13 @@
 }
 
 .submitButton{
-    margin-top: 10px;
     font-size: 16px;
-    transition: background-color 0.3s;
-    margin-bottom: 20px;
-    padding: 15px;
-    border-radius: 15px;
-    background-color: var(--blue);
-    color:white;
     cursor: pointer;
+    background-color: white;
+    color: var(--blue);
+    border: 1px solid var(--blue);
+    transition: background-color 0.3s;
+    margin-bottom: 10px;
 }
 
 .submitButton:hover{
@@ -71,6 +73,18 @@
         padding: 10px 20px 10px 20px;
     }
 
+}
+
+.titleBalance{
+    margin-left: 47px;
+}
+
+.greenMargin{
+    margin-left: 9px;
+}
+
+.marginAjust{
+    margin-left: -10px;
 }
 
 

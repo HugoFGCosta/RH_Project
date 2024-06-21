@@ -35,7 +35,7 @@ class Absence extends Model
 
     public function justification()
     {
-        return $this->hasOne(Justification::class);
+        return $this->belongsTo(Justification::class);
     }
 
 }

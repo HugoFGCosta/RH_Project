@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use NunoMaduro\Collision\Adapters\Phpunit\State;
 
 
 class JustificationController extends Controller
@@ -38,24 +39,43 @@ class JustificationController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create($absence)
+    public function create(Request $request)
     {
         //
+        $selectedAbsences = $request->input('selected_absences'); // Isso retorna um array de IDs selecionados
         $absences = Absence::all();
-        $absencefound = $absences->find($absence);
+        $states = [];
+        $durations = [];
+        $statesDb = Absence_State::all();
+        $absencesFound = [];
+
+        foreach ($absences as $absence) {
+            if (in_array($absence->id, $selectedAbsences)) {
 
 
-        //encontra o estado da ausência
-        $states = Absence_State::all();
-        $statefound = $states->find($absencefound->absence_states_id);
+                $statefound = $statesDb->find($absence->absence_states_id);
 
-        //calcula a duração da ausência em horas
-        $datetime1 = new \DateTime($absencefound->absence_start_date);
-        $datetime2 = new \DateTime($absencefound->absence_end_date);
-        $interval = $datetime1->diff($datetime2);
-        $duration = $interval->format('%H:%I');
+                $absencefound = $absences->find($absence->id);
 
-        return view ('pages.justifications.create', ['absence' => $absencefound, 'state' => $statefound, 'duration' => $duration]);
+                array_push($absencesFound, $absencefound);
+
+                // Adiciona o estado ao array
+                array_push($states, $statefound);
+
+                // Calcula a duração da ausência em horas
+                $datetime1 = new \DateTime($absence->absence_start_date);
+                $datetime2 = new \DateTime($absence->absence_end_date);
+                $interval = $datetime1->diff($datetime2);
+                $duration = $interval->format('%H:%I');  // Formato correto da duração
+
+                // Adiciona a duração ao array
+                array_push($durations, $duration);
+            }
+        }
+
+
+
+        return view ('pages.justifications.create', ['absences' => $absencesFound, 'states' => $states, 'durations' => $durations]);
     }
 
     /**
@@ -66,27 +86,36 @@ class JustificationController extends Controller
         //
     }*/
 
-    public function store(Request $request, $id)
+    public function store(Request $request)
     {
         // Validação do request
         $this->validate($request,[
             'motive' => 'required',
             'justification_date' => 'required',
             'observation' => 'required',
-            'file' => 'required|file|mimes:png,jpg,jpeg,pdf,docx|max:2048' // Adicione a validação do ficheiro
+            'file' => 'required|file|mimes:png,jpg,jpeg,pdf,docx|max:2048', // Adicione a validação do ficheiro
+            'selected_absences' => 'required|array' // Adicione a validação para faltas selecionadas
         ]);
 
         $paath = "";
 
-        // Encontrar a ausência pelo ID
-        $absence = Absence::find($id);
-        if (!$absence) {
-            return redirect()->back()->with('error', 'Ausência não encontrada');
+        //Percorre todas as faltas autalizando o seu estado para "Pendente"
+        foreach ($request->selected_absences as $id) {
+            $absence = Absence::find($id);
+
+            //Caso alguma das faltas não exista retorna para a view com uma mensagem de erro
+            if (!$absence) {
+                return redirect()->back()->with('error', 'Uma das ausências não foi encontrada');
+            }
+
+            // Atualizar o estado da ausência
+            $absence->absence_states_id = 3;
+            $absence->save();
         }
 
-        // Atualizar o estado da ausência
-        $absence->absence_states_id = 3;
-        $absence->save();
+        //Obtem o id da nova justificação
+        $justifications = Justification::all();
+        $id = $justifications->count() + 1;
 
         // Obter o ficheiro do request
         $ficheiro = $request->file('file');
@@ -109,14 +138,22 @@ class JustificationController extends Controller
         // Armazenar o ficheiro
         $caminho = $ficheiro->storeAs("justifications/{$id}", $fileName, 'public');
 
-        // Criar a justificativa
         Justification::create([
             'motive' => $request->motive,
             'justification_date' => $request->justification_date,
             'observation' => $request->observation,
-            'absence_id' => $id,
-            'file' => $filePathSave // Salvar o caminho do ficheiro no banco de dados
+            'file' => $filePathSave, // Salvar o caminho do ficheiro no banco de dados
+            'created_at' => now(),
+            'updated_at' => now(),
+
         ]);
+
+        //Atualiza o justification_id de cada falta
+        foreach ($request->selected_absences as $absenceId) {
+            $absence = Absence::find($absenceId);
+            $absence->justification_id = $id;
+            $absence->save();
+        }
 
         // Redirecionar com uma mensagem de sucesso
         return redirect('/users/' . Auth::user()->id . '/absences')->with('success', 'Justificação criada com sucesso');
@@ -132,21 +169,35 @@ class JustificationController extends Controller
 
     public function justificationManage(Justification $justification){
 
-        $absences= Absence::all();
-        $absencefound = $absences->find($justification->absence->id);
+        $absences = Absence::all();
+        $justifications = Justification::all();
+        $statesDb = Absence_State::all();
+        $justificationFound = $justifications->find($justification);
+        $states = [];
+        $durations = [];
 
+        foreach ($absences as $absence) {
 
-        //encontra o estado da ausência
-        $states = Absence_State::all();
-        $statefound = $states->find($absencefound->absence_states_id);
+            if($absence->justification_id == $justification->id){
 
-        //calcula a duração da ausência em horas
-        $datetime1 = new \DateTime($absencefound->absence_start_date);
-        $datetime2 = new \DateTime($absencefound->absence_end_date);
-        $interval = $datetime1->diff($datetime2);
-        $duration = $interval->format('%H:%I');
+                $statefound = $statesDb->find($absence->absence_states_id);
 
-        return view ('pages.justifications.justification-approve', ['justification'=>$justification,'duration'=>$duration]);
+                // Adiciona o estado ao array
+                array_push($states, $statefound);
+
+                // Calcula a duração da ausência em horas
+                $datetime1 = new \DateTime($absence->absence_start_date);
+                $datetime2 = new \DateTime($absence->absence_end_date);
+                $interval = $datetime1->diff($datetime2);
+                $duration = $interval->format('%H:%I');  // Formato correto da duração
+
+                // Adiciona a duração ao array
+                array_push($durations, $duration);
+            }
+
+        }
+
+        return view ('pages.justifications.justification-approve', ['justification' => $justificationFound, 'states' => $states, 'durations' => $durations]);
 
     }
 
@@ -162,13 +213,15 @@ class JustificationController extends Controller
 
     public function justificationReject($id){
 
-        $justification = Justification::find($id);
+        $absences = Absence::all();
 
-        $absence = Absence::find($justification->absence_id);
-
-        $absence->absence_states_id = 2;
-        $absence->approved_by = Auth::user()->id;
-        $absence->save();
+        foreach ($absences as $absence){
+            if($absence->justification_id == $id){
+                $absence->absence_states_id = 2;
+                $absence->approved_by = Auth::user()->id;
+                $absence->save();
+            }
+        }
 
         return redirect('/justifications/')->with('error', 'Justificação Rejeitada');
 
@@ -176,15 +229,15 @@ class JustificationController extends Controller
 
     public function justificationApprove($id){
 
-        $justification = Justification::find($id);
+        $absences = Absence::all();
 
-        $absence = Absence::find($justification->absence_id);
-
-        $absence->absence_states_id = 1;
-        $absence->approved_by = Auth::user()->id;
-        $absence->save();
-
-        return redirect('/justifications/')->with('success', 'Justificação Aprovada');
+        foreach ($absences as $absence){
+            if($absence->justification_id == $id){
+                $absence->absence_states_id = 1;
+                $absence->approved_by = Auth::user()->id;
+                $absence->save();
+            }
+        }
 
     }
 
