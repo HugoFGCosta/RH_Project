@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('justification_date');
             $table->string('observation')->nullable();
             $table->string('file');
-            $table->foreignId('absence_id')->constrained();
             $table->timestamps();
         });
     }

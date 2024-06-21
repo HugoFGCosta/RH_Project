@@ -283,7 +283,7 @@ thead th.asc span.icon-arrow {
         right: 0;
     }
     .table__header {
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
     }
 
@@ -352,6 +352,13 @@ thead th.asc span.icon-arrow {
     }
 }
 
+/* Estilos responsivos para telas entre 750px e 1000px */
+@media (max-width: 596px) {
+    .listTitle{
+        font-size: 16px;
+    }
+}
+
 /* Estilo base para as células */
 .idCell, .absenceStartCell, .absenceEndCell, .absenceTypeCell, .absenceStateCell, .justificationStateCell {
     padding: 0.5rem; /* Ajustar conforme necessário */
@@ -365,4 +372,32 @@ thead th.asc span.icon-arrow {
         display: block; /* Torna as células em blocos */
         width: 100%; /* Ocupa 100% da largura */
     }
+}
+
+.submitButton{
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--blue) ;
+    margin-left: 20px;
+    width: 100px;
+    transition: background-color 0.3s;
+
+}
+
+.submitButton:hover{
+    cursor: pointer;
+    background-color: white;
+    color: var(--blue);
+    border: 1px solid var(--blue);
+}
+
+.container form {
+    padding: 0px;
+}
+
+.messageError{
+    color: orangered;
+    font-size: 18px;
+    margin-left: 20px;
 }

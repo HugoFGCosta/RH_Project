@@ -66,6 +66,21 @@ return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias'
         return view ('pages.vacations.create')->with('totaldias', $totaldias)->with('role',$roleId);;
     }
 
+    public function timeCollide($vacation_id, $user_id, $start, $end) {
+        $vacations = Vacation::where('user_id', $user_id)
+            ->where('id', '<>', $vacation_id)
+            ->where(function($query) use ($start, $end) {
+                $query->whereBetween('date_start', [$start, $end])
+                    ->orWhereBetween('date_end', [$start, $end])
+                    ->orWhere(function($query) use ($start, $end) {
+                        $query->where('date_start', '<=', $start)
+                            ->where('date_end', '>=', $end);
+                    });
+            })
+            ->exists();
+        return !$vacations;
+    }
+
     public function store(StoreVacationRequest $request)
     {
         $messages = [
@@ -103,12 +118,18 @@ return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias'
 
     public function edit(Vacation $vacation)
     {
-    //   print   Vacation::with('user')->where('role_id', auth::id())->pluck("role_id");
         $roleId = Auth::user()->role_id;
-        $totaldias= $this->difTotal($roleId);
-        return view('pages.vacations.edit', ['vacations' => $vacation])->with('totaldias', $totaldias)->with('role',$roleId);;
+        $totaldias = $this->difTotal(Auth::id());
+        $role_id_table = $vacation->user->role_id;
 
+        return view('pages.vacations.edit', [
+            'vacations' => $vacation,
+            'totaldias' => $totaldias,
+            'role' => $roleId,
+            'role_id_table' => $role_id_table
+        ]);
     }
+
 
     public function update(UpdateVacationRequest $request, Vacation $vacation)
     {

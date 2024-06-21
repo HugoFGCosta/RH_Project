@@ -17,8 +17,8 @@ class Justification extends Model
         'file'
     ];
 
-    public function absence()
+    public function absences()
     {
-        return $this->belongsTo(Absence::class);
+        return $this->hasMany(Absence::class);
     }
 }
