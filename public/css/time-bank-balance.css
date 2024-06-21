@@ -30,19 +30,19 @@
 
 .submitButton{
     margin-top: 10px;
-}
-
-.submitButton{
     font-size: 16px;
     transition: background-color 0.3s;
     margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 15px;
+    background-color: var(--blue);
+    color:white;
+    cursor: pointer;
 }
 
 .submitButton:hover{
-    background-color: #005999;
+    background-color: var(--green);
     color: white;
-    border-radius: 2px;
-    border: 1px solid #005999;
 }
 
 .textsDiv{

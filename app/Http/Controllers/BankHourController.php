@@ -9,6 +9,7 @@ use App\Models\Work_Shift;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use function Webmozart\Assert\Tests\StaticAnalysis\string;
 
 class BankHourController extends Controller
 {
@@ -307,10 +308,10 @@ class BankHourController extends Controller
         $meses = array("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
             "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro");
 
-        if($month != null  && $month != ""){
-            $month = 0;
+        if($month == 'Todos') {
+            $month = 'Todos';
         }
-        if($month != 0){
+        else if($month != 0){
             $month = $meses[$month-1];
         }
         else{
@@ -328,5 +329,5 @@ class BankHourController extends Controller
         return view('pages.time-bank-balance.time-bank-balance ', ['month'=>$month, 'year'=>$year,'totalMinutes'=>$totalMinutes, 'bankFormattedFaltas'=>$bankFormattedFaltas, 'bankFormattedPresencas'=>$bankFormattedPresencas, 'bankTotal'=>$bankTotal]);
 
     }
-    
+
 }
