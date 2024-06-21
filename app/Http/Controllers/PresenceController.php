@@ -203,7 +203,24 @@ class PresenceController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
-        $userShift = User_Shift::where('user_id', $user->id)->whereNull('end_date')->first();
+        $today = Carbon::today()->toDateString();
+
+        // Buscar o turno de trabalho mais recente para o usuário
+        $userShift = User_Shift::where('user_id', $user->id)
+            ->where(function ($query) use ($today) {
+                $query->whereNull('end_date')
+                    ->orWhereDate('end_date', '>=', $today);
+            })
+            ->whereDate('start_date', '<=', $today)
+            ->orderBy('start_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$userShift) {
+            Log::error('User shift not found for user', ['user_id' => $user->id]);
+            return redirect()->to(url('/menu'))->with('error', 'User shift not found.');
+        }
+
         $workShift = Work_Shift::find($userShift->work_shift_id);
 
         // VERIFICA se existe um registro de presença para user hoje
