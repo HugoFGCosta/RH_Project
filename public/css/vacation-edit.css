@@ -1,0 +1,99 @@
+.vacation-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 2rem;
+    border: 1px solid var(--gray);
+    border-radius: 0.5rem;
+    box-shadow: 0 .1rem .2rem #0002;
+    background-color: #fff;
+}
+
+.vacation-form .form-group {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.vacation-form h1 {
+    color: var(--blue);
+    margin-bottom: 1rem;
+    width: 100%;
+    text-align: center;
+}
+
+.vacation-form label {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    color: var(--black);
+    font-weight: bold;
+}
+
+.vacation-form .input-group {
+    display: flex;
+    flex-direction: column;
+    width: 48%;
+}
+
+.vacation-form input[type="date"],
+.vacation-form input[type="text"],
+.vacation-form select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--gray);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+
+.vacation-form .btn {
+    background-color: var(--blue);
+    color: var(--white);
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.vacation-form .btn:hover {
+    background-color: var(--green);
+}
+
+.alert {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background-color: #D4EDDA;
+    color: #155724;
+    border: 1px solid #C3E6CB;
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    color: #FF0000;
+    background-color: #FFD2D2;
+    border: 1px solid #FF0000;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+}
+
+.error-message i {
+    margin-right: 0.5rem;
+    font-size: 1.5rem;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .vacation-form .input-group {
+        width: 100%;
+    }
+}

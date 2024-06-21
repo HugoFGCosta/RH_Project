@@ -14,7 +14,7 @@
                 <div class="button-In-Out">
                     @component('components.users.user-form-presence', [
                             'user' => $user,
-                            'presence' => $presence,
+                            'presence' => $presence ?? null,
                         ])
                     @endcomponent
                 </div>
@@ -25,8 +25,6 @@
                         ])
                     @endcomponent
                 </div>
-
-
             </div>
             <div class="right-column">
                 <div class="notifications">

@@ -1,68 +1,143 @@
-.form-container {
-    display: flex;
-    margin-top: 15px;
-}
-
-form {
-    background-color: #f7f7f7;
+.content-area {
+    position: absolute;
+    margin-left: 250px;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    margin: 10px;
+    overflow: auto;
+    width: calc(100% - 250px);
+    transition: margin-left 0.5s, width 0.5s;
+    z-index: 1;
 }
 
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-input[type="text"] {
+.container {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    transition: border-color 0.3s;
 }
 
-input[type="text"]:focus {
-    border-color: var(--blue);
-    outline: none;
+.container form {
+    max-width: 100%;
 }
 
-
-button.btn, a.btn {
-    display: inline-block;
-    width: 150px;
-    padding: 10px 20px;
-    font-size: 16px;
-    text-align: center;
-    text-decoration: none;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.btn-primary {
-    background-color: var(--blue);
-}
-
-.btn-primary:hover {
+.showform-restricted-container {
+    display: flex;
+    flex-direction: column;
     background-color: var(--white);
-    color: var(--blue);
-    border: 1px solid var(--blue);
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
 }
 
+.showform-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0;
+    width: 100%;
+}
 
-.form-text {
+.showform-input-data {
+    flex: 1;
+    position: relative;
+    margin-bottom: 10px;
+    min-width: 150px;
+}
+
+.showform-input-data.full-width {
+    flex: 100%;
+}
+
+.showform-input-data label {
+    font-weight: bold;
+    color: #555;
     display: block;
-    color: var(--black2);
-    margin-top: 0.25rem;
+    margin-bottom: 5px;
+}
+
+.showform-input-data p,
+.showform-input-data input,
+.showform-input-data select {
+    padding: 5px 0;
+    color: #333;
+    border: none;
+    outline: none;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.12);
+    margin: 0;
+    width: 100%;
+}
+
+.showform-underline {
+    position: absolute;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.showform-underline:before {
+    position: absolute;
+    content: "";
+    height: 2px;
+    width: 100%;
+    background: #3498db;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s ease;
+}
+
+.showform-input-data p:hover ~ .showform-underline:before,
+.showform-input-data p:focus ~ .showform-underline:before,
+.showform-input-data input:focus ~ .showform-underline:before,
+.showform-input-data select:focus ~ .showform-underline:before {
+    transform: scaleX(1);
+}
+
+.showform-form-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.btn.showform-btn {
+    width: 150px;
+    height: 40px;
+    cursor: pointer;
+    background: var(--white);
+    border: 2px solid var(--blue);
+    border-radius: 15px;
+    outline: none;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out, border 0.3s ease-in-out;
+    position: relative;
+    text-decoration: none;
+}
+
+.btn.showform-btn span {
+    color: var(--blue);
+    font-size: 18px;
+    font-weight: 100;
+}
+
+.btn.showform-btn:hover {
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.7);
+    transform: scale(1.05);
+    transition: transform 0.6s ease-in-out;
+}
+
+@media (max-width: 900px) {
+    .showform-restricted-container {
+        width: 100%;
+        padding: 10px;
+    }
+    .showform-form-row {
+        display: block;
+    }
+    .showform-input-data {
+        margin: 10px 0;
+    }
+    .showform-submit-btn .showform-input-data {
+        width: 100% !important;
+    }
 }

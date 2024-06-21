@@ -42,7 +42,7 @@ class Sidebar {
 }
 
 
-const sidebar = new Sidebar()
+const sidebar = new Sidebar();
 
 function hoverLink() {
     this.classList.add("hovered");
@@ -52,52 +52,50 @@ function leaveLink() {
     this.classList.remove("hovered");
 }
 
-
 function toggleSubMenu(item, open = undefined) {
-    const dropdown = item.querySelector('.dropdown-main')
-    const dropdownContent = item.nextElementSibling
+    const dropdown = item.querySelector('.dropdown-main');
+    const dropdownContent = item.nextElementSibling;
 
-    if(dropdown && dropdownContent){
-        if(open == null) {
-
+    if (dropdown && dropdownContent) {
+        if (open == null) {
             dropdownContent.classList.toggle('expanded-item');
-        }else{
-            const isExpanded = dropdownContent.classList.contains('expanded-item')
+        } else {
+            const isExpanded = dropdownContent.classList.contains('expanded-item');
             open && !isExpanded && dropdownContent.classList.add('expanded-item');
             !open && isExpanded && dropdownContent.classList.remove('expanded-item');
         }
     }
 }
 
-function navigateToRoute (listItem) {
+function closeAllSubMenus() {
+    document.querySelectorAll('.menu .expanded-item').forEach(item => {
+        item.classList.remove('expanded-item');
+    });
+}
 
+function navigateToRoute(listItem) {
     const href = listItem.querySelector('a').href;
+    const dropdown = listItem && listItem.querySelector('.dropdown-main');
 
-    const dropdown = listItem && listItem.querySelector('.dropdown-main')
-
-    if(dropdown){
-        if(!sidebar.isCollapsed){
+    if (dropdown) {
+        if (!sidebar.isCollapsed) {
+            closeAllSubMenus();
             toggleSubMenu(listItem);
+        } else {
+            sidebar.expand();
         }
-        else{
-            sidebar.expand()
-        }
-    }
-    else {
+    } else {
         if (sidebar.isCollapsed) {
-
-            sidebar.expand(false)
+            sidebar.expand(false);
 
             setTimeout(() => {
                 if (href) {
                     window.location.href = href;
                 }
-
             }, 500);
 
             setTimeout(() => sidebar.collapse(), 2000);
-
-        }else {
+        } else {
             if (href) {
                 window.location.href = href;
             }
@@ -110,24 +108,22 @@ function selectLink(e) {
     e.stopPropagation();
     e.stopImmediatePropagation();
 
-    const dropdown = this.querySelector('.dropdown-main')
+    const dropdown = this.querySelector('.dropdown-main');
 
-    if(!dropdown){
+    if (!dropdown) {
         clearSelected();
         this.classList.add("selected");
         localStorage.setItem('selectedMenuItem', this.id);
     }
 
-    navigateToRoute(this)
+    navigateToRoute(this);
 }
-
 
 allListItems.forEach((item) => {
     item.addEventListener('mouseover', hoverLink);
     item.addEventListener('mouseout', leaveLink);
     item.addEventListener('click', selectLink);
 });
-
 
 document.addEventListener('DOMContentLoaded', () => {
     const selectedId = localStorage.getItem('selectedMenuItem');
@@ -137,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (sidebar.isCollapsed) {
-        sidebar.collapse()
+        sidebar.collapse();
     }
 });
 
@@ -147,7 +143,7 @@ function clearSelected() {
 }
 
 toggle.onclick = function() {
-    sidebar.toggle()
+    sidebar.toggle();
 };
 
 const userLink = document.querySelector('.user a');
@@ -160,22 +156,25 @@ if (userLink) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM fully loaded and parsed");
     var entryExitButton = document.getElementById('entryExitButton');
+    var presenceStatusUrl = '/get-status';
 
-    function updateButtonStatus(status) {
-        var entryExitButton = document.getElementById('entryExitButton');
-
+    function updateButtonStatus(status, shift) {
         if (entryExitButton) {
             if (status === 'in') {
                 entryExitButton.textContent = 'Saída';
                 entryExitButton.classList.add('btn-out');
                 entryExitButton.classList.remove('btn-in');
+            } else if (status === 'completed') {
+                entryExitButton.textContent = 'Presença Completa';
+                entryExitButton.disabled = true;
+                entryExitButton.classList.add('btn-completed');
             } else {
                 entryExitButton.textContent = 'Entrada';
                 entryExitButton.classList.add('btn-in');
                 entryExitButton.classList.remove('btn-out');
+                entryExitButton.dataset.shift = shift;
             }
         }
-
     }
 
     function fetchStatusAndUpdateButton() {
@@ -188,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 console.log("Status fetched:", data);
-                updateButtonStatus(data.status);
+                updateButtonStatus(data.status, data.shift);
             })
             .catch(error => {
                 console.error('Erro ao verificar status:', error);
@@ -211,17 +210,20 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 console.log("Status fetched after click:", data);
                 if (data.status === 'out') {
-                    if (!document.getElementById('first_start').value) {
+                    if (!document.getElementById('first_start').value && data.shift === 'first') {
                         document.getElementById('first_start').value = currentTime;
-                    } else if (!document.getElementById('second_start').value) {
+                    } else if (!document.getElementById('second_start').value && data.shift === 'second') {
                         document.getElementById('second_start').value = currentTime;
                     }
                 } else if (data.status === 'in') {
-                    if (!document.getElementById('first_end').value) {
+                    if (!document.getElementById('first_end').value && data.shift === 'first') {
                         document.getElementById('first_end').value = currentTime;
-                    } else if (!document.getElementById('second_end').value) {
+                    } else if (!document.getElementById('second_end').value && data.shift === 'second') {
                         document.getElementById('second_end').value = currentTime;
                     }
+                } else if (data.status === 'completed') {
+                    alert('Presença já registrada completamente para hoje.');
+                    return;
                 }
 
                 console.log("Submitting form with data:", {
@@ -240,11 +242,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// The function is called when the document is loaded and toggles the menu visibility
-// when the menu arrow is clicked by changing the image and the display style of the menu
 document.addEventListener('DOMContentLoaded', function () {
-
     toggle.onclick = function () {
-        sidebar.toggle()
+        sidebar.toggle();
     };
 });

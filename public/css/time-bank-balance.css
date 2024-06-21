@@ -33,10 +33,6 @@
 }
 
 .submitButton{
-    margin-top: 10px;
-}
-
-.submitButton{
     font-size: 16px;
     cursor: pointer;
     background-color: white;
@@ -47,10 +43,8 @@
 }
 
 .submitButton:hover{
-    background-color: #005999;
+    background-color: var(--green);
     color: white;
-    border-radius: 2px;
-    border: 1px solid #005999;
 }
 
 .textsDiv{
