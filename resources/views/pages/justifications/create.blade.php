@@ -6,9 +6,9 @@
             <div class="col-6">
                 <h1>Justificar Falta</h1>
                 @component('components.justifications.justification-form-create', [
-                    'absence' => $absence,
-                    'state' => $state,
-                    'duration' => $duration,
+                    'absences' => $absences,
+                    'states' => $states,
+                    'durations' => $durations,
                 ])
                 @endcomponent
             </div>

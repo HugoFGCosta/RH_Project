@@ -1,3 +1,29 @@
+let checkboxes = document.querySelectorAll(".checkBoxAbsence");
+let form = document.getElementById('abcenseForm');
+let submitButton = document.getElementsByClassName('submitButton')[0];
+let messageError = document.getElementById('messageError');
+
+// Adiciona um evento de clique ao botão de envio
+submitButton.addEventListener('click', function(event) {
+    let ver = false;
+    // Previne o comportamento padrão do botão de envio
+    event.preventDefault();
+
+    // Percorre todos os checkboxes e verifica se algum está marcado
+    checkboxes.forEach(function(checkbox) {
+        if (checkbox.checked === true) {
+            ver = true;
+        }
+    });
+
+    if (ver === true) {
+        // Submete o formulário
+        form.submit();
+    } else {
+        messageError.innerHTML = "Por favor selecione alguma falta antes de clicar em Justificar";
+    }
+});
+
 let modified = false; // Variável para rastrear se as células foram modificadas
 
 // Função para adicionar labels
@@ -37,6 +63,7 @@ function handleResize() {
         addLabels(absenceEndCells, 'Data Fim Falta: ');
         addLabels(absenceTypeCells, 'Tipo Falta: ');
         addLabels(absenceStateCells, 'Estado Falta: ');
+        addLabels(justificationStateCells, 'Estado Justificação: ');
 
         modified = true;
     } else if (window.innerWidth > 1000 && modified) {
@@ -45,6 +72,7 @@ function handleResize() {
         removeLabels(absenceEndCells, 'Data Fim Falta: ');
         removeLabels(absenceTypeCells, 'Tipo Falta: ');
         removeLabels(absenceStateCells, 'Estado Falta: ');
+        removeLabels(justificationStateCells, 'Estado Justificação: ');
 
         modified = false;
     }
