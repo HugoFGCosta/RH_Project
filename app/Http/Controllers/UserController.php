@@ -58,7 +58,6 @@ class UserController extends Controller
         $this->checkAndExtendUserShifts();
         $user = auth()->user();
         $today = Carbon::today()->toDateString();
-        $user_shifts = User_Shift::where('user_id', $user->id)->get();
         $user_shift = User_Shift::where('user_id', $user->id)
             ->where(function ($query) use ($today) {
                 $query->whereNull('end_date')
@@ -71,6 +70,8 @@ class UserController extends Controller
 
         return view('pages.users.show', ['user' => $user, 'user_shift' => $user_shift]);
     }
+
+
 
     public function showSpec($id)
     {
@@ -436,15 +437,27 @@ class UserController extends Controller
             ->first();
 
         if ($previousShift) {
-            $previousShift->end_date = Carbon::parse($validated['start_date'])->subDay()->toDateString();
+            $previousShift->end_date = Carbon::parse($validated['start_date'])->subSecond()->format('Y-m-d 23:59:59');
             $previousShift->save();
         }
 
+        // Adiciona hora padrão ao start_date e end_date
+        $startDateTime = Carbon::parse($validated['start_date'])->startOfDay();
+        $endDateTime = isset($validated['end_date']) ? Carbon::parse($validated['end_date'])->endOfDay() : null;
+
         // Cria um novo turno de trabalho para o usuário
-        $newShift = User_Shift::create($validated);
+        $newShift = User_Shift::create([
+            'user_id' => $validated['user_id'],
+            'work_shift_id' => $validated['work_shift_id'],
+            'start_date' => $startDateTime,
+            'end_date' => $endDateTime,
+        ]);
 
         return redirect()->route('work-times.index')->with('success', 'Work time added successfully.');
     }
+
+
+
 
     private function checkAndExtendUserShifts()
     {
@@ -463,12 +476,28 @@ class UserController extends Controller
                     User_Shift::create([
                         'user_id' => $userShift->user_id,
                         'work_shift_id' => $userShift->work_shift_id,
-                        'start_date' => $nextDay->toDateString(),
+                        'start_date' => $nextDay->toDateString() . ' 00:00:00',
                         'end_date' => null,
                     ]);
                 }
             }
         }
+
+        // Fechar qualquer turno com end_date nulo que tenha um próximo turno
+        $openShifts = User_Shift::whereNull('end_date')->get();
+
+        foreach ($openShifts as $openShift) {
+            $nextShift = User_Shift::where('user_id', $openShift->user_id)
+                ->where('start_date', '>', $openShift->start_date)
+                ->orderBy('start_date', 'asc')
+                ->first();
+
+            if ($nextShift) {
+                $openShift->end_date = Carbon::parse($nextShift->start_date)->subDay()->endOfDay()->toDateTimeString();
+                $openShift->save();
+            }
+        }
     }
+
 }
 ?>
