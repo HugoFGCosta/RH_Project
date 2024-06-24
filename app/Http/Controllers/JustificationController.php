@@ -239,6 +239,8 @@ class JustificationController extends Controller
             }
         }
 
+        return redirect('/justifications/')->with('success', 'Justificação Aprovada');
+
     }
 
     /**
