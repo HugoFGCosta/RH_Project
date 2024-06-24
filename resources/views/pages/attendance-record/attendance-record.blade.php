@@ -7,7 +7,7 @@
 @section('content')
     <div class="container p-5">
         <div class="form-container">
-            @component('components.attendance-record.attendance-record', ['user' => $user,'presences' => $presences, 'user_shifts' => $user_shifts]);
+            @component('components.attendance-record.attendance-record2', ['user' => $user,'presences' => $presences, 'user_shifts' => $user_shifts]);
             @endcomponent
         </div>
     </div>

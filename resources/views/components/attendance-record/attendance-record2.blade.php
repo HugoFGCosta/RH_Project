@@ -1,3 +1,6 @@
+@php
+    use Carbon\Carbon;
+@endphp
 <main class="table" id="users_table">
     <section class="table__header">
         <h1>Registo de Assiduidade</h1>
@@ -31,38 +34,45 @@
             </thead>
             <tbody>
             @foreach($presences as $presence)
+                @php
+                    $currentShift = $user_shifts->filter(function($shift) use ($presence) {
+                        return Carbon::parse($shift->start_date)->lte(Carbon::parse($presence->created_at)) &&
+                               (is_null($shift->end_date) || Carbon::parse($shift->end_date)->gte(Carbon::parse($presence->created_at)));
+                    })->first();
+                @endphp
                 <tr>
                     <td>{{ $presence->created_at->format('d/m/Y') }}</td>
-
-                    @foreach($user_shifts as $user_shift)
-                        <td class="center-text"> {{ $user_shift->work_shift_id }} </td>
-                    @endforeach
-
+                    <td class="center-text">
+                        @if ($currentShift)
+                            {{ Carbon::parse($currentShift->work_shift->start_hour)->format('H:i') }} - {{ Carbon::parse($currentShift->work_shift->end_hour)->format('H:i') }}
+                        @else
+                            <span class="red-text">Sem Escala</span>
+                        @endif
+                    </td>
                     <td>
                         @if ($presence->first_start)
-                            {{ Carbon\Carbon::parse($presence->first_start)->format('H:i:s') }}
+                            {{ Carbon::parse($presence->first_start)->format('H:i:s') }}
                         @else
                             <span class="red-text">Sem Registo</span>
                         @endif
+                    </td>
                     <td>
                         @if ($presence->first_end)
-                            {{ Carbon\Carbon::parse($presence->first_end)->format('H:i:s') }}
+                            {{ Carbon::parse($presence->first_end)->format('H:i:s') }}
                         @else
                             <span class="red-text">Sem Registo</span>
                         @endif
                     </td>
-
                     <td>
                         @if ($presence->second_start)
-                            {{ Carbon\Carbon::parse($presence->second_start)->format('H:i:s') }}
+                            {{ Carbon::parse($presence->second_start)->format('H:i:s') }}
                         @else
                             <span class="red-text">Sem Registo</span>
                         @endif
                     </td>
-
                     <td>
                         @if ($presence->second_end)
-                            {{ Carbon\Carbon::parse($presence->second_end)->format('H:i:s') }}
+                            {{ Carbon::parse($presence->second_end)->format('H:i:s') }}
                         @else
                             <span class="red-text">Sem Registo</span>
                         @endif
