@@ -8,6 +8,7 @@
     border: none;
 }
 
+
 /* Estilos de impressão */
 @media print {
     .table, .table__body {
@@ -375,21 +376,19 @@ thead th.asc span.icon-arrow {
 }
 
 .submitButton{
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    background-color: var(--blue) ;
-    margin-left: 20px;
-    width: 100px;
-    transition: background-color 0.3s;
-
+    background: var(--green);
+    padding: 15px 20px 15px 20px;
+    border: transparent;
+    border-radius: 15px;
+    margin: 15px 0 0 15px;
+    color: var(--white);
+    cursor: pointer;
+    transition: font-size 0.5s ease;
 }
 
+
 .submitButton:hover{
-    cursor: pointer;
-    background-color: white;
-    color: var(--blue);
-    border: 1px solid var(--blue);
+    font-size: medium;
 }
 
 .container form {

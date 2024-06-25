@@ -190,6 +190,18 @@ class WorkShiftController extends Controller
     public function exportUserWorkShift($userId){
 
         $user_Shift = User_Shift::where('user_id', $userId)->orderBy('created_at', 'desc')->whereNull('end_date')->first();
+        $userShifts = User_Shift::all();
+        if($userShifts) {
+            foreach ($userShifts as $shift) {
+                $datetime = Carbon::today()->toDateString();
+                $startDate = Carbon::parse($shift->start_date)->toDateString();
+                $endDate = Carbon::parse($shift->end_date)->toDateString();
+                if ($shift->user_id == $userId && $startDate >= $datetime &&  $endDate <= $datetime) {
+                    $user_Shift = $shift;
+                }
+            }
+        }
+
 
         if(!$user_Shift){
             return redirect()->back()->with('error', 'Este utilizador não tem um horário associado neste momento.');
