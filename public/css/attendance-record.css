@@ -12,7 +12,7 @@ main.table {
     width: 82vw;
     height: auto;
     min-height: calc(100vh - 100px); /* Ajusta a altura mínima para preencher a área até o footer */
-    min-width: 100%;    
+    min-width: 100%;
     background-color: #fff5;
     box-shadow: 0 .4rem .8rem #0005;
     border-radius: .8rem;
