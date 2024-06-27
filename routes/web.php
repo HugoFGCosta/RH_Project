@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\VacationEvent;
 use App\Http\Controllers\AdminRegisterController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PresenceController;
@@ -37,6 +38,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 /*Rotas Menu ->  IMPLEMENTADO MIDDLEWARE*/
 Route::get('/menu', [App\Http\Controllers\ButtonController::class, 'index']); // menu
+
 Route::get('/register-schedule', [App\Http\Controllers\ButtonController::class, 'registerSchedule']);
 Route::get('/dashboard-statistics', [App\Http\Controllers\ButtonController::class, 'dashboardStatistics']); // dashboard das horas extras
 Route::get('/view-absences', [App\Http\Controllers\ButtonController::class, 'viewAbsences']);
@@ -80,8 +82,20 @@ Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update'])-
 //rotas vacation   ->  IMPLEMENTADO MIDDLEWARE
 
 Route::get('/vacation', [VacationController::class, 'index'])->name('vacations.index');
-Route::get('/vacations/create', [VacationController::class, 'create'])->name('vacations.create');
-Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
+//Route::get('/vacations/create', [VacationController::class, 'create'])->name('vacations.create');
+//Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
+
+Route::get('/vacations/create', function () {
+    return view('vacations.create');
+})->name('vacations.create');
+
+Route::post('/vacations', function () {
+    $states = request()->states;
+    event(new VacationEvent($states));
+})->name('vacations.store');
+
+
+
 Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
 Route::get('/vacations/edit/{vacation}', [VacationController::class, 'edit'])->name('vacations.edit')->middleware('AdminMiddleware'); // Apenas ADMIN aprovar ferias
 Route::put('/vacations/{vacation}', [VacationController::class, 'update'])->name('vacations.update')->middleware('AdminMiddleware'); // Apenas ADMIN aprovar ferias
