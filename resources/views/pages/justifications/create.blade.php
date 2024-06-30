@@ -15,3 +15,12 @@
         </div>
     </div>
 @endsection
+
+@section('scripts')
+    <script>
+        function updateFileName() {
+            let input = document.getElementById('file');
+            document.getElementById('file-name').innerText = input.files.length > 0 ? input.files[0].name : 'Nenhum ficheiro selecionado';
+        }
+    </script>
+@endsection

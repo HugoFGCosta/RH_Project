@@ -28,7 +28,7 @@
     padding: 20px;
     margin-top: 50px;
     background-color: #f9f9f9;
-    border-radius: 15px; /* Borda arredondada */
+    border-radius: 15px;
 }
 
 .section {
@@ -43,25 +43,25 @@
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 5px; /* Borda arredondada */
+    border-radius: 5px;
 }
 
 .justificationCreateButton {
     font-size: 16px;
     cursor: pointer;
-    background-color: #007bff; /* Cor azul */
+    background-color: var(--blue);
     color: white;
     border: none;
-    border-radius: 15px; /* Borda arredondada */
+    border-radius: 15px;
     padding: 10px 20px;
     transition: background-color 0.3s;
-    width: 100%; /* Ocupa toda a largura */
+    width: 100%;
     margin-top: 10px;
     margin-bottom: 25px;
 }
 
 .justificationCreateButton:hover {
-    background-color: #28a745; /* Cor verde */
+    background-color: var(--green);
 }
 
 /* Estilos de responsividade */
@@ -76,3 +76,32 @@
     }
 }
 
+.file-upload-container {
+    display: flex;
+    align-items: center;
+}
+
+#file {
+    display: none; /* Esconde o campo de upload real */
+}
+
+.file-description-button {
+    font-size: 16px;
+    cursor: pointer;
+    background-color: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+}
+
+.file-description-button:hover {
+    background-color: var(--green);
+}
+
+.file-name {
+    margin-left: 15px;
+    font-size: 14px;
+    color: #333;
+}
