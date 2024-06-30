@@ -87,24 +87,29 @@
             </span>
                 @enderror
             </div>
+
             <div class="form-group section">
-                <label for="name">Ficheiro</label>
-                <input
-                    type="file"
-                    id="file"
-                    name="file"
-                    accept=".png,.jpg,.jpeg,.pdf,.docx"
-                    autocomplete="file"
-                    class="form-control
-                    @error('file') is-invalid @enderror"
-                    value="{{ old('file') }}"
-                    required>
-                    @error('file')
+                <div class="file-upload-container">
+                    <input
+                        type="file"
+                        id="file"
+                        name="file"
+                        accept=".png,.jpg,.jpeg,.pdf,.docx"
+                        autocomplete="file"
+                        class="form-control @error('file') is-invalid @enderror"
+                        value="{{ old('file') }}"
+                        required
+                        onchange="updateFileName()">
+                    <button type="button" class="file-description-button" onclick="document.getElementById('file').click()">Escolher Ficheiro</button>
+                    <span id="file-name" class="file-name">Nenhum ficheiro selecionado</span>
+                </div>
+                @error('file')
                 <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
+        <strong>{{ $message }}</strong>
+    </span>
                 @enderror
             </div>
+
 
             <button type="submit" class="btn btn-primary createButton justificationCreateButton section">Submit</button>
 

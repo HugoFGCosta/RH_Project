@@ -7,11 +7,13 @@ use App\Models\Absence_State;
 use App\Models\Justification;
 use App\Http\Requests\StoreJustificationRequest;
 use App\Http\Requests\UpdateJustificationRequest;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use NunoMaduro\Collision\Adapters\Phpunit\State;
+use App\Http\Controllers\EmailController;
 
 
 class JustificationController extends Controller
@@ -148,11 +150,30 @@ class JustificationController extends Controller
 
         ]);
 
+        $userName = '';
+        $userEmail = '';
+        $absences = [];
+
         //Atualiza o justification_id de cada falta
         foreach ($request->selected_absences as $absenceId) {
             $absence = Absence::find($absenceId);
+            array_push($absences, $absence);
             $absence->justification_id = $id;
+            $userName = $absence->user->name;
+            $userEmail = $absence->user->email;
             $absence->save();
+        }
+
+        //Envia email para todos os gestores ou admins do sistema com a notificação da submição da justificação
+        $users = User::all();
+        foreach ($users as $user){
+            if($user->role_id == 3 || $user->role_id == 2){
+                //Chama o método justificationApproved do EmailController para enviar o email
+                $emailController = new EmailController();
+                $email = $user->email;
+                $emailName = $user->name;
+                $emailController->justificationCreated($email,$emailName,$userName, $userEmail, $absences);
+            }
         }
 
         // Redirecionar com uma mensagem de sucesso
@@ -214,14 +235,22 @@ class JustificationController extends Controller
     public function justificationReject($id){
 
         $absences = Absence::all();
+        $justifiedAbsences = [];
 
         foreach ($absences as $absence){
             if($absence->justification_id == $id){
                 $absence->absence_states_id = 2;
                 $absence->approved_by = Auth::user()->id;
+                $email = $absence->user->email;
+                $name = $absence->user->name;
+                array_push($justifiedAbsences, $absence);
                 $absence->save();
             }
         }
+        //Chama o método justificationApproved do EmailController para enviar o email
+        $emailController = new EmailController();
+        $emailController->justificationRejected($name, $email, $justifiedAbsences);
+
 
         return redirect('/justifications/')->with('error', 'Justificação Rejeitada');
 
@@ -230,14 +259,22 @@ class JustificationController extends Controller
     public function justificationApprove($id){
 
         $absences = Absence::all();
+        $justifiedAbsences = [];
 
         foreach ($absences as $absence){
             if($absence->justification_id == $id){
                 $absence->absence_states_id = 1;
                 $absence->approved_by = Auth::user()->id;
+                $email = $absence->user->email;
+                $name = $absence->user->name;
+                array_push($justifiedAbsences, $absence);
                 $absence->save();
             }
         }
+
+        //Chama o método justificationApproved do EmailController para enviar o email
+        $emailController = new EmailController();
+        $emailController->justificationApproved($name, $email, $justifiedAbsences);
 
         return redirect('/justifications/')->with('success', 'Justificação Aprovada');
 
