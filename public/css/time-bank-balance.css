@@ -1,90 +1,106 @@
-.divGeral{
-    margin-top: 100px;
-    margin-left: 40%;
+.divGeral {
+    margin: 100px auto;
+    padding: 20px;
+    width: 60%;
+    background-color: #fff;
+    border: 2px solid #ddd;
+    border-radius: 15px; /* Borda arredondada */
+    box-shadow: 0 .4rem .8rem #0005;
 }
 
-.content-area{
+/* Ajustes responsivos */
+@media (max-width: 1200px) {
+    .divGeral {
+        width: 70%;
+    }
+}
+
+@media (max-width: 992px) {
+    .divGeral {
+        width: 80%;
+    }
+}
+
+@media (max-width: 768px) {
+    .divGeral {
+        width: 90%;
+    }
+}
+
+@media (max-width: 576px) {
+    .divGeral {
+        width: 95%;
+    }
+}
+
+.content-area {
     position: relative;
-    margin-top: 0px;
+    margin-top: 0;
 }
 
-.inputClass{
+.inputClass {
     font-size: 16px;
-    width: 110px;
-}
-
-.spanTimeOne{
-    margin-right: 50px;
-    margin-left: -10px;
-}
-
-.spanTimeTwo{
-    margin-right: 75px;
-    margin-left: -10px;
-}
-
-.spanTimeThree{
-    margin-right: 108px;
-    margin-left: -10px;
-}
-
-.groupYear{
-    margin-top: 10px;
-}
-
-.submitButton{
-    font-size: 16px;
-    cursor: pointer;
-    background-color: white;
-    color: var(--blue);
-    border: 1px solid var(--blue);
-    transition: background-color 0.3s;
+    width: 100%;
     margin-bottom: 10px;
 }
 
-.submitButton:hover{
-    background-color: var(--green);
+.groupYear {
+    margin-top: 10px;
+}
+
+.submitButton {
+    font-size: 16px;
+    cursor: pointer;
+    background-color: var(--blue);
     color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
-.textsDiv{
+.submitButton:hover {
+    background-color: var(--green);
+}
+
+.textsDiv {
     margin-left: 10px;
+    text-align: center;
 }
 
-.divMonth{
-    margin-top: 20px;
-    width: 250px;
+.spanTimeOne,
+.spanTimeTwo,
+.spanTimeThree {
+    display: inline-block;
+    margin: 5px 0;
 }
 
-/* Estilo adicional para responsividade */
-@media (max-width: 750px) {
-
-    .divGeral{
-        margin-top: 100px;
-        margin-left: 0;
-    }
-
+.titleBalance {
+    text-align: center;
 }
 
-/* Estilo adicional para responsividade */
-@media (max-width: 700px) {
-
-    .container form{
-        padding: 10px 20px 10px 20px;
-    }
-
-}
-
-.titleBalance{
-    margin-left: 47px;
-}
-
-.greenMargin{
+.greenMargin {
     margin-left: 9px;
 }
 
-.marginAjust{
+.marginAjust {
     margin-left: -10px;
 }
 
+/* Estilos de responsividade */
+@media (max-width: 768px) {
+    .textsDiv {
+        margin-left: 0;
+    }
 
+    .spanTimeOne,
+    .spanTimeTwo,
+    .spanTimeThree {
+        display: block;
+        margin-left: 0;
+        margin-right: 0;
+    }
+}

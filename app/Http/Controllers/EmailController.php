@@ -47,4 +47,20 @@ class EmailController extends Controller
         Mail::to($toEmail)->send(new JustificationMail($message, $subject));
 
     }
+
+    public function justificationCreated ($emailSend,$emailName,$userName, $userEmail, $absences){
+
+        //Recebe o email e inicia a mensagem
+        $toEmail = $emailSend;
+        $message = nl2br('Caro '.$emailName.','."\n".' O utilizador '.$userName.' com o email:'.$userEmail .' submeteu uma justificação das seguintes faltas:'. "\n");
+
+        //Percorre as justificações aprovadas e adiciona as datas ao email
+        foreach ($absences as $absence) {
+            $message .= nl2br($absence->absence_start_date . "-" . $absence->absence_end_date . "\n");
+        }
+
+        $subject = 'Justificação submetida por colaborador';
+
+        Mail::to($toEmail)->send(new JustificationMail($message, $subject));
+    }
 }

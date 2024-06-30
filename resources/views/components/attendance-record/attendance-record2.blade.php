@@ -12,7 +12,7 @@
             <label for="export-file" class="export__file-btn" title="Export File"></label>
             <input type="checkbox" id="export-file">
             <div class="export__file-options">
-                <label>Export As &nbsp; &#10140;</label>
+                <label>Exportar como &nbsp; &#10140;</label>
                 <label for="export-file" id="toPDF">PDF</label>
                 <label for="export-file" id="toJSON">JSON</label>
                 <label for="export-file" id="toCSV">CSV </label>
