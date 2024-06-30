@@ -59,8 +59,20 @@
                         @endforeach
                     </td>
                     <td>
-                        <a href="{{ url('/justification/'. $justification->id.'/manage') }}" class="btn-detail-edit">Aprovar/Rejeitar</a>
+                        @foreach($justification->absences as $absence)
+                            @if($absence->absence_states_id == 3)
+                                <a href="{{ url('/justification/'. $justification->id.'/manage') }}" class="btn-detail-edit">Aprovar/Rejeitar</a>
+                                @break;
+                            @else
+                                <a href="#" class="btn-detail-edit">Validado</a>
+                                @break;
+                            @endif
+
+                        @endforeach
+
                     </td>
+
+
                 </tr>
             @endforeach
             </tbody>
