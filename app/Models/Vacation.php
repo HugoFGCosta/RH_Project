@@ -27,4 +27,9 @@ class Vacation extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function notification()
+    {
+        return $this->hasOne(Notification::class);
+    }
 }
