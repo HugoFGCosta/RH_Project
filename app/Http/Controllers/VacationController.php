@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\NotificationEvent;
 use App\Models\Vacation;
+use App\Models\Notification;
 use App\Http\Requests\StoreVacationRequest;
 use App\Http\Requests\UpdateVacationRequest;
 use Carbon\Carbon;
@@ -63,7 +64,7 @@ class VacationController extends Controller
         $roleId = auth()->user()->role_id;
         $totaldias = $this->difTotal(Auth::id());
         return view('pages.vacations.create')->with('totaldias', $totaldias)->with('role', $roleId);
-        ;
+
     }
 
     public function store(StoreVacationRequest $request)
@@ -106,8 +107,8 @@ class VacationController extends Controller
     {
         // Validar os dados do formulário
         $request->validate([
-            'date_start' => 'required|after:today,before:date_end',
-            'date_end' => 'required|after:tomorrow|after:date_start',
+            'date_start' => 'required|date|after:today',
+            'date_end' => 'required|date|after:tomorrow|after:date_start',
         ]);
 
         // Obter o papel (role) do usuário atual
@@ -136,8 +137,15 @@ class VacationController extends Controller
             // Salvar as alterações no banco de dados
             $vacation->save();
 
+            // Criar uma nova notificação
+            $notification = new Notification();
+            $notification->user_id = Auth::id(); // Aqui você pode ajustar para o ID do usuário apropriado
+            $notification->vacation_id = $vacation->id;
+            $notification->state = false; // não lido
+            $notification->save();
+
             // Enviar evento para Pusher após a atualização ser bem-sucedida
-            event(new NotificationEvent('Vacation details updated successfully!'));
+            event(new NotificationEvent('Vacation details updated successfully!', $notification->id));
 
             // Redirecionar de volta à página de férias com uma mensagem de status
             return redirect(url('/vacation'))->with('status', 'Vacation details updated successfully!');
@@ -146,6 +154,8 @@ class VacationController extends Controller
             return redirect('/vacation')->with('status', 'Error updating vacation details!');
         }
     }
+
+
 
 
 

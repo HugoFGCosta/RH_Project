@@ -3,6 +3,7 @@
 use App\Events\VacationEvent;
 use App\Http\Controllers\AdminRegisterController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserShiftController;
@@ -37,7 +38,7 @@ Route::get('/logout', function () {
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 /*Rotas Menu ->  IMPLEMENTADO MIDDLEWARE*/
-Route::get('/menu', [App\Http\Controllers\ButtonController::class, 'index']); // menu
+Route::get('/menu', [App\Http\Controllers\ButtonController::class, 'index'])->name('menu'); // menu
 
 Route::get('/register-schedule', [App\Http\Controllers\ButtonController::class, 'registerSchedule']);
 Route::get('/dashboard-statistics', [App\Http\Controllers\ButtonController::class, 'dashboardStatistics']); // dashboard das horas extras
@@ -82,18 +83,16 @@ Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update'])-
 //rotas vacation   ->  IMPLEMENTADO MIDDLEWARE
 
 Route::get('/vacation', [VacationController::class, 'index'])->name('vacations.index');
-//Route::get('/vacations/create', [VacationController::class, 'create'])->name('vacations.create');
-//Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
+Route::get('/vacations/create', [VacationController::class, 'create'])->name('vacations.create');
+Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
 
-Route::get('/vacations/create', function () {
-    return view('vacations.create');
-})->name('vacations.create');
 
+/* 
 Route::post('/vacations', function () {
     $states = request()->states;
     event(new VacationEvent($states));
 })->name('vacations.store');
-
+ */
 
 
 Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
@@ -175,3 +174,21 @@ Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftControll
 /*Rotas estatisticas*/
 Route::get('/dashboard-statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
 Route::post('/dashboard-statistics/filter', [DashboardController::class, 'filterStatistics'])->name('dashboard.filter');
+
+
+
+
+
+
+/* ROTAS NOTIFICAÇOES */
+
+/* 
+Route::get('/notifications', [NotificationController::class, 'show'])->name('notifications.index');
+Route::post('/notifications/change-state', [NotificationController::class, 'changeState'])->name('notifications.changeState');
+Route::get('/notifications/show', [NotificationController::class, 'showNotifications'])->name('notifications.show');
+ */
+
+/* ROTAS NOTIFICAÇOES */
+Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+Route::post('/notifications/change-state', [NotificationController::class, 'changeState'])->name('notifications.changeState');
+Route::get('/notifications/show', [NotificationController::class, 'showNotifications'])->name('notifications.show');

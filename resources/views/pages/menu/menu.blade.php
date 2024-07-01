@@ -29,40 +29,43 @@
             <div class="right-column">
                 <div class="notifications">
                     <h2>Notificações</h2>
-                    <ul id="notification-list">
-                        <!-- Aqui serão exibidas as notificações -->
-                    </ul>
-                </div>
 
-                <table>
-                    <tr>
-                        <td style="width: 60px">
-                            <img src="{{ asset('images/notifications.svg') }}" alt="notifications">
-                        </td>
-                    </tr>
-                </table>
+                    <table>
+                        <tr>
+                            <td style="width: 60px">
+                                <img src="{{ asset('images/notifications.svg') }}" alt="notifications">
+                            </td>
+                        </tr>
+
+                        @component('components.notifications.notification-list', ['notifications' => $notifications])
+                        @endcomponent
+
+
+
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
-    <script>
-        // Inicializa o cliente Pusher
-        const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
-            cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
-            useTLS: true // Deixe como true se estiver usando HTTPS
-        });
+        <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
+        <script>
+            // Inicializa o cliente Pusher
+            const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
+                useTLS: true // Deixe como true se estiver usando HTTPS
+            });
 
-        // Subscreve ao canal de notificação
-        const channel = pusher.subscribe('notification-channel');
+            // Subscreve ao canal de notificação
+            const channel = pusher.subscribe('notification-channel');
 
-        // Manipula eventos recebidos no canal
-        channel.bind('App\\Events\\NotificationEvent', function(data) {
-            // Adiciona a nova notificação à lista
-            const notificationList = document.getElementById('notification-list');
-            const newItem = document.createElement('li');
-            newItem.textContent = data.message;
-            notificationList.appendChild(newItem);
-        });
-    </script>
-@endsection
+            // Manipula eventos recebidos no canal
+            channel.bind('App\\Events\\NotificationEvent', function(data) {
+                // Adiciona a nova notificação à lista
+                const notificationList = document.getElementById('notification-list');
+                const newItem = document.createElement('li');
+                newItem.textContent = data.message;
+                newItem.dataset.id = data.notificationId; // Inclui o ID da notificação
+                notificationList.appendChild(newItem);
+            });
+        </script>
+    @endsection
