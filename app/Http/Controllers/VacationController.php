@@ -3,16 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Events\NotificationEvent;
-use App\Models\Vacation;
 use App\Models\Notification;
+use App\Models\Vacation;
 use App\Http\Requests\StoreVacationRequest;
 use App\Http\Requests\UpdateVacationRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
+use Mockery\Exception;
 
 
 class VacationController extends Controller
@@ -64,16 +66,17 @@ class VacationController extends Controller
         $roleId = auth()->user()->role_id;
         $totaldias = $this->difTotal(Auth::id());
         return view('pages.vacations.create')->with('totaldias', $totaldias)->with('role', $roleId);
-
+        ;
     }
 
-    public function timeCollide($vacation_id, $user_id, $start, $end) {
+    public function timeCollide($vacation_id, $user_id, $start, $end)
+    {
         $vacations = Vacation::where('user_id', $user_id)
             ->where('id', '<>', $vacation_id)
-            ->where(function($query) use ($start, $end) {
+            ->where(function ($query) use ($start, $end) {
                 $query->whereBetween('date_start', [$start, $end])
                     ->orWhereBetween('date_end', [$start, $end])
-                    ->orWhere(function($query) use ($start, $end) {
+                    ->orWhere(function ($query) use ($start, $end) {
                         $query->where('date_start', '<=', $start)
                             ->where('date_end', '>=', $end);
                     });
@@ -84,13 +87,11 @@ class VacationController extends Controller
 
     public function store(StoreVacationRequest $request)
     {
-
         $request->validate([
             'date_start' => 'required|after:today,before:date_end',
             'date_end' => 'required|after:tomorrow|after:date_start'
         ]);
         if ($this->difInput($request->date_start, $request->date_end, $this->difTotal(Auth::id())) != null) {
-
 
             $vacation = new Vacation();
             $vacation->user_id = Auth::id();
@@ -99,10 +100,9 @@ class VacationController extends Controller
             $vacation->date_start = $request->date_start;
             $vacation->date_end = $request->date_end;
             $vacation->save();
-            return redirect(url('/vacation'))->with('status','Criado com sucesso!');
+            return redirect(url('/vacation'))->with('status', 'Item created successfully!');
         } else
-            return redirect(url('/vacations/create'))->with('status', 'erro!');           
-        }
+            return redirect(url('/vacations/create'))->with('status', 'error!');
     }
 
 
@@ -113,13 +113,16 @@ class VacationController extends Controller
 
     public function edit(Vacation $vacation)
     {
-
-        //   print   Vacation::with('user')->where('role_id', auth::id())->pluck("role_id");
         $roleId = Auth::user()->role_id;
-        $totaldias = $this->difTotal($roleId);
-        return view('pages.vacations.edit', ['vacations' => $vacation])->with('totaldias', $totaldias)->with('role', $roleId);
-        
+        $totaldias = $this->difTotal(Auth::id());
+        $role_id_table = $vacation->user->role_id;
 
+        return view('pages.vacations.edit', [
+            'vacations' => $vacation,
+            'totaldias' => $totaldias,
+            'role' => $roleId,
+            'role_id_table' => $role_id_table
+        ]);
     }
 
 
@@ -176,16 +179,13 @@ class VacationController extends Controller
     }
 
 
-
-
     public function destroy(Vacation $vacation)
     {
         $vacation = vacation::find($vacation->id);
         $vacation->delete();
-        return redirect('vacation')->with('status','Eliminado com sucesso!');
+        return redirect('vacation')->with('status', 'Eliminado com sucesso!');
+
     }
-
-
 
     public function import(Request $request)
     {
@@ -254,8 +254,8 @@ class VacationController extends Controller
                 'approved_by' => $data[2],
                 'date_start' => $data[3],
                 'date_end' => $data[4],
-                'created_at'=>now(),
-                'updated_at'=>now()
+                'created_at' => now(),
+                'updated_at' => now()
             ]);
         }
 
@@ -277,13 +277,11 @@ class VacationController extends Controller
         ];
 
         $handle = fopen('php://output', 'w');
-
-        fputcsv($handle, ['Id_Utilizador','Id_Estado_Aprovacao_Falta', 'Aprovado_Por','Data_Comeco','Data_Fim','Criado_A','Atualizado_A']); // Add more headers as needed
+        fputcsv($handle, ['Id_Utilizador', 'Id_Estado_Aprovacao_Falta', 'Aprovado_Por', 'Data_Comeco', 'Data_Fim', 'Criado_A', 'Atualizado_A']); // Add more headers as needed
 
         //Percorre o vetor com as férias e escreve no ficheiro
         foreach ($vacations as $vacation) {
-            fputcsv($handle, [$vacation->user_id,$vacation->vacation_approval_states_id, $vacation->approved_by,$vacation->date_start,$vacation->date_end,$vacation->created_at,$vacation->updated_at]); // Add more fields as needed
-
+            fputcsv($handle, [$vacation->user_id, $vacation->vacation_approval_states_id, $vacation->approved_by, $vacation->date_start, $vacation->date_end, $vacation->created_at, $vacation->updated_at]); // Add more fields as needed
         }
 
         fclose($handle);
