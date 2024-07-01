@@ -7,6 +7,7 @@ use App\Http\Requests\StoreAbsenceRequest;
 use App\Http\Requests\UpdateAbsenceRequest;
 use App\Models\Absence_State;
 use App\Models\AbsenceType;
+use App\Models\Justification;
 use App\Models\Presence;
 use App\Models\User;
 use App\Models\User_Shift;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
+use Termwind\Components\Anchor;
 
 class AbsenceController extends Controller
 {
@@ -26,6 +28,13 @@ class AbsenceController extends Controller
     public function index()
     {
         //
+        $absences = Absence::all();
+        $absences_states = Absence_State::all();
+        $absences_types = AbsenceType::all();
+        $justifications = Justification::all();
+
+        return view('pages.absences.absences-list', ['absences'=>$absences, 'absences_states'=>$absences_states, 'absences_types'=>$absences_types, 'justifications'=>$justifications]);
+
     }
 
     public function approvedAbsences(){
@@ -130,37 +139,41 @@ class AbsenceController extends Controller
             $data = str_getcsv($line);
 
             // Verifica se há exatamente 5 campos
-            if (count($data) != 5) {
+            if (count($data) != 8) {
                 return redirect()->back()->with('error', 'Certifique-se que este ficheiro contém informações de faltas.');
             }
 
-            // Verifica se os IDs são inteiros
-            if (!is_int($data[0]) || !is_int($data[1]) || !is_int($data[2])) {
+            // Verifica se os IDs são numéricos e depois converte para inteiros
+            if (!is_numeric($data[0]) || !is_numeric($data[1]) || !is_numeric($data[2])) {
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador, estado de falta e aprovador são números válidos.');
             }
 
-            // Verifica se o campo absence_date é uma data válida
-            if (strtotime($data[3]) === false) {
-                return redirect()->back()->with('error', 'A data fornecida não é válida.');
-            }
 
-            // Verifica se a justificativa não pode ser convertida para uma data válida
-            if (strtotime($data[4]) !== false) {
-                return redirect()->back()->with('error', 'A justificativa não deve ser uma data.');
+            // Verifica se o campo absence_date é uma data válida
+            if (strtotime($data[4]) === false||strtotime($data[5]) === false) {
+                return redirect()->back()->with('error', 'As datas fornecidas não são válidas.');
             }
 
             // Verifica se o ID de estado de aprovação de falta está entre 1 e 3
-            if ($data[1] < 1 || $data[1] > 3){
+            if ($data[1] < 1 || $data[1] > 4){
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de estado são números válidos.');
             }
 
-            Absence::create([
+            $absenceData = [
                 'user_id' => $data[0],
                 'absence_states_id' => $data[1],
-                'approved_by' => $data[2],
-                'absence_date' => $data[3],
-                'justification' => $data[4],
-            ]);
+                'absence_types_id' => $data[2],
+                'absence_start_date' => $data[4],
+                'absence_end_date' => $data[5],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            $absenceData['approved_by'] = !empty($data[3]) ? $data[3] : null;
+
+            Absence::create($absenceData);
+
+
         }
 
         fclose($handle);
@@ -189,11 +202,11 @@ class AbsenceController extends Controller
 
         //Escreve os cabeçalhos no ficheiro
         $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['User_id','Absence_states_id', 'Approved_by','Absence_date','Justification']);
+        fputcsv($handle, ['Id_Utilizador','Id_Estado_Falta','Id_Tipo_Falta', 'Aprovado_Por','Data_Comeco_Falta','Data_Fim_Falta','Criado_A','Atualizado_A']);
 
         //Para cada falta insere uma linha no ficheiro
         foreach ($absences as $absence) {
-            fputcsv($handle, [$absence->user_id,$absence->absence_states_id, $absence->approved_by,$absence->absence_date,$absence->justification]); // Add more fields as needed
+            fputcsv($handle, [$absence->user_id,$absence->absence_states_id,$absence->absence_types_id, $absence->approved_by,$absence->absence_start_date,$absence->absence_end_date, $absence->created_at, $absence->updated_at]); // Add more fields as needed
         }
 
         // Fecha o ficheiro

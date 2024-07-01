@@ -17,23 +17,21 @@ class Sidebar {
         return localStorage.getItem('sidebarState') === 'collapsed';
     }
 
-    toggle(updateState = true){
-        this.isCollapsed
-            ? this.expand(updateState)
-            : this.collapse(updateState)
+    toggle(updateState = true) {
+        this.isCollapsed ? this.expand(updateState) : this.collapse(updateState);
     }
 
     collapse(updateState = true) {
-        updateState && localStorage.setItem('sidebarState', 'collapsed');
+        if (updateState) localStorage.setItem('sidebarState', 'collapsed');
         menu.classList.add('active');
         main.classList.add('active');
         content.classList.add('active');
         this.arrowImg.src = 'images/menu-arrow-open.svg';
-        rootListItems.forEach((item) => toggleSubMenu(item, false));
+        rootListItems.forEach(item => toggleSubMenu(item, false));
     }
 
     expand(updateState = true) {
-        updateState && localStorage.setItem('sidebarState', 'expanded');
+        if (updateState) localStorage.setItem('sidebarState', 'expanded');
         menu.classList.remove('active');
         main.classList.remove('active');
         content.classList.remove('active');
@@ -41,8 +39,7 @@ class Sidebar {
     }
 }
 
-
-const sidebar = new Sidebar()
+const sidebar = new Sidebar();
 
 function hoverLink() {
     this.classList.add("hovered");
@@ -52,52 +49,56 @@ function leaveLink() {
     this.classList.remove("hovered");
 }
 
-
 function toggleSubMenu(item, open = undefined) {
-    const dropdown = item.querySelector('.dropdown-main')
-    const dropdownContent = item.nextElementSibling
+    const dropdown = item.querySelector('.dropdown-main');
+    const dropdownContent = item.nextElementSibling;
 
-    if(dropdown && dropdownContent){
-        if(open == null) {
-
+    if (dropdown && dropdownContent) {
+        if (open == null) {
             dropdownContent.classList.toggle('expanded-item');
-        }else{
-            const isExpanded = dropdownContent.classList.contains('expanded-item')
-            open && !isExpanded && dropdownContent.classList.add('expanded-item');
-            !open && isExpanded && dropdownContent.classList.remove('expanded-item');
+        } else {
+            const isExpanded = dropdownContent.classList.contains('expanded-item');
+            if (open && !isExpanded) {
+                dropdownContent.classList.add('expanded-item');
+            } else if (!open && isExpanded) {
+                dropdownContent.classList.remove('expanded-item');
+            }
         }
     }
 }
 
-function navigateToRoute (listItem) {
+function closeAllSubMenus() {
+    document.querySelectorAll('.menu .expanded-item').forEach(item => {
+        item.classList.remove('expanded-item');
+    });
+}
 
+function navigateToRoute(listItem) {
     const href = listItem.querySelector('a').href;
+    const dropdown = listItem.querySelector('.dropdown-main');
 
-    const dropdown = listItem && listItem.querySelector('.dropdown-main')
-
-    if(dropdown){
-        if(!sidebar.isCollapsed){
-            toggleSubMenu(listItem);
+    if (dropdown) {
+        if (!sidebar.isCollapsed) {
+            const dropdownContent = listItem.nextElementSibling;
+            if (dropdownContent.classList.contains('expanded-item')) {
+                toggleSubMenu(listItem, false);
+            } else {
+                closeAllSubMenus();
+                toggleSubMenu(listItem, true);
+            }
+        } else {
+            sidebar.expand();
         }
-        else{
-            sidebar.expand()
-        }
-    }
-    else {
+    } else {
         if (sidebar.isCollapsed) {
-
-            sidebar.expand(false)
-
+            sidebar.expand(false);
             setTimeout(() => {
                 if (href) {
                     window.location.href = href;
                 }
-
             }, 500);
-
             setTimeout(() => sidebar.collapse(), 2000);
-
-        }else {
+        } else {
             if (href) {
                 window.location.href = href;
             }
@@ -110,44 +111,51 @@ function selectLink(e) {
     e.stopPropagation();
     e.stopImmediatePropagation();
 
-    const dropdown = this.querySelector('.dropdown-main')
-
-    if(!dropdown){
+    const dropdown = this.querySelector('.dropdown-main');
+    if (!dropdown) {
         clearSelected();
         this.classList.add("selected");
         localStorage.setItem('selectedMenuItem', this.id);
     }
 
-    navigateToRoute(this)
+    navigateToRoute(this);
 }
 
+function selectSubMenuLink(e) {
+    e.stopPropagation(); // Prevent the click event from bubbling up to parent elements
+}
 
-allListItems.forEach((item) => {
+allListItems.forEach(item => {
     item.addEventListener('mouseover', hoverLink);
     item.addEventListener('mouseout', leaveLink);
     item.addEventListener('click', selectLink);
 });
 
+dailyTasksListItems.forEach(item => {
+    item.addEventListener('click', selectSubMenuLink);
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     const selectedId = localStorage.getItem('selectedMenuItem');
     if (selectedId) {
         const selectedItem = document.getElementById(selectedId);
-        selectedItem?.classList.add("selected");
+        if (selectedItem) {
+            selectedItem.classList.add("selected");
+        }
     }
 
     if (sidebar.isCollapsed) {
-        sidebar.collapse()
+        sidebar.collapse();
     }
 });
 
 function clearSelected() {
-    rootListItems.forEach((item) => item.classList.remove("selected"));
+    rootListItems.forEach(item => item.classList.remove("selected"));
     localStorage.removeItem('selectedMenuItem');
 }
 
 toggle.onclick = function() {
-    sidebar.toggle()
+    sidebar.toggle();
 };
 
 const userLink = document.querySelector('.user a');
@@ -159,23 +167,26 @@ if (userLink) {
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM fully loaded and parsed");
-    var entryExitButton = document.getElementById('entryExitButton');
+    const entryExitButton = document.getElementById('entryExitButton');
+    const presenceStatusUrl = '/get-status';
 
-    function updateButtonStatus(status) {
-        var entryExitButton = document.getElementById('entryExitButton');
-
+    function updateButtonStatus(status, shift) {
         if (entryExitButton) {
             if (status === 'in') {
                 entryExitButton.textContent = 'Saída';
                 entryExitButton.classList.add('btn-out');
                 entryExitButton.classList.remove('btn-in');
+            } else if (status === 'completed') {
+                entryExitButton.textContent = 'Presença Completa';
+                entryExitButton.disabled = true;
+                entryExitButton.classList.add('btn-completed');
             } else {
                 entryExitButton.textContent = 'Entrada';
                 entryExitButton.classList.add('btn-in');
                 entryExitButton.classList.remove('btn-out');
+                entryExitButton.dataset.shift = shift;
             }
         }
-
     }
 
     function fetchStatusAndUpdateButton() {
@@ -188,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 console.log("Status fetched:", data);
-                updateButtonStatus(data.status);
+                updateButtonStatus(data.status, data.shift);
             })
             .catch(error => {
                 console.error('Erro ao verificar status:', error);
@@ -197,54 +208,56 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetchStatusAndUpdateButton();
 
-    entryExitButton && entryExitButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        var currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    if (entryExitButton) {
+        entryExitButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-        fetch(presenceStatusUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Status fetched after click:", data);
-                if (data.status === 'out') {
-                    if (!document.getElementById('first_start').value) {
-                        document.getElementById('first_start').value = currentTime;
-                    } else if (!document.getElementById('second_start').value) {
-                        document.getElementById('second_start').value = currentTime;
+            fetch(presenceStatusUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
                     }
-                } else if (data.status === 'in') {
-                    if (!document.getElementById('first_end').value) {
-                        document.getElementById('first_end').value = currentTime;
-                    } else if (!document.getElementById('second_end').value) {
-                        document.getElementById('second_end').value = currentTime;
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Status fetched after click:", data);
+                    if (data.status === 'out') {
+                        if (!document.getElementById('first_start').value && data.shift === 'first') {
+                            document.getElementById('first_start').value = currentTime;
+                        } else if (!document.getElementById('second_start').value && data.shift === 'second') {
+                            document.getElementById('second_start').value = currentTime;
+                        }
+                    } else if (data.status === 'in') {
+                        if (!document.getElementById('first_end').value && data.shift === 'first') {
+                            document.getElementById('first_end').value = currentTime;
+                        } else if (!document.getElementById('second_end').value && data.shift === 'second') {
+                            document.getElementById('second_end').value = currentTime;
+                        }
+                    } else if (data.status === 'completed') {
+                        alert('Presença já registrada completamente para hoje.');
+                        return;
                     }
-                }
 
-                console.log("Submitting form with data:", {
-                    first_start: document.getElementById('first_start').value,
-                    first_end: document.getElementById('first_end').value,
-                    second_start: document.getElementById('second_start').value,
-                    second_end: document.getElementById('second_end').value,
+                    console.log("Submitting form with data:", {
+                        first_start: document.getElementById('first_start').value,
+                        first_end: document.getElementById('first_end').value,
+                        second_start: document.getElementById('second_start').value,
+                        second_end: document.getElementById('second_end').value,
+                    });
+
+                    e.target.form.submit();
+                })
+                .catch(error => {
+                    console.error('Erro ao verificar status:', error);
+                    alert('Erro ao verificar status: ' + error.message);
                 });
-
-                e.target.form.submit();
-            })
-            .catch(error => {
-                console.error('Erro ao verificar status:', error);
-                alert('Erro ao verificar status: ' + error.message);
-            });
-    });
+        });
+    }
 });
 
-// The function is called when the document is loaded and toggles the menu visibility
-// when the menu arrow is clicked by changing the image and the display style of the menu
-document.addEventListener('DOMContentLoaded', function () {
-
-    toggle.onclick = function () {
-        sidebar.toggle()
+document.addEventListener('DOMContentLoaded', function() {
+    toggle.onclick = function() {
+        sidebar.toggle();
     };
 });

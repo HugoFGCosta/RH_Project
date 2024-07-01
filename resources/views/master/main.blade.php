@@ -1,6 +1,7 @@
 @php use Illuminate\Support\Facades\Auth; @endphp
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
+
+    <!DOCTYPE html>
+<html lang="{{app()->getLocale() }}">
 
 <head>
     <meta charset="utf-8">
@@ -50,6 +51,7 @@
 
 <body>
 
+
     @component('master.header')
     @endcomponent
 
@@ -85,6 +87,7 @@
                         </li>
                     @endif
                 </div>
+
             </div>
         </div>
         <div class="content-area hidden">

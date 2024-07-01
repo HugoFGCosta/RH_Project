@@ -1,4 +1,3 @@
-
 <link rel="stylesheet" href="{{ asset('css/show-all.css') }}">
 <link rel="stylesheet" href="{{ asset('css/justification-approve.css') }}">
 
@@ -14,16 +13,16 @@
                 <th> Nome </th>
                 <th> Data de Falta </th>
                 <th> Duração </th>
-                <th> Estado </th>
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>{{ $justification->absence->user->name }}</td>
-                <td>{{ $justification->absence->absence_start_date . " - " . $justification->absence->absence_end_date }}</td>
-                <td>{{ $duration }}</td>
-                <td></td>
-            </tr>
+            @foreach($justification->absences as $index => $absence)
+                <tr>
+                    <td>{{ $absence->user->name }}</td>
+                    <td>{{ $absence->absence_start_date . " - " . $absence->absence_end_date }}</td>
+                    <td>{{ $durations[$index] . " hora(as)" }}</td>
+                </tr>
+            @endforeach
             </tbody>
         </table>
 
@@ -60,6 +59,6 @@
     <a href="{{ url('/justification/'. $justification->id.'/approve') }}" class="btn-detail-edit buttonJustification">Aprovar</a>
     <a href="{{ url('/justification/'. $justification->id.'/reject') }}" class="btn-detail-edit buttonJustification">Rejeitar</a>
     </div>
-    
+
 
 </div>

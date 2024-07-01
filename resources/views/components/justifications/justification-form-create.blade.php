@@ -15,14 +15,17 @@
             </tr>
             </thead>
             <tbody>
+            @foreach($absences as $index => $absence)
                 <tr>
                     <td>{{ $absence->user->name }}</td>
                     <td>{{ $absence->absence_start_date . " - " . $absence->absence_end_date }}</td>
-                    <td> {{ $duration . " hora(as)" }}  </td>
-                    <td> {{ $state->description }} </td>
+                    <td>{{ $durations[$index] . " hora(as)" }}</td>
+                    <td>{{ $states[$index]->description }}</td>
                 </tr>
+            @endforeach
             </tbody>
         </table>
+
 
     </section>
 
@@ -30,9 +33,13 @@
 
     <h1>Formulário de justificação de falta</h1>
 
-    <form id="createForm" method="POST" action="{{ url('absences/' . $absence->id . '/justification') }}" enctype="multipart/form-data">
+        <form id="createForm" method="POST" action="{{ url('absences/justification/store') }}" enctype="multipart/form-data">
             @csrf
-            @method('POST')
+
+            <!-- Inputs ocultos para IDs das faltas selecionadas -->
+            @foreach($absences as $absence)
+                <input type="hidden" name="selected_absences[]" value="{{ $absence->id }}">
+            @endforeach
 
             <div class="form-group motiveSection section">
                 <label class="motive" for="motive">Motivo</label>
@@ -80,24 +87,29 @@
             </span>
                 @enderror
             </div>
+
             <div class="form-group section">
-                <label for="name">Ficheiro</label>
-                <input
-                    type="file"
-                    id="file"
-                    name="file"
-                    accept=".png,.jpg,.jpeg,.pdf,.docx"
-                    autocomplete="file"
-                    class="form-control
-                    @error('file') is-invalid @enderror"
-                    value="{{ old('file') }}"
-                    required>
-                    @error('file')
+                <div class="file-upload-container">
+                    <input
+                        type="file"
+                        id="file"
+                        name="file"
+                        accept=".png,.jpg,.jpeg,.pdf,.docx"
+                        autocomplete="file"
+                        class="form-control @error('file') is-invalid @enderror"
+                        value="{{ old('file') }}"
+                        required
+                        onchange="updateFileName()">
+                    <button type="button" class="file-description-button" onclick="document.getElementById('file').click()">Escolher Ficheiro</button>
+                    <span id="file-name" class="file-name">Nenhum ficheiro selecionado</span>
+                </div>
+                @error('file')
                 <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
+        <strong>{{ $message }}</strong>
+    </span>
                 @enderror
             </div>
+
 
             <button type="submit" class="btn btn-primary createButton justificationCreateButton section">Submit</button>
 

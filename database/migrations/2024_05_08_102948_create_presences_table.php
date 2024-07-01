@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('presences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->dateTime('first_start');
+            $table->dateTime('first_start')->nullable();
             $table->dateTime('first_end')->nullable();
             $table->dateTime('second_start')->nullable();
             $table->dateTime('second_end')->nullable();

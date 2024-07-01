@@ -13,12 +13,12 @@ return new class extends Migration {
         Schema::create('absences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
+            $table->foreignId('justification_id')->nullable()->constrained();
             $table->foreignId('absence_states_id')->constrained();
             $table->foreignId('absence_types_id')->constrained();
             $table->unsignedBigInteger('approved_by')->nullable();
             $table->dateTime('absence_start_date');
             $table->dateTime('absence_end_date');
-            $table->string('justification');
             $table->timestamps();
         });
     }

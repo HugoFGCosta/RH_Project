@@ -1,0 +1,106 @@
+.divGeral {
+    margin: 100px auto;
+    padding: 20px;
+    width: 60%;
+    background-color: #fff;
+    border: 2px solid #ddd;
+    border-radius: 15px; /* Borda arredondada */
+    box-shadow: 0 .4rem .8rem #0005;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 1200px) {
+    .divGeral {
+        width: 70%;
+    }
+}
+
+@media (max-width: 992px) {
+    .divGeral {
+        width: 80%;
+    }
+}
+
+@media (max-width: 768px) {
+    .divGeral {
+        width: 90%;
+    }
+}
+
+@media (max-width: 576px) {
+    .divGeral {
+        width: 95%;
+    }
+}
+
+.content-area {
+    position: relative;
+    margin-top: 0;
+}
+
+.inputClass {
+    font-size: 16px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.groupYear {
+    margin-top: 10px;
+}
+
+.submitButton {
+    font-size: 16px;
+    cursor: pointer;
+    background-color: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.submitButton:hover {
+    background-color: var(--green);
+}
+
+.textsDiv {
+    margin-left: 10px;
+    text-align: center;
+}
+
+.spanTimeOne,
+.spanTimeTwo,
+.spanTimeThree {
+    display: inline-block;
+    margin: 5px 0;
+}
+
+.titleBalance {
+    text-align: center;
+}
+
+.greenMargin {
+    margin-left: 9px;
+}
+
+.marginAjust {
+    margin-left: -10px;
+}
+
+/* Estilos de responsividade */
+@media (max-width: 768px) {
+    .textsDiv {
+        margin-left: 0;
+    }
+
+    .spanTimeOne,
+    .spanTimeTwo,
+    .spanTimeThree {
+        display: block;
+        margin-left: 0;
+        margin-right: 0;
+    }
+}

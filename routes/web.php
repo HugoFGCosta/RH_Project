@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkShiftController;
 use App\Http\Controllers\VacationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\WorkTimeController;
+
 
 
 /*
@@ -104,8 +106,8 @@ Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destr
 
 /* ROTA PRESENÇA   ->  AINDA NAO IMPLEMENTADO MIDDLEWARE */
 
-Route::post('/user/presence/store', [PresenceController::class, 'store']); /* <<<<<<<<<<< ESSA ROTA  */
-Route::get('/user/presence/status', [PresenceController::class, 'getStatus']);
+Route::get('/get-status', [PresenceController::class, 'getStatus']);
+Route::post('/store-presence', [PresenceController::class, 'store']);
 //Route::post('user/presence/storeSimulated', [PresenceController::class, 'storeSimulated']); //ROTA SIMULADA
 /*Route::post('/user/presence', [PresenceController::class, 'presence']);*/
 /*Route::get('/user/presence', [PresenceController::class, 'getPresence']);*/
@@ -142,9 +144,12 @@ Route::get('users/{user}/absences', [\App\Http\Controllers\AbsenceController::cl
 Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
 
 /* Rotas Justificações */
-Route::get('absences/{absence}/justification/create', [\App\Http\Controllers\JustificationController::class, 'create']);
+//Route::get('absences/{absence}/justification/create', [\App\Http\Controllers\JustificationController::class, 'create']);
+Route::get('/justification/create', [\App\Http\Controllers\JustificationController::class, 'create']);
+Route::get('absences', [\App\Http\Controllers\AbsenceController::class, 'index']);
 Route::resource('justifications', \App\Http\Controllers\JustificationController::class);
-Route::post('absences/{absence}/justification', [\App\Http\Controllers\JustificationController::class, 'store']);
+//Route::post('absences/{absence}/justification', [\App\Http\Controllers\JustificationController::class, 'store']);
+Route::post('absences/justification/store', [\App\Http\Controllers\JustificationController::class, 'store']);
 Route::get('/justifications/show', [\App\Http\Controllers\JustificationController::class, 'show']);
 Route::get('/justifications/edit/{justifications}', [\App\Http\Controllers\JustificationController::class, 'edit']);
 Route::put('/justifications/{justifications}', [\App\Http\Controllers\JustificationController::class, 'update']);
@@ -176,10 +181,6 @@ Route::get('/dashboard-statistics', [DashboardController::class, 'statistics'])-
 Route::post('/dashboard-statistics/filter', [DashboardController::class, 'filterStatistics'])->name('dashboard.filter');
 
 
-
-
-
-
 /* ROTAS NOTIFICAÇOES */
 
 /* 
@@ -192,3 +193,10 @@ Route::get('/notifications/show', [NotificationController::class, 'showNotificat
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 Route::post('/notifications/change-state', [NotificationController::class, 'changeState'])->name('notifications.changeState');
 Route::get('/notifications/show', [NotificationController::class, 'showNotifications'])->name('notifications.show');
+
+/* Rota Saldo */
+Route::get('/time-bank-balance', [\App\Http\Controllers\BankHourController::class, 'index']);
+
+/*Rotas de gestão do horário mensal*/
+Route::get('/work-times', [UserController::class, 'manageWorkTimes'])->name('work-times.index');
+Route::post('/work-times', [UserController::class, 'storeWorkTime'])->name('work-times.store');
