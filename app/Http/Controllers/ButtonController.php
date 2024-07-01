@@ -7,6 +7,7 @@ use App\Models\Absence;
 use App\Models\Event;
 use App\Models\Presence;
 use App\Models\User_Shift;
+use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -20,7 +21,8 @@ class ButtonController extends Controller
         $user = auth()->user();
         $presence = Presence::where('user_id', $user->id)->first();
         $events = Event::where('user_id', $user->id)->get();
-        return view('pages.menu.menu', ['user' => $user,'presence' => $presence, 'events' => $events]);
+        $notifications = Notification::with(['event', 'absence', 'vacation'])->where('state', false)->get();
+        return view('pages.menu.menu', ['user' => $user, 'presence' => $presence, 'events' => $events, 'notifications' => $notifications]);
     }
 
 
@@ -56,25 +58,30 @@ class ButtonController extends Controller
         return view('pages.approve-absence.approve-absence', ['absences' => $absences]);
     }
 
-    public function importExportData(){
+    public function importExportData()
+    {
         return view('pages.import-export-data.import-export-data');
     }
 
-    public function dailyTasks(){
+    public function dailyTasks()
+    {
         return view('pages.daily-tasks.daily-tasks');
     }
 
-    public function requests(){
+    public function requests()
+    {
         return view('pages.requests.requests');
     }
 
-    public function settings(){
+    public function settings()
+    {
         return view('pages.settings.settings');
     }
 
 
 
-    public function attendanceRecord(){
+    public function attendanceRecord()
+    {
         $user = auth()->user();
         $presences = Presence::all()->where('user_id', $user->id);
         $user_shifts = User_Shift::all()->where('user_id', $user->id);

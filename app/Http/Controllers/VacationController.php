@@ -2,68 +2,69 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NotificationEvent;
 use App\Models\Vacation;
+use App\Models\Notification;
 use App\Http\Requests\StoreVacationRequest;
 use App\Http\Requests\UpdateVacationRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
-use Mockery\Exception;
+
 
 class VacationController extends Controller
 {
     public function difTotal($user)
     {
 
-        $vacation_start= Vacation::where('user_id',$user)->pluck('date_start');
-        $vacation_end = Vacation::where('user_id',$user)->pluck('date_end');
-        $total= 0;
-        $totaldias=0;
-        foreach ($vacation_start as $x){
-            $total = $total +1;
+        $vacation_start = Vacation::where('user_id', $user)->pluck('date_start');
+        $vacation_end = Vacation::where('user_id', $user)->pluck('date_end');
+        $total = 0;
+        $totaldias = 0;
+        foreach ($vacation_start as $x) {
+            $total = $total + 1;
         }
-        for($i=0;$total>$i;$i++){
-            $diff_date = Carbon::parse($vacation_start[$i])->diffInDaysFiltered(function (Carbon $remover){
+        for ($i = 0; $total > $i; $i++) {
+            $diff_date = Carbon::parse($vacation_start[$i])->diffInDaysFiltered(function (Carbon $remover) {
                 return !$remover->isWeekend();
-            },Carbon::parse($vacation_end[$i]));
-            $totaldias=$totaldias+$diff_date;
+            }, Carbon::parse($vacation_end[$i]));
+            $totaldias = $totaldias + $diff_date;
         }
         return $totaldias;
     }
-    public function difInput($start, $end,$total): bool|int
+    public function difInput($start, $end, $total): bool|int
     {
 
-        $diff_date = Carbon::parse($start)->diffInDaysFiltered(function (Carbon $remover){
+        $diff_date = Carbon::parse($start)->diffInDaysFiltered(function (Carbon $remover) {
             return !$remover->isWeekend();
-        },Carbon::parse($end));
-        if ($total + $diff_date <= 22 ){
+        }, Carbon::parse($end));
+        if ($total + $diff_date <= 22) {
             return true;
-        }
-        else
-        return false;
-        }
+        } else
+            return false;
+    }
 
     public function index()
     {
-   $totaldias = $this->difTotal(Auth::id());
-   $roleId = auth()->user()->role_id;
-if ($roleId >1)
-    $vacation = vacation::with('user')->orderBy('id', 'asc')->paginate(3);
-else
-    $vacation = vacation::with('user')->orderBy('id', 'asc')->where('user_id',Auth::id())->paginate(3);
+        $totaldias = $this->difTotal(Auth::id());
+        $roleId = auth()->user()->role_id;
+        if ($roleId > 1)
+            $vacation = vacation::with('user')->orderBy('id', 'asc')->paginate(3);
+        else
+            $vacation = vacation::with('user')->orderBy('id', 'asc')->where('user_id', Auth::id())->paginate(3);
 
-return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias',$totaldias)->with('role',$roleId);
+        return view('pages.vacations.show', ['vacations' => $vacation])->with('totaldias', $totaldias)->with('role', $roleId);
 
     }
     public function create()
     {
         $roleId = auth()->user()->role_id;
         $totaldias = $this->difTotal(Auth::id());
-        return view ('pages.vacations.create')->with('totaldias', $totaldias)->with('role',$roleId);;
+        return view('pages.vacations.create')->with('totaldias', $totaldias)->with('role', $roleId);
+
     }
 
     public function timeCollide($vacation_id, $user_id, $start, $end) {
@@ -83,31 +84,25 @@ return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias'
 
     public function store(StoreVacationRequest $request)
     {
-        $messages = [
-            'date_start.required' => 'A data de inicio é obrigatória.',
-            'date_start.after' => 'A data de inicio deve ser uma data após hoje.',
-            'date_start.before' => 'A data de inicio deve ser antes da data de fim.',
-            'date_end.required' => 'A data de fim é obrigatória.',
-            'date_end.after' => 'A data de fim deve ser uma data após amanhã.',
-            'date_end.after:date_start' => 'A data de fim deve ser após a data de inicio.',
-        ];
-        $validatedData = $request->validate([
-            'date_start' => 'required|date|after:today|before:date_end',
-            'date_end' => 'required|date|after:tomorrow|after:date_start',
-        ], $messages);
-        if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::id()))!=null && $this->timeCollide(0,auth::id(),$request->date_start,$request->date_end)){
+
+        $request->validate([
+            'date_start' => 'required|after:today,before:date_end',
+            'date_end' => 'required|after:tomorrow|after:date_start'
+        ]);
+        if ($this->difInput($request->date_start, $request->date_end, $this->difTotal(Auth::id())) != null) {
+
 
             $vacation = new Vacation();
             $vacation->user_id = Auth::id();
             $vacation->vacation_approval_states_id = 3;
             $vacation->approved_by = null;
-            $vacation->date_start =$request->date_start ;
-            $vacation->date_end = $request->date_end ;
+            $vacation->date_start = $request->date_start;
+            $vacation->date_end = $request->date_end;
             $vacation->save();
             return redirect(url('/vacation'))->with('status','Criado com sucesso!');
+        } else
+            return redirect(url('/vacations/create'))->with('status', 'erro!');           
         }
-        else return redirect(url('/vacations/create'))->with('status','O Utilizador já marcou ferias neste(s) dia(s)!!');
-
     }
 
 
@@ -118,56 +113,69 @@ return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias'
 
     public function edit(Vacation $vacation)
     {
-        $roleId = Auth::user()->role_id;
-        $totaldias = $this->difTotal(Auth::id());
-        $role_id_table = $vacation->user->role_id;
 
-        return view('pages.vacations.edit', [
-            'vacations' => $vacation,
-            'totaldias' => $totaldias,
-            'role' => $roleId,
-            'role_id_table' => $role_id_table
-        ]);
+        //   print   Vacation::with('user')->where('role_id', auth::id())->pluck("role_id");
+        $roleId = Auth::user()->role_id;
+        $totaldias = $this->difTotal($roleId);
+        return view('pages.vacations.edit', ['vacations' => $vacation])->with('totaldias', $totaldias)->with('role', $roleId);
+        
+
     }
 
 
-    public function update(UpdateVacationRequest $request, Vacation $vacation)
+    public function update(Request $request, Vacation $vacation)
     {
-        $messages = [
-            'date_start.required' => 'O dia de inicio é obrigatório.',
-            'date_start.after' => 'O dia de inicio deve ser uma data após hoje.',
-            'date_start.before' => 'O dia de inicio deve ser antes do dia de fim.',
-            'date_end.required' => 'O dia de fim é obrigatório.',
-            'date_end.after' => 'O dia de fim deve ser uma data após amanhã.',
-            'date_end.after:date_start' => 'O dia de fim deve ser após o dia de inicio.',
-        ];
-        $validatedData = $request->validate([
-            'date_start' => 'required|date|after:today|before:date_end',
+        // Validar os dados do formulário
+        $request->validate([
+            'date_start' => 'required|date|after:today',
             'date_end' => 'required|date|after:tomorrow|after:date_start',
-        ], $messages);
+        ]);
 
-        $roleId = auth()->user()->role_id;
-        if($this->timeCollide($vacation->id,$vacation->user_id,$request->date_start,$request->date_end)){
+        // Obter o papel (role) do usuário atual
+        $roleId = Auth::user()->role_id;
 
-            $vacation = Vacation::find($vacation->id);
-            if($roleId >= 2 && $vacation->vacation_approval_states_id != $request->vacation_approval_states_id){
+        // Verificar a lógica de negócios específica para a diferença entre datas
+        if ($this->difInput($request->date_start, $request->date_end, $this->difTotal(Auth::user()))) {
+            // Carregar o modelo Vacation pelo ID recebido
+            $vacation = Vacation::findOrFail($vacation->id);
+
+            // Limpar o campo approved_by se necessário (não está claro na lógica original)
+            $vacation->approved_by = null;
+
+            // Atribuir o estado de aprovação apenas se o papel do usuário for maior que 2 (Gestor ou superior)
+            if ($roleId > 2) {
                 $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
-                $vacation->approved_by= auth()->user()->id;
+                $vacation->approved_by = Auth::id(); // Salvar o ID do usuário que aprovou
+            } else {
+                $vacation->vacation_approval_states_id = 3; // Definir como Pendente se não for Gestor ou superior
             }
-            else{
-                $vacation->vacation_approval_states_id = 3;
-                $vacation->approved_by= null;
 
-            }
+            // Atualizar as datas de início e término do período de férias
             $vacation->date_start = $request->date_start;
             $vacation->date_end = $request->date_end;
 
+            // Salvar as alterações no banco de dados
             $vacation->save();
-            return redirect(url('/vacation'))->with('status', 'Atualizado com sucesso!');
+
+            // Criar uma nova notificação
+            $notification = new Notification();
+            $notification->user_id = Auth::id(); // Aqui você pode ajustar para o ID do usuário apropriado
+            $notification->vacation_id = $vacation->id;
+            $notification->state = false; // não lido
+            $notification->save();
+
+            // Enviar evento para Pusher após a atualização ser bem-sucedida
+            event(new NotificationEvent('Vacation details updated successfully!', $notification->id));
+
+            // Redirecionar de volta à página de férias com uma mensagem de status
+            return redirect(url('/vacation'))->with('status', 'Vacation details updated successfully!');
+        } else {
+            // Redirecionar de volta à página de férias com uma mensagem de erro
+            return redirect('/vacation')->with('status', 'Error updating vacation details!');
         }
-        else
-            return redirect('/vacation')->with('status', 'O Utilizador já marcou ferias neste(s) dia(s)!');
     }
+
+
 
 
     public function destroy(Vacation $vacation)
@@ -175,8 +183,9 @@ return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias'
         $vacation = vacation::find($vacation->id);
         $vacation->delete();
         return redirect('vacation')->with('status','Eliminado com sucesso!');
-
     }
+
+
 
     public function import(Request $request)
     {
@@ -256,7 +265,8 @@ return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias'
         return redirect()->back()->with('success', 'Férias importadas com sucesso.');
     }
 
-    public function export(){
+    public function export()
+    {
 
         // Cria um vetor com todas as férias, define o nome do ficheiro e os cabeçalhos
         $vacations = Vacation::all();
@@ -267,11 +277,13 @@ return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias'
         ];
 
         $handle = fopen('php://output', 'w');
+
         fputcsv($handle, ['Id_Utilizador','Id_Estado_Aprovacao_Falta', 'Aprovado_Por','Data_Comeco','Data_Fim','Criado_A','Atualizado_A']); // Add more headers as needed
 
         //Percorre o vetor com as férias e escreve no ficheiro
         foreach ($vacations as $vacation) {
             fputcsv($handle, [$vacation->user_id,$vacation->vacation_approval_states_id, $vacation->approved_by,$vacation->date_start,$vacation->date_end,$vacation->created_at,$vacation->updated_at]); // Add more fields as needed
+
         }
 
         fclose($handle);

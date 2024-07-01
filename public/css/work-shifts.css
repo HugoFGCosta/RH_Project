@@ -122,3 +122,58 @@ td{
     cursor: pointer;
     transition: font-size 0.5s ease;
 }
+
+.centralBox {
+    margin: 20px auto;
+    padding: 20px;
+    width: 50%;
+    background-color: #fff;
+    border: 2px solid #ddd;
+    border-radius: 15px;
+    box-shadow: 0 .4rem .8rem #0005;
+}
+
+.createButton {
+    background-color: #005999;
+    color: #ffffff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 0 auto;
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.createButton:hover {
+    background-color: #097D56;
+}
+
+
+/* Ajustes responsivos */
+@media (max-width: 1200px) {
+    .centralBox {
+        width: 70%;
+    }
+}
+
+@media (max-width: 992px) {
+    .centralBox {
+        width: 80%;
+    }
+}
+
+@media (max-width: 768px) {
+    .centralBox {
+        width: 90%;
+    }
+}
+
+@media (max-width: 576px) {
+    .centralBox {
+        width: 95%;
+    }
+}
