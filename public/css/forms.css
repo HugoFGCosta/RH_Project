@@ -38,14 +38,15 @@ form .form-row .input-data.full-width {
     outline: none;
 }
 
+/*lida com o input do tipo date para que o label não fique sobreposto ao texto*/
 .input-data input[type="date"]::-webkit-datetime-edit {
     color: transparent;
+    transition: color 0.3s;
 }
-
-.input-data input[type="date"]:focus::-webkit-datetime-edit {
+.input-data input[type="date"]:focus::-webkit-datetime-edit,
+.input-data input[type="date"]:valid::-webkit-datetime-edit {
     color: initial;
 }
-
 .input-data label {
     position: absolute;
     pointer-events: none;
