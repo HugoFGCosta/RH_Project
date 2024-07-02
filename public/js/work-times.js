@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // evento de clique para ordenar os dados da tabela
+    // Evento de clique para ordenar os dados da tabela
     table_headings.forEach((head, i) => {
         let sort_asc = true;
         head.onclick = () => {
@@ -64,26 +64,34 @@ document.addEventListener('DOMContentLoaded', function () {
             .map(sorted_row => document.querySelector('tbody').appendChild(sorted_row));
     }
 
-    // Converte a tabela HTML para PDF
-
+    // Funções de exportação
     const pdf_btn = document.querySelector('#toPDF');
+    const json_btn = document.querySelector('#toJSON');
+    const csv_btn = document.querySelector('#toCSV');
+    const excel_btn = document.querySelector('#toEXCEL');
     const work_times_table = document.querySelector('#work_times_table');
 
+    // Converte a tabela HTML para PDF
     const toPDF = function (work_times_table) {
-        // Clonar a tabela original
         const table_clone = work_times_table.cloneNode(true);
-
-        // Remover as últimas duas colunas da tabela clonada (delete e edit)
         const rows = table_clone.querySelectorAll('tr');
         rows.forEach(row => {
-            row.removeChild(row.children[row.children.length - 1]);
-            row.removeChild(row.children[row.children.length - 1]);
+            if (row.children.length > 2) {
+                row.removeChild(row.children[row.children.length - 1]);
+                row.removeChild(row.children[row.children.length - 1]);
+            }
         });
 
         const html_code = `
         <!DOCTYPE html>
-        <link rel="stylesheet" type="text/css" href="style.css">
-        <main class="table" id="work_times_table">${table_clone.innerHTML}</main>`;
+        <html>
+        <head>
+            <link rel="stylesheet" type="text/css" href="{{ asset('/css/work-times.css') }}">
+        </head>
+        <body>
+            <main class="table" id="work_times_table">${table_clone.innerHTML}</main>
+        </body>
+        </html>`;
 
         const new_window = window.open();
         new_window.document.write(html_code);
@@ -99,13 +107,9 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     // Converte a tabela HTML para JSON
-
-    const json_btn = document.querySelector('#toJSON');
-
     const toJSON = function (table) {
         let table_data = [],
             t_head = [],
-
             t_headings = table.querySelectorAll('th'),
             t_rows = table.querySelectorAll('tbody tr');
 
@@ -133,25 +137,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     json_btn.onclick = () => {
         const json = toJSON(work_times_table);
-        downloadFile(json, 'json');
+        downloadFile(json, 'json', 'work_times_data.json');
     };
 
     // Converte a tabela HTML para CSV
-
-    const csv_btn = document.querySelector('#toCSV');
-
     const toCSV = function (table) {
         const t_heads = table.querySelectorAll('th'),
             tbody_rows = table.querySelectorAll('tbody tr');
 
-        // Captura os cabeçalhos da tabela e formata para CSV, excluindo as duas últimas colunas
         const headings = [...t_heads].map((head, index) => {
             if (index < t_heads.length - 2) {
                 return head.textContent.trim().toLowerCase();
             }
         }).filter(Boolean).join(',');
 
-        // Captura os dados das linhas da tabela e formata para CSV, excluindo as duas últimas colunas
         const table_data = [...tbody_rows].map(row => {
             const cells = row.querySelectorAll('td');
             return [...cells].map((cell, index) => {
@@ -166,13 +165,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     csv_btn.onclick = () => {
         const csv = toCSV(work_times_table);
-        downloadFile(csv, 'csv', 'work_times_data');
+        downloadFile(csv, 'csv', 'work_times_data.csv');
     };
 
     // Converte a tabela HTML para EXCEL
-
-    const excel_btn = document.querySelector('#toEXCEL');
-
     const toExcel = function (table) {
         const t_heads = table.querySelectorAll('th'),
             tbody_rows = table.querySelectorAll('tbody tr');
@@ -197,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     excel_btn.onclick = () => {
         const excel = toExcel(work_times_table);
-        downloadFile(excel, 'excel');
+        downloadFile(excel, 'excel', 'work_times_data.xls');
     };
 
     // Função para baixar arquivos em diferentes formatos
@@ -226,4 +222,29 @@ document.addEventListener('DOMContentLoaded', function () {
             exportFileCheckbox.checked = false;
         }
     });
+
+    // Código para o modal
+    var modal = document.getElementById("workTimeModal");
+    var buttons = document.querySelectorAll(".openModal");
+    var span = document.getElementsByClassName("close")[0];
+
+    buttons.forEach(button => {
+        button.onclick = function() {
+            var userId = this.getAttribute('data-user-id');
+            var userName = this.getAttribute('data-user-name');
+            document.getElementById('modal_user_id').value = userId;
+            document.getElementById('modal_user_name').textContent = userName;
+            modal.style.display = "block";
+        }
+    });
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    }
 });
