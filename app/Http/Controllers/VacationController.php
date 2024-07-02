@@ -87,22 +87,31 @@ class VacationController extends Controller
 
     public function store(StoreVacationRequest $request)
     {
-        $request->validate([
-            'date_start' => 'required|after:today,before:date_end',
-            'date_end' => 'required|after:tomorrow|after:date_start'
-        ]);
-        if ($this->difInput($request->date_start, $request->date_end, $this->difTotal(Auth::id())) != null) {
+        $messages = [
+            'date_start.required' => 'A data de inicio é obrigatória.',
+            'date_start.after' => 'A data de inicio deve ser uma data após hoje.',
+            'date_start.before' => 'A data de inicio deve ser antes da data de fim.',
+            'date_end.required' => 'A data de fim é obrigatória.',
+            'date_end.after' => 'A data de fim deve ser uma data após amanhã.',
+            'date_end.after:date_start' => 'A data de fim deve ser após a data de inicio.',
+        ];
+        $validatedData = $request->validate([
+            'date_start' => 'required|date|after:today|before:date_end',
+            'date_end' => 'required|date|after:tomorrow|after:date_start',
+        ], $messages);
+        if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::id()))!=null && $this->timeCollide(0,auth::id(),$request->date_start,$request->date_end)){
 
             $vacation = new Vacation();
             $vacation->user_id = Auth::id();
             $vacation->vacation_approval_states_id = 3;
             $vacation->approved_by = null;
-            $vacation->date_start = $request->date_start;
-            $vacation->date_end = $request->date_end;
+            $vacation->date_start =$request->date_start ;
+            $vacation->date_end = $request->date_end ;
             $vacation->save();
-            return redirect(url('/vacation'))->with('status', 'Item created successfully!');
-        } else
-            return redirect(url('/vacations/create'))->with('status', 'error!');
+            return redirect(url('/vacation'))->with('status','Criado com sucesso!');
+        }
+        else return redirect(url('/vacations/create'))->with('status','O Utilizador já marcou ferias neste(s) dia(s)!!');
+
     }
 
 
@@ -126,38 +135,37 @@ class VacationController extends Controller
     }
 
 
-    public function update(Request $request, Vacation $vacation)
+    public function update(UpdateVacationRequest $request, Vacation $vacation)
     {
-        // Validar os dados do formulário
-        $request->validate([
-            'date_start' => 'required|date|after:today',
+        $messages = [
+            'date_start.required' => 'O dia de inicio é obrigatório.',
+            'date_start.after' => 'O dia de inicio deve ser uma data após hoje.',
+            'date_start.before' => 'O dia de inicio deve ser antes do dia de fim.',
+            'date_end.required' => 'O dia de fim é obrigatório.',
+            'date_end.after' => 'O dia de fim deve ser uma data após amanhã.',
+            'date_end.after:date_start' => 'O dia de fim deve ser após o dia de inicio.',
+        ];
+        $validatedData = $request->validate([
+            'date_start' => 'required|date|after:today|before:date_end',
             'date_end' => 'required|date|after:tomorrow|after:date_start',
-        ]);
+        ], $messages);
 
-        // Obter o papel (role) do usuário atual
-        $roleId = Auth::user()->role_id;
+        $roleId = auth()->user()->role_id;
+        if($this->timeCollide($vacation->id,$vacation->user_id,$request->date_start,$request->date_end)){
 
-        // Verificar a lógica de negócios específica para a diferença entre datas
-        if ($this->difInput($request->date_start, $request->date_end, $this->difTotal(Auth::user()))) {
-            // Carregar o modelo Vacation pelo ID recebido
-            $vacation = Vacation::findOrFail($vacation->id);
-
-            // Limpar o campo approved_by se necessário (não está claro na lógica original)
-            $vacation->approved_by = null;
-
-            // Atribuir o estado de aprovação apenas se o papel do usuário for maior que 2 (Gestor ou superior)
-            if ($roleId > 2) {
+            $vacation = Vacation::find($vacation->id);
+            if($roleId >= 2 && $vacation->vacation_approval_states_id != $request->vacation_approval_states_id){
                 $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
-                $vacation->approved_by = Auth::id(); // Salvar o ID do usuário que aprovou
-            } else {
-                $vacation->vacation_approval_states_id = 3; // Definir como Pendente se não for Gestor ou superior
+                $vacation->approved_by= auth()->user()->id;
             }
+            else{
+                $vacation->vacation_approval_states_id = 3;
+                $vacation->approved_by= null;
 
-            // Atualizar as datas de início e término do período de férias
+            }
             $vacation->date_start = $request->date_start;
             $vacation->date_end = $request->date_end;
 
-            // Salvar as alterações no banco de dados
             $vacation->save();
 
             // Criar uma nova notificação
@@ -170,12 +178,10 @@ class VacationController extends Controller
             // Enviar evento para Pusher após a atualização ser bem-sucedida
             event(new NotificationEvent('Vacation details updated successfully!', $notification->id));
 
-            // Redirecionar de volta à página de férias com uma mensagem de status
-            return redirect(url('/vacation'))->with('status', 'Vacation details updated successfully!');
-        } else {
-            // Redirecionar de volta à página de férias com uma mensagem de erro
-            return redirect('/vacation')->with('status', 'Error updating vacation details!');
+            return redirect(url('/vacation'))->with('status', 'Atualizado com sucesso!');
         }
+        else
+            return redirect('/vacation')->with('status', 'O Utilizador já marcou ferias neste(s) dia(s)!');
     }
 
 
