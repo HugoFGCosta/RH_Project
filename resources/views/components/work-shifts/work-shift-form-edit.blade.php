@@ -95,4 +95,3 @@
 </div>
 
 <script src="{{ asset('js/work-shifts/work-shift-edit.js') }}"></script>
-
