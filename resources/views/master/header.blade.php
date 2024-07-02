@@ -7,7 +7,7 @@
                     <span class="icon">
                         <ion-icon name="accessibility-outline"></ion-icon>
                     </span>
-                    <span class="title">Recursos Humanos</span>
+                    <span class="logo-name">QualiTask</span>
                 </a>
             </li>
             <li id="home">
