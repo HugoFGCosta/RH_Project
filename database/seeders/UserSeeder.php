@@ -16,15 +16,14 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        /**  Seeder de teste
 
-        User::factory()->count(50)->create()->each(function ($user) {
+        User::factory()->count(5)->create()->each(function ($user) {
             User_Shift::create([
                 'user_id' => $user->id,
                 'work_shift_id' => Work_Shift::all()->random()->id,
-                'start_date' => now(),
+                'start_date' => '2021-01-01 00:00:00',
                 'end_date' => null,
             ]);
-        }); */
+        });
     }
 }
