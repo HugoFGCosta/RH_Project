@@ -1,7 +1,7 @@
 @php use Illuminate\Support\Facades\Auth; @endphp
 
-    <!DOCTYPE html>
-<html lang="{{app()->getLocale() }}">
+<!DOCTYPE html>
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="utf-8">
@@ -22,6 +22,7 @@
     <link href="{{ asset('css/showform.css') }}" rel="stylesheet">
     <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
     @yield('styles')
+
     <!-- Script de js para correr primeiro para resolver problema de expansão no recarregamento da página -->
     <script>
         (function() {
@@ -32,26 +33,72 @@
         })();
     </script>
 
+    <!-- Pusher Configuration -->
     <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
     <script>
-        const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+        window.pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
             cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
-            useTLS: true, // Ajuste conforme seu ambiente (true/false)
+            useTLS: true
         });
 
-        const channel = pusher.subscribe('notification-channel');
-        channel.bind('App\\Events\\NotificationEvent', function(data) {
-            alert('Received notification: ' + data.message);
-            // Aqui você pode adicionar lógica para lidar com a notificação recebida
+        window.pusherChannel = window.pusher.subscribe('notification-channel');
+
+        window.pusherChannel.bind('App\\Events\\NotificationEvent', function(data) {
+            console.log('Received notification: ' + data.message);
+            fetchNotifications();
         });
+
+        function fetchNotifications() {
+            $.ajax({
+                url: '{{ route('notifications.index') }}',
+                type: 'GET',
+                dataType: 'json',
+                success: function(notifications) {
+                    renderSections(notifications);
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
+        function renderSections(notifications) {
+            const notificationList = $('#notification-list');
+            notificationList.empty();
+
+            notifications.forEach(notification => {
+                const notificationElement = $('<div></div>').addClass('notification-item');
+                if (notification.event) {
+                    notificationElement.append(`<p>Evento: ${notification.event.title}</p>`);
+                } else if (notification.absence) {
+                    let description = 'Injustificado';
+                    if (notification.absence.absence_states_id == 1) {
+                        description = 'Aprovado';
+                    } else if (notification.absence.absence_states_id == 2) {
+                        description = 'Rejeitado';
+                    } else if (notification.absence.absence_states_id == 3) {
+                        description = 'Pendente';
+                    }
+                    notificationElement.append(`<p>Falta: ${description}</p>`);
+                } else if (notification.vacation) {
+                    let description = 'Pendente';
+                    if (notification.vacation.vacation_approval_states_id == 1) {
+                        description = 'Aprovado';
+                    } else if (notification.vacation.vacation_approval_states_id == 2) {
+                        description = 'Negado';
+                    }
+                    notificationElement.append(`<p>Férias: ${description}</p>`);
+                }
+                notificationList.append(notificationElement);
+            });
+        }
+
+        // Initial fetch of notifications
+        fetchNotifications();
     </script>
-
-
 </head>
 
 <body>
-
-
     @component('master.header')
     @endcomponent
 
@@ -79,7 +126,6 @@
                             } else {
                                 $role = 'Utilizador';
                             }
-
                         @endphp
                         <li class="nav-item">
                             <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }}
@@ -87,13 +133,11 @@
                         </li>
                     @endif
                 </div>
-
             </div>
         </div>
         <div class="content-area hidden">
             @yield('content')
         </div>
-
     </main>
 
     @component('master.footer')
@@ -110,54 +154,8 @@
         var presenceStatusUrl = '{{ url('user/presence/status') }}';
     </script>
 
-
-    <!-- Scripts Notifications-->
-
-    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
-    <script>
-        // Enable pusher logging - don't include this in production
-        Pusher.logToConsole = true;
-
-        var pusher = new Pusher('f680f8f49f5085f74a06', {
-            cluster: 'ap1'
-        });
-
-        var channel = pusher.subscribe('notification-channel');
-
-        channel.bind('notification-event', function(data) {
-            if (data.event_type === 'vacation_approval') {
-                var vacationId = data.vacation_id;
-                var newApprovalStatus = data.approval_status;
-
-                // Exemplo: Atualizar dinamicamente o estado de aprovação na interface
-                var approvalSelect = document.getElementById('vacation_approval_states_id');
-                if (approvalSelect) {
-                    approvalSelect.value = newApprovalStatus;
-                }
-
-                // Exemplo: Mostrar uma mensagem de notificação na interface
-                var notificationElement = document.createElement('div');
-                notificationElement.classList.add('alert', 'alert-info');
-                notificationElement.innerHTML = 'Aprovação de férias atualizada para ' + newApprovalStatus;
-                document.body.appendChild(notificationElement);
-            }
-        });
-
-        // Callback para pusher:subscription_succeeded
-        channel.bind('pusher:subscription_succeeded', function() {
-            console.log('Subscribed to notification-channel');
-            // Aqui você pode adicionar qualquer lógica adicional necessária após a subscrição
-        });
-    </script>
-
-
-
-
-
-
     @yield('scripts')
     @stack('scripts')
-
 </body>
 
 </html>

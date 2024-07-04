@@ -99,18 +99,18 @@ class VacationController extends Controller
             'date_start' => 'required|date|after:today|before:date_end',
             'date_end' => 'required|date|after:tomorrow|after:date_start',
         ], $messages);
-        if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::id()))!=null && $this->timeCollide(0,auth::id(),$request->date_start,$request->date_end)){
+        if ($this->difInput($request->date_start, $request->date_end, $this->difTotal(Auth::id())) != null && $this->timeCollide(0, auth::id(), $request->date_start, $request->date_end)) {
 
             $vacation = new Vacation();
             $vacation->user_id = Auth::id();
             $vacation->vacation_approval_states_id = 3;
             $vacation->approved_by = null;
-            $vacation->date_start =$request->date_start ;
-            $vacation->date_end = $request->date_end ;
+            $vacation->date_start = $request->date_start;
+            $vacation->date_end = $request->date_end;
             $vacation->save();
-            return redirect(url('/vacation'))->with('status','Criado com sucesso!');
-        }
-        else return redirect(url('/vacations/create'))->with('status','O Utilizador já marcou ferias neste(s) dia(s)!!');
+            return redirect(url('/vacation'))->with('status', 'Criado com sucesso!');
+        } else
+            return redirect(url('/vacations/create'))->with('status', 'O Utilizador já marcou ferias neste(s) dia(s)!!');
 
     }
 
@@ -151,16 +151,15 @@ class VacationController extends Controller
         ], $messages);
 
         $roleId = auth()->user()->role_id;
-        if($this->timeCollide($vacation->id,$vacation->user_id,$request->date_start,$request->date_end)){
+        if ($this->timeCollide($vacation->id, $vacation->user_id, $request->date_start, $request->date_end)) {
 
             $vacation = Vacation::find($vacation->id);
-            if($roleId >= 2 && $vacation->vacation_approval_states_id != $request->vacation_approval_states_id){
+            if ($roleId >= 2 && $vacation->vacation_approval_states_id != $request->vacation_approval_states_id) {
                 $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
-                $vacation->approved_by= auth()->user()->id;
-            }
-            else{
+                $vacation->approved_by = auth()->user()->id;
+            } else {
                 $vacation->vacation_approval_states_id = 3;
-                $vacation->approved_by= null;
+                $vacation->approved_by = null;
 
             }
             $vacation->date_start = $request->date_start;
@@ -170,7 +169,7 @@ class VacationController extends Controller
 
             // Criar uma nova notificação
             $notification = new Notification();
-            $notification->user_id = Auth::id(); // Aqui você pode ajustar para o ID do usuário apropriado
+            $notification->user_id = $vacation->user_id; // Aqui você pode ajustar para o ID do usuário apropriado
             $notification->vacation_id = $vacation->id;
             $notification->state = false; // não lido
             $notification->save();
@@ -179,8 +178,7 @@ class VacationController extends Controller
             event(new NotificationEvent('Vacation details updated successfully!', $notification->id));
 
             return redirect(url('/vacation'))->with('status', 'Atualizado com sucesso!');
-        }
-        else
+        } else
             return redirect('/vacation')->with('status', 'O Utilizador já marcou ferias neste(s) dia(s)!');
     }
 
