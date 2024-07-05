@@ -50,7 +50,7 @@
                                 Rejeitado
                                 @break
                             @elseif($absence->absence_states_id == 3)
-                                Á espera de Validação
+                                Aguarda validação
                                 @break
                             @else
                                 Injustificado

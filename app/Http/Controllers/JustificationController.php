@@ -188,7 +188,7 @@ class JustificationController extends Controller
         }
 
         // Redirecionar com uma mensagem de sucesso
-        return redirect('/users/' . Auth::user()->id . '/absences')->with('success', 'Justificação criada com sucesso');
+        return redirect('/users/' . Auth::user()->id . '/absences')->with('success', 'Registo efetuado com sucesso');
     }
 
     //MÉTODO PARA APRESENTAR MENSAGENS DE ERRO PERSONALIZADAS

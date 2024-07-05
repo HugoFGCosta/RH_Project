@@ -34,7 +34,7 @@
     </div>
 
     <div class="showform-form-row">
-        <a class="buttonEditData" href="{{ url('work-shifts/edit/'.$work_shift->id) }}" type="button"><button>Editar Dados</button></a>
+        <a class="buttonEditData" href="{{ url('work-shifts/edit/'.$work_shift->id) }}" type="button"><button class="editButton">Editar Dados</button></a>
     </div>
 
 

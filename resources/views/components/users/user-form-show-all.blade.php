@@ -5,7 +5,7 @@
     <section class="table__header">
         <h1>Lista de Usuários</h1>
         <div class="input-group">
-            <input type="search" placeholder="Search Data...">
+            <input type="search" placeholder="Pesquisar...">
             <ion-icon name="search-outline"></ion-icon>
         </div>
         <div class="export__file">

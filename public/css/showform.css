@@ -132,3 +132,18 @@
         width: 100% !important;
     }
 }
+
+.editButton {
+    font-size: 16px;
+    cursor: pointer;
+    background-color: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+}
+
+.editButton:hover {
+    background-color: var(--green);
+}
