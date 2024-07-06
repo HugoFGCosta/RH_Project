@@ -46,7 +46,6 @@
                 </div>
             </li>
             <div id="requests-content" class="dropdown-content">
-                <li><a href="/users/{{Auth::user()->id}}/absences">Ver faltas</a></li>
                 <li><a href="/vacation">Plano de férias</a></li>
             </div>
 

@@ -115,7 +115,3 @@
     </section>
 </main>
 
-<script src="{{ asset('js/show-all.js') }}"></script>
-<script src="{{asset('js/absences-list.js')}}"></script>
-
-

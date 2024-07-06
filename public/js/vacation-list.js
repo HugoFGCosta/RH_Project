@@ -1,89 +1,3 @@
-let checkboxes = document.querySelectorAll(".checkBoxAbsence");
-let form = document.getElementById('abcenseForm');
-let submitButton = document.getElementsByClassName('submitButton')[0];
-let messageError = document.getElementById('messageError');
-
-// Adiciona um evento de clique ao botão de envio
-submitButton.addEventListener('click', function(event) {
-    let ver = false;
-    // Previne o comportamento padrão do botão de envio
-    event.preventDefault();
-
-    // Percorre todos os checkboxes e verifica se algum está marcado
-    checkboxes.forEach(function(checkbox) {
-        if (checkbox.checked === true) {
-            ver = true;
-        }
-    });
-
-    if (ver === true) {
-        // Submete o formulário
-        form.submit();
-    } else {
-        messageError.innerHTML = "Por favor selecione alguma falta antes de clicar em Justificar";
-    }
-});
-
-let modified = false; // Variável para rastrear se as células foram modificadas
-
-// Função para adicionar labels
-function addLabels(cells, label) {
-    cells.forEach(cell => {
-        if (!cell.dataset.original) {
-            cell.dataset.original = cell.innerHTML; // Armazena o conteúdo original
-        }
-        if (!cell.dataset.modified || cell.dataset.modified === 'false') {
-            cell.innerHTML = `<span class="label">${label}</span>${cell.dataset.original}`;
-            cell.dataset.modified = 'true'; // Marca a célula como modificada
-        }
-    });
-}
-
-// Função para remover labels
-function removeLabels(cells, label) {
-    cells.forEach(cell => {
-        if (cell.dataset.modified === 'true') {
-            cell.innerHTML = cell.dataset.original;
-            cell.dataset.modified = 'false'; // Marca a célula como não modificada
-        }
-    });
-}
-
-function handleResize() {
-    let idCells = document.querySelectorAll('.idCell');
-    let absenceStartCells = document.querySelectorAll('.absenceStartCell');
-    let absenceEndCells = document.querySelectorAll('.absenceEndCell');
-    let absenceTypeCells = document.querySelectorAll('.absenceTypeCell');
-    let absenceStateCells = document.querySelectorAll('.absenceStateCell');
-    let justificationStateCells = document.querySelectorAll('.justificationStateCell');
-
-    if (window.innerWidth <= 1000 && !modified) {
-        addLabels(idCells, 'Id: ');
-        addLabels(absenceStartCells, 'Data Inicio Falta: ');
-        addLabels(absenceEndCells, 'Data Fim Falta: ');
-        addLabels(absenceTypeCells, 'Tipo Falta: ');
-        addLabels(absenceStateCells, 'Estado Falta: ');
-        addLabels(justificationStateCells, 'Estado Justificação: ');
-
-        modified = true;
-    } else if (window.innerWidth > 1000 && modified) {
-        removeLabels(idCells, 'Id: ');
-        removeLabels(absenceStartCells, 'Data Inicio Falta: ');
-        removeLabels(absenceEndCells, 'Data Fim Falta: ');
-        removeLabels(absenceTypeCells, 'Tipo Falta: ');
-        removeLabels(absenceStateCells, 'Estado Falta: ');
-        removeLabels(justificationStateCells, 'Estado Justificação: ');
-
-        modified = false;
-    }
-}
-
-// Adiciona o evento de resize ao carregar a página
-window.addEventListener('resize', handleResize);
-
-// Executa a função uma vez ao carregar a página para verificar a largura inicial
-handleResize();
-
 document.addEventListener('DOMContentLoaded', function () {
     const search = document.querySelector('.input-group input'),
         table_rows = document.querySelectorAll('tbody tr'),
@@ -117,13 +31,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // evento de clique para ordenar os dados da tabela
+    // Evento de clique para ordenar os dados da tabela
     table_headings.forEach((head, i) => {
         let sort_asc = true;
-        head.onclick = () => {
+        head.addEventListener('click', () => {
             // Remove a classe 'active' de todos os cabeçalhos e adiciona ao clicado
-            table_headings.forEach(head => head.classList.remove('active'));
+            table_headings.forEach(head => head.classList.remove('active', 'asc', 'desc'));
             head.classList.add('active');
+            head.classList.toggle('asc', sort_asc);
+            head.classList.toggle('desc', !sort_asc);
 
             // Remove a classe 'active' de todas as células e adiciona às da coluna clicada
             document.querySelectorAll('td').forEach(td => td.classList.remove('active'));
@@ -131,53 +47,60 @@ document.addEventListener('DOMContentLoaded', function () {
                 row.querySelectorAll('td')[i].classList.add('active');
             });
 
-            // Alterna a classe 'asc' para determinar a ordem de classificação
-            head.classList.toggle('asc', sort_asc);
-            sort_asc = !head.classList.contains('asc');
-
             sortTable(i, sort_asc);
-        };
+            sort_asc = !sort_asc;
+        });
     });
 
     // Função para ordenar a tabela
     function sortTable(column, sort_asc) {
-        [...table_rows].sort((a, b) => {
-            let first_row = a.querySelectorAll('td')[column].textContent.toLowerCase(),
-                second_row = b.querySelectorAll('td')[column].textContent.toLowerCase();
+        const rows = Array.from(table_rows);
 
-            return sort_asc ? (first_row < second_row ? 1 : -1) : (first_row < second_row ? -1 : 1);
-        })
-            .map(sorted_row => document.querySelector('tbody').appendChild(sorted_row));
+        rows.sort((a, b) => {
+            const first_row = a.querySelectorAll('td')[column].textContent.toLowerCase();
+            const second_row = b.querySelectorAll('td')[column].textContent.toLowerCase();
+
+            if (first_row < second_row) return sort_asc ? -1 : 1;
+            if (first_row > second_row) return sort_asc ? 1 : -1;
+            return 0;
+        });
+
+        rows.forEach(row => document.querySelector('tbody').appendChild(row));
     }
 
-    // Converte a tabela HTML para PDF
-    const pdf_btn = document.querySelector('#toPDF');
-    const users_table = document.querySelector('#users_table');
-
-    const toPDF = function (users_table) {
-        // Clonar a tabela original
-        const table_clone = users_table.cloneNode(true);
-
-        // Remover as setas dos cabeçalhos
-        const t_headings = table_clone.querySelectorAll('th');
+    // Função para remover as setas dos cabeçalhos
+    function removeArrowsFromHeaders(table) {
+        const t_headings = table.querySelectorAll('th');
         t_headings.forEach(th => {
             const text = th.childNodes[0].nodeValue.trim();
             th.textContent = text;
         });
+    }
 
-        // Remover o botão de justificativa
-        const justifyButton = table_clone.querySelector('.submitButton'); // Seleciona o botão pela classe
-        if (justifyButton) {
-            justifyButton.parentElement.removeChild(justifyButton);
-        }
-
-        // Remover colunas de justificativa
-        const rows = table_clone.querySelectorAll('tr');
+    // Função para remover a coluna de edição e apagar
+    function removeEditDeleteColumns(table) {
+        const rows = table.querySelectorAll('tr');
         rows.forEach(row => {
             if (row.children.length > 1) {
-                row.removeChild(row.lastElementChild); // Remove a última coluna
+                row.removeChild(row.lastElementChild); // Remove a última coluna (Apagar)
+                row.removeChild(row.lastElementChild); // Remove a penúltima coluna (Editar)
             }
         });
+    }
+
+    // Converte a tabela HTML para PDF
+    const pdf_btn = document.querySelector('#toPDF');
+    const vacations_table = document.querySelector('#vacations_table');
+
+    const toPDF = function (table) {
+        // Clonar a tabela original
+        const table_clone = table.cloneNode(true);
+
+        // Remover as setas dos cabeçalhos
+        removeArrowsFromHeaders(table_clone);
+
+        // Remover as duas últimas colunas (Editar e Apagar)
+        removeEditDeleteColumns(table_clone);
 
         // Adicionar estilos específicos para a impressão
         const styles = `
@@ -191,7 +114,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             .table__header .input-group,
-            .table__header .export__file {
+            .table__header .export__file,
+            .table__header .new__vacation {
                 display: none !important;
             }
 
@@ -245,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ${styles}
     </head>
     <body>
-        <main class="table" id="users_table">${table_clone.innerHTML}</main>
+        <main class="table" id="vacations_table">${table_clone.innerHTML}</main>
     </body>
     </html>`;
 
@@ -259,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     pdf_btn.onclick = () => {
-        toPDF(users_table);
+        toPDF(vacations_table);
     };
 
 
@@ -274,17 +198,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Captura todos os cabeçalhos da tabela e remove as setas
         t_headings.forEach((t_heading, index) => {
-            let actual_head = t_heading.childNodes[0].nodeValue.trim().toLowerCase();
-            let unique_head = actual_head;
-            let counter = 1;
+            if (index < t_headings.length - 2) { // Ignora as últimas duas colunas
+                let actual_head = t_heading.childNodes[0].nodeValue.trim().toLowerCase();
+                let unique_head = actual_head;
+                let counter = 1;
 
-            // Garante que o cabeçalho seja único adicionando um índice, se necessário
-            while (t_head.includes(unique_head)) {
-                unique_head = `${actual_head}_${counter}`;
-                counter++;
+                // Garante que o cabeçalho seja único adicionando um índice, se necessário
+                while (t_head.includes(unique_head)) {
+                    unique_head = `${actual_head}_${counter}`;
+                    counter++;
+                }
+
+                t_head.push(unique_head);
             }
-
-            t_head.push(unique_head);
         });
 
         // Captura todos os dados das linhas da tabela
@@ -294,7 +220,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Mapeia cada célula para o respectivo cabeçalho
             t_cells.forEach((t_cell, cell_index) => {
-                row_object[t_head[cell_index]] = t_cell.textContent.trim();
+                if (cell_index < t_cells.length - 2) { // Ignora as últimas duas colunas
+                    row_object[t_head[cell_index]] = t_cell.textContent.trim();
+                }
             });
 
             table_data.push(row_object);
@@ -304,11 +232,9 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     json_btn.onclick = () => {
-        const json = toJSON(users_table);
-        downloadFile(json, 'json', 'user_data.json');
+        const json = toJSON(vacations_table);
+        downloadFile(json, 'json', 'vacation_data.json');
     };
-
-
 
     // Converte a tabela HTML para CSV
     const csv_btn = document.querySelector('#toCSV');
@@ -318,20 +244,20 @@ document.addEventListener('DOMContentLoaded', function () {
             tbody_rows = table.querySelectorAll('tbody tr');
 
         // Captura os cabeçalhos da tabela e formata para CSV, removendo setas
-        const headings = [...t_heads].map(head => head.childNodes[0].nodeValue.trim().toLowerCase()).join(',');
+        const headings = [...t_heads].slice(0, -2).map(head => head.childNodes[0].nodeValue.trim().toLowerCase()).join(',');
 
         // Captura os dados das linhas da tabela e formata para CSV
         const table_data = [...tbody_rows].map(row => {
             const cells = row.querySelectorAll('td');
-            return [...cells].map(cell => cell.textContent.replace(/,/g, ".").trim()).join(',');
+            return [...cells].slice(0, -2).map(cell => cell.textContent.replace(/,/g, ".").trim()).join(',');
         }).join('\n');
 
         return headings + '\n' + table_data;
     };
 
     csv_btn.onclick = () => {
-        const csv = toCSV(users_table);
-        downloadFile(csv, 'csv', 'user_data.csv');
+        const csv = toCSV(vacations_table);
+        downloadFile(csv, 'csv', 'vacation_data.csv');
     };
 
 
@@ -345,32 +271,27 @@ document.addEventListener('DOMContentLoaded', function () {
         const t_heads = table.querySelectorAll('th');
         const tbody_rows = table.querySelectorAll('tbody tr');
 
-        // Captura os cabeçalhos da tabela e remove as setas
-        const headers = [...t_heads].map(head => head.childNodes[0].nodeValue.trim());
-        // Remove o cabeçalho da coluna de justificativa se necessário
-        headers.pop();
+        // Captura os cabeçalhos da tabela e adiciona ao excel, removendo as últimas duas colunas
+        const headers = [...t_heads].slice(0, -2).map(head => head.childNodes[0].nodeValue.trim());
         worksheet_data.push(headers);
 
-        // Captura os dados das linhas da tabela e adiciona ao excel
+        // Captura os dados das linhas da tabela e adiciona ao excel, removendo as últimas duas colunas
         [...tbody_rows].forEach(row => {
             const cells = row.querySelectorAll('td');
-            const row_data = [...cells].map(cell => cell.textContent.trim());
-            // Remove o dado da coluna de justificativa se necessário
-            row_data.pop();
+            const row_data = [...cells].slice(0, -2).map(cell => cell.textContent.trim());
             worksheet_data.push(row_data);
         });
 
         const worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Vacations');
 
         // Gera o arquivo Excel
-        XLSX.writeFile(workbook, 'user_data.xlsx');
+        XLSX.writeFile(workbook, 'vacation_data.xlsx');
     };
 
     excel_btn.onclick = () => {
-        toExcel(users_table);
+        toExcel(vacations_table);
     };
-
 
     // Função para baixar arquivos em diferentes formatos
     const downloadFile = function (data, fileType, fileName) {
@@ -400,3 +321,4 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+

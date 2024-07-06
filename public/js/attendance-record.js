@@ -1,89 +1,3 @@
-let checkboxes = document.querySelectorAll(".checkBoxAbsence");
-let form = document.getElementById('abcenseForm');
-let submitButton = document.getElementsByClassName('submitButton')[0];
-let messageError = document.getElementById('messageError');
-
-// Adiciona um evento de clique ao botão de envio
-submitButton.addEventListener('click', function(event) {
-    let ver = false;
-    // Previne o comportamento padrão do botão de envio
-    event.preventDefault();
-
-    // Percorre todos os checkboxes e verifica se algum está marcado
-    checkboxes.forEach(function(checkbox) {
-        if (checkbox.checked === true) {
-            ver = true;
-        }
-    });
-
-    if (ver === true) {
-        // Submete o formulário
-        form.submit();
-    } else {
-        messageError.innerHTML = "Por favor selecione alguma falta antes de clicar em Justificar";
-    }
-});
-
-let modified = false; // Variável para rastrear se as células foram modificadas
-
-// Função para adicionar labels
-function addLabels(cells, label) {
-    cells.forEach(cell => {
-        if (!cell.dataset.original) {
-            cell.dataset.original = cell.innerHTML; // Armazena o conteúdo original
-        }
-        if (!cell.dataset.modified || cell.dataset.modified === 'false') {
-            cell.innerHTML = `<span class="label">${label}</span>${cell.dataset.original}`;
-            cell.dataset.modified = 'true'; // Marca a célula como modificada
-        }
-    });
-}
-
-// Função para remover labels
-function removeLabels(cells, label) {
-    cells.forEach(cell => {
-        if (cell.dataset.modified === 'true') {
-            cell.innerHTML = cell.dataset.original;
-            cell.dataset.modified = 'false'; // Marca a célula como não modificada
-        }
-    });
-}
-
-function handleResize() {
-    let idCells = document.querySelectorAll('.idCell');
-    let absenceStartCells = document.querySelectorAll('.absenceStartCell');
-    let absenceEndCells = document.querySelectorAll('.absenceEndCell');
-    let absenceTypeCells = document.querySelectorAll('.absenceTypeCell');
-    let absenceStateCells = document.querySelectorAll('.absenceStateCell');
-    let justificationStateCells = document.querySelectorAll('.justificationStateCell');
-
-    if (window.innerWidth <= 1000 && !modified) {
-        addLabels(idCells, 'Id: ');
-        addLabels(absenceStartCells, 'Data Inicio Falta: ');
-        addLabels(absenceEndCells, 'Data Fim Falta: ');
-        addLabels(absenceTypeCells, 'Tipo Falta: ');
-        addLabels(absenceStateCells, 'Estado Falta: ');
-        addLabels(justificationStateCells, 'Estado Justificação: ');
-
-        modified = true;
-    } else if (window.innerWidth > 1000 && modified) {
-        removeLabels(idCells, 'Id: ');
-        removeLabels(absenceStartCells, 'Data Inicio Falta: ');
-        removeLabels(absenceEndCells, 'Data Fim Falta: ');
-        removeLabels(absenceTypeCells, 'Tipo Falta: ');
-        removeLabels(absenceStateCells, 'Estado Falta: ');
-        removeLabels(justificationStateCells, 'Estado Justificação: ');
-
-        modified = false;
-    }
-}
-
-// Adiciona o evento de resize ao carregar a página
-window.addEventListener('resize', handleResize);
-
-// Executa a função uma vez ao carregar a página para verificar a largura inicial
-handleResize();
-
 document.addEventListener('DOMContentLoaded', function () {
     const search = document.querySelector('.input-group input'),
         table_rows = document.querySelectorAll('tbody tr'),
@@ -163,20 +77,6 @@ document.addEventListener('DOMContentLoaded', function () {
         t_headings.forEach(th => {
             const text = th.childNodes[0].nodeValue.trim();
             th.textContent = text;
-        });
-
-        // Remover o botão de justificativa
-        const justifyButton = table_clone.querySelector('.submitButton'); // Seleciona o botão pela classe
-        if (justifyButton) {
-            justifyButton.parentElement.removeChild(justifyButton);
-        }
-
-        // Remover colunas de justificativa
-        const rows = table_clone.querySelectorAll('tr');
-        rows.forEach(row => {
-            if (row.children.length > 1) {
-                row.removeChild(row.lastElementChild); // Remove a última coluna
-            }
         });
 
         // Adicionar estilos específicos para a impressão
@@ -262,7 +162,6 @@ document.addEventListener('DOMContentLoaded', function () {
         toPDF(users_table);
     };
 
-
     // Converte a tabela HTML para JSON
     const json_btn = document.querySelector('#toJSON');
 
@@ -287,18 +186,26 @@ document.addEventListener('DOMContentLoaded', function () {
             t_head.push(unique_head);
         });
 
+        console.log('Cabeçalhos processados:', t_head);
+
         // Captura todos os dados das linhas da tabela
         t_rows.forEach(row => {
             const row_object = {},
                 t_cells = row.querySelectorAll('td');
+
+            console.log('Células da linha:', t_cells);
 
             // Mapeia cada célula para o respectivo cabeçalho
             t_cells.forEach((t_cell, cell_index) => {
                 row_object[t_head[cell_index]] = t_cell.textContent.trim();
             });
 
+            console.log('Objeto da linha:', row_object);
+
             table_data.push(row_object);
         });
+
+        console.log('Dados da tabela:', table_data);
 
         return JSON.stringify(table_data, null, 4);
     };
@@ -345,18 +252,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const t_heads = table.querySelectorAll('th');
         const tbody_rows = table.querySelectorAll('tbody tr');
 
-        // Captura os cabeçalhos da tabela e remove as setas
+        // Captura os cabeçalhos da tabela e adiciona ao excel, removendo setas
         const headers = [...t_heads].map(head => head.childNodes[0].nodeValue.trim());
-        // Remove o cabeçalho da coluna de justificativa se necessário
-        headers.pop();
         worksheet_data.push(headers);
 
         // Captura os dados das linhas da tabela e adiciona ao excel
         [...tbody_rows].forEach(row => {
             const cells = row.querySelectorAll('td');
             const row_data = [...cells].map(cell => cell.textContent.trim());
-            // Remove o dado da coluna de justificativa se necessário
-            row_data.pop();
             worksheet_data.push(row_data);
         });
 
