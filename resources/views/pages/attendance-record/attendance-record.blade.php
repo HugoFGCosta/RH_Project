@@ -14,5 +14,5 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ asset('/js/show-all.js') }}"></script>
+    <script src="{{ asset('/js/attendance-record.js') }}"></script>
 @endsection

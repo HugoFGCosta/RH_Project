@@ -17,7 +17,7 @@
                 <label>Exportar como &nbsp; &#10140;</label>
                 <label for="export-file" id="toPDF">PDF</label>
                 <label for="export-file" id="toJSON">JSON</label>
-                <label for="export-file" id="toCSV">CSV </label>
+                <label for="export-file" id="toCSV">CSV</label>
                 <label for="export-file" id="toEXCEL">EXCEL</label>
             </div>
         </div>

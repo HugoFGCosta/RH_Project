@@ -11,5 +11,5 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ asset('/js/show-all.js') }}"></script>
+    <script src="{{ asset('/js/vacation-list.js') }}"></script>
 @endsection
