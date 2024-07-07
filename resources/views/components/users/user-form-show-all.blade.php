@@ -45,7 +45,7 @@
                             O usuário não tem um turno de trabalho atribuído.
                         @endif
                     </td>
-                    <td>S
+                    <td>
                         <a href="{{ url('/user/edit', $user->id) }}" class="btn-detail-edit">Detalhe/Editar</a>
                     </td>
                     <td>
