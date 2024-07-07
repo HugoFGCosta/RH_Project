@@ -23,7 +23,7 @@
     <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
     @yield('styles')
 
-    <!-- Script de js para correr primeiro para resolver problema de expansão no recarregamento da página -->
+    <!-- Script para ajustar o estado da barra lateral -->
     <script>
         (function() {
             const sidebarState = localStorage.getItem('sidebarState');
@@ -50,11 +50,15 @@
 
         function fetchNotifications() {
             $.ajax({
-                url: '{{ route('notifications.index') }}',
+                url: '{{ route('notifications.unreadCount') }}',
                 type: 'GET',
                 dataType: 'json',
-                success: function(notifications) {
-                    renderSections(notifications);
+                success: function(response) {
+                    if (response.unread_count > 0) {
+                        $('#notification-bell').show();
+                    } else {
+                        $('#notification-bell').hide();
+                    }
                 },
                 error: function(xhr) {
                     console.error(xhr.responseText);
@@ -62,39 +66,9 @@
             });
         }
 
-        function renderSections(notifications) {
-            const notificationList = $('#notification-list');
-            notificationList.empty();
-
-            notifications.forEach(notification => {
-                const notificationElement = $('<div></div>').addClass('notification-item');
-                if (notification.event) {
-                    notificationElement.append(`<p>Evento: ${notification.event.title}</p>`);
-                } else if (notification.absence) {
-                    let description = 'Injustificado';
-                    if (notification.absence.absence_states_id == 1) {
-                        description = 'Aprovado';
-                    } else if (notification.absence.absence_states_id == 2) {
-                        description = 'Rejeitado';
-                    } else if (notification.absence.absence_states_id == 3) {
-                        description = 'Pendente';
-                    }
-                    notificationElement.append(`<p>Falta: ${description}</p>`);
-                } else if (notification.vacation) {
-                    let description = 'Pendente';
-                    if (notification.vacation.vacation_approval_states_id == 1) {
-                        description = 'Aprovado';
-                    } else if (notification.vacation.vacation_approval_states_id == 2) {
-                        description = 'Negado';
-                    }
-                    notificationElement.append(`<p>Férias: ${description}</p>`);
-                }
-                notificationList.append(notificationElement);
-            });
-        }
-
-        // Initial fetch of notifications
+        // Inicialmente busca notificações
         fetchNotifications();
+        setInterval(fetchNotifications, 60000); // Verifica a cada minuto
     </script>
 </head>
 
@@ -127,9 +101,18 @@
                                 $role = 'Utilizador';
                             }
                         @endphp
+
+
+
                         <li class="nav-item">
-                            <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }}
-                                ({{ $role }})</a>
+                            <a href="/menu">
+                                <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }}
+                                    ({{ $role }})</a>
+
+                                <span id="notification-bell" style="display: none;">
+                                    <i class="fa-regular fa-bell"></i>
+                                </span>
+                            </a>
                         </li>
                     @endif
                 </div>
@@ -145,7 +128,7 @@
 
     <script src="{{ asset('js/menu.js') }}"></script>
 
-    <!-- Icons -->
+    <!-- Ícones -->
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 

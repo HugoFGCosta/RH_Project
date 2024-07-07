@@ -193,6 +193,8 @@ Route::get('/notifications/show', [NotificationController::class, 'showNotificat
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 Route::post('/notifications/change-state', [NotificationController::class, 'changeState'])->name('notifications.changeState');
 Route::get('/notifications/show', [NotificationController::class, 'showNotifications'])->name('notifications.show');
+Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+
 
 /* Rota Saldo */
 Route::get('/time-bank-balance', [\App\Http\Controllers\BankHourController::class, 'index']);
