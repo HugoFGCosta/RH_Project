@@ -33,6 +33,7 @@
     </script>
 
     <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <script>
         const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
             cluster: '{{ env('PUSHER_APP_CLUSTER') }}',

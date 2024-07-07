@@ -64,6 +64,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .map(sorted_row => document.querySelector('tbody').appendChild(sorted_row));
     }
 
+    // Função para remover setas dos cabeçalhos
+    function removeArrowsFromHeaders(table) {
+        const t_headings = table.querySelectorAll('th');
+        t_headings.forEach(th => {
+            const text = th.childNodes[0].nodeValue.trim();
+            th.textContent = text;
+        });
+    }
+
     // Funções de exportação
     const pdf_btn = document.querySelector('#toPDF');
     const json_btn = document.querySelector('#toJSON');
@@ -71,25 +80,65 @@ document.addEventListener('DOMContentLoaded', function () {
     const excel_btn = document.querySelector('#toEXCEL');
     const work_times_table = document.querySelector('#work_times_table');
 
+    // Função para remover a última coluna
+    function removeLastColumn(table) {
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            if (row.children.length > 0) {
+                row.removeChild(row.lastElementChild);
+            }
+        });
+    }
+
     // Converte a tabela HTML para PDF
     const toPDF = function (work_times_table) {
         const table_clone = work_times_table.cloneNode(true);
-        const rows = table_clone.querySelectorAll('tr');
-        rows.forEach(row => {
-            if (row.children.length > 2) {
-                row.removeChild(row.children[row.children.length - 1]);
-                row.removeChild(row.children[row.children.length - 1]);
+
+        // Remover as setas dos cabeçalhos e a última coluna
+        removeArrowsFromHeaders(table_clone);
+        removeLastColumn(table_clone);
+
+        const styles = `
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+                color: #000;
             }
-        });
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            table, th, td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: left;
+                word-wrap: break-word;
+            }
+            thead th {
+                background-color: #f2f2f2;
+                color: #000;
+                font-weight: bold;
+            }
+            tbody tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+            tbody tr:hover {
+                background-color: #f1f1f1 !important;
+            }
+        </style>`;
 
         const html_code = `
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
         <head>
-            <link rel="stylesheet" type="text/css" href="{{ asset('/css/work-times.css') }}">
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Table PDF</title>
+            ${styles}
         </head>
         <body>
-            <main class="table" id="work_times_table">${table_clone.innerHTML}</main>
+            <main class="table" id="work_times_table">${table_clone.outerHTML}</main>
         </body>
         </html>`;
 
@@ -113,19 +162,22 @@ document.addEventListener('DOMContentLoaded', function () {
             t_headings = table.querySelectorAll('th'),
             t_rows = table.querySelectorAll('tbody tr');
 
+        // Captura todos os cabeçalhos da tabela e remove as setas
         t_headings.forEach((t_heading, index) => {
-            if (index < t_headings.length - 2) {
-                let actual_head = t_heading.textContent.trim();
+            if (index < t_headings.length - 1) { // Ignora a última coluna
+                let actual_head = t_heading.childNodes[0].nodeValue.trim(); // Captura o texto sem as setas
                 t_head.push(actual_head.toLowerCase());
             }
         });
 
+        // Captura todos os dados das linhas da tabela
         t_rows.forEach(row => {
             const row_object = {},
                 t_cells = row.querySelectorAll('td');
 
+            // Mapeia cada célula para o respectivo cabeçalho
             t_cells.forEach((t_cell, cell_index) => {
-                if (cell_index < t_cells.length - 2) {
+                if (cell_index < t_cells.length - 1) { // Ignora a última coluna
                     row_object[t_head[cell_index]] = t_cell.textContent.trim();
                 }
             });
@@ -145,19 +197,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const t_heads = table.querySelectorAll('th'),
             tbody_rows = table.querySelectorAll('tbody tr');
 
-        const headings = [...t_heads].map((head, index) => {
-            if (index < t_heads.length - 2) {
-                return head.textContent.trim().toLowerCase();
-            }
-        }).filter(Boolean).join(',');
+        // Captura os cabeçalhos da tabela e formata para CSV, removendo setas e ignorando a última coluna
+        const headings = [...t_heads].slice(0, -1).map(head => head.childNodes[0].nodeValue.trim().toLowerCase()).join(',');
 
+        // Captura os dados das linhas da tabela e formata para CSV, ignorando a última coluna
         const table_data = [...tbody_rows].map(row => {
             const cells = row.querySelectorAll('td');
-            return [...cells].map((cell, index) => {
-                if (index < cells.length - 2) {
-                    return cell.textContent.replace(/,/g, ".").trim();
-                }
-            }).filter(Boolean).join(',');
+            return [...cells].slice(0, -1).map(cell => cell.textContent.replace(/,/g, ".").trim()).join(',');
         }).join('\n');
 
         return headings + '\n' + table_data;
@@ -170,48 +216,52 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Converte a tabela HTML para EXCEL
     const toExcel = function (table) {
-        const t_heads = table.querySelectorAll('th'),
-            tbody_rows = table.querySelectorAll('tbody tr');
+        const workbook = XLSX.utils.book_new();
+        const worksheet_data = [];
 
-        const headings = [...t_heads].map((head, index) => {
-            if (index < t_heads.length - 2) {
-                return head.textContent.trim().toLowerCase();
-            }
-        }).filter(Boolean).join('\t');
+        const t_heads = table.querySelectorAll('th');
+        const tbody_rows = table.querySelectorAll('tbody tr');
 
-        const table_data = [...tbody_rows].map(row => {
+        // Captura os cabeçalhos da tabela e adiciona ao excel, ignorando a última coluna
+        const headers = [...t_heads].slice(0, -1).map(head => head.childNodes[0].nodeValue.trim());
+        worksheet_data.push(headers);
+
+        // Captura os dados das linhas da tabela e adiciona ao excel, ignorando a última coluna
+        [...tbody_rows].forEach(row => {
             const cells = row.querySelectorAll('td');
-            return [...cells].map((cell, index) => {
-                if (index < cells.length - 2) {
-                    return cell.textContent.trim();
-                }
-            }).filter(Boolean).join('\t');
-        }).join('\n');
+            const row_data = [...cells].slice(0, -1).map(cell => cell.textContent.trim());
+            worksheet_data.push(row_data);
+        });
 
-        return headings + '\n' + table_data;
+        const worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'WorkTimes');
+
+        // Gera o arquivo Excel
+        XLSX.writeFile(workbook, 'work_times_data.xlsx');
     };
 
     excel_btn.onclick = () => {
-        const excel = toExcel(work_times_table);
-        downloadFile(excel, 'excel', 'work_times_data.xls');
+        toExcel(work_times_table);
     };
 
     // Função para baixar arquivos em diferentes formatos
-    const downloadFile = function (data, fileType, fileName = '') {
+    const downloadFile = function (data, fileType, fileName) {
         const a = document.createElement('a');
         a.download = fileName;
         const mime_types = {
             'json': 'application/json',
             'csv': 'text/csv',
-            'excel': 'application/vnd.ms-excel',
+            'excel': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         };
-        a.href = `
-            data:${mime_types[fileType]};charset=utf-8,${encodeURIComponent(data)}
-        `;
+        const blob = new Blob([data], { type: mime_types[fileType] + ';charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        a.href = url;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
+
 
     // Fecha o modal se clicar fora dele
     document.addEventListener('click', (event) => {

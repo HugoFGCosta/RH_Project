@@ -70,20 +70,23 @@ main.table {
 
 /* Grupo de busca */
 .table__header .input-group {
-    width: 35%;
+    width: 45%;
+    height: 2.5rem;
     background-color: #fff5;
-    padding: 15px;
+    padding: 0 1rem;
     border-radius: 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
     transition: .2s;
+    box-shadow: 0 .1rem .4rem #0002;
 }
 
 /* Efeito de foco na busca */
 .table__header .input-group:hover {
-    width: 45%;
-    box-shadow: 0 .1rem .4rem #0002;
+    width: 55%;
+    box-shadow: 0 .2rem .6rem #0004;
+    border: 1px solid #0002;
 }
 
 /* Entrada de busca */

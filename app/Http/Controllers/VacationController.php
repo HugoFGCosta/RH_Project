@@ -53,14 +53,16 @@ class VacationController extends Controller
     {
         $totaldias = $this->difTotal(Auth::id());
         $roleId = auth()->user()->role_id;
-        if ($roleId > 1)
-            $vacation = vacation::with('user')->orderBy('id', 'asc')->paginate(3);
-        else
-            $vacation = vacation::with('user')->orderBy('id', 'asc')->where('user_id', Auth::id())->paginate(3);
+        if ($roleId > 1) {
+            $vacation = Vacation::with(['user', 'approvedBy'])->orderBy('id', 'asc')->get();
+        } else {
+            $vacation = Vacation::with(['user', 'approvedBy'])->orderBy('id', 'asc')->where('user_id', Auth::id())->get();
+        }
 
         return view('pages.vacations.show', ['vacations' => $vacation])->with('totaldias', $totaldias)->with('role', $roleId);
-
     }
+
+
     public function create()
     {
         $roleId = auth()->user()->role_id;

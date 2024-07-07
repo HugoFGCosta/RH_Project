@@ -7,7 +7,7 @@
     <section class="table__header">
         <h1>Lista de horários</h1>
         <div class="input-group">
-            <input type="search" placeholder="Search Data...">
+            <input type="search" placeholder="Procurar...">
             <ion-icon name="search-outline"></ion-icon>
         </div>
         <div class="export__file">
@@ -29,9 +29,9 @@
             <thead>
             <tr>
                 <th class="id_cell"> Id <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Horario de Inicio <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Horario de Fim <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Horario de Almoço <span class="icon-arrow">&UpArrow;</span></th>
+                <th> Inicio <span class="icon-arrow">&UpArrow;</span></th>
+                <th> Fim <span class="icon-arrow">&UpArrow;</span></th>
+                <th> Intervalo <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Dias da Semana <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Detalhe/Editar <span class="icon-arrow">&UpArrow;</span></th>
                 <th clasS="delete_cell"> Delete <span class="icon-arrow">&UpArrow;</span></th>
@@ -62,7 +62,5 @@
         </table>
     </section>
 </main>
-
-<script src="{{ asset('js/show-all.js') }}"></script>
 
 

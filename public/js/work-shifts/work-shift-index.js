@@ -1,89 +1,3 @@
-let checkboxes = document.querySelectorAll(".checkBoxAbsence");
-let form = document.getElementById('abcenseForm');
-let submitButton = document.getElementsByClassName('submitButton')[0];
-let messageError = document.getElementById('messageError');
-
-// Adiciona um evento de clique ao botão de envio
-submitButton.addEventListener('click', function(event) {
-    let ver = false;
-    // Previne o comportamento padrão do botão de envio
-    event.preventDefault();
-
-    // Percorre todos os checkboxes e verifica se algum está marcado
-    checkboxes.forEach(function(checkbox) {
-        if (checkbox.checked === true) {
-            ver = true;
-        }
-    });
-
-    if (ver === true) {
-        // Submete o formulário
-        form.submit();
-    } else {
-        messageError.innerHTML = "Por favor selecione alguma falta antes de clicar em Justificar";
-    }
-});
-
-let modified = false; // Variável para rastrear se as células foram modificadas
-
-// Função para adicionar labels
-function addLabels(cells, label) {
-    cells.forEach(cell => {
-        if (!cell.dataset.original) {
-            cell.dataset.original = cell.innerHTML; // Armazena o conteúdo original
-        }
-        if (!cell.dataset.modified || cell.dataset.modified === 'false') {
-            cell.innerHTML = `<span class="label">${label}</span>${cell.dataset.original}`;
-            cell.dataset.modified = 'true'; // Marca a célula como modificada
-        }
-    });
-}
-
-// Função para remover labels
-function removeLabels(cells, label) {
-    cells.forEach(cell => {
-        if (cell.dataset.modified === 'true') {
-            cell.innerHTML = cell.dataset.original;
-            cell.dataset.modified = 'false'; // Marca a célula como não modificada
-        }
-    });
-}
-
-function handleResize() {
-    let idCells = document.querySelectorAll('.idCell');
-    let absenceStartCells = document.querySelectorAll('.absenceStartCell');
-    let absenceEndCells = document.querySelectorAll('.absenceEndCell');
-    let absenceTypeCells = document.querySelectorAll('.absenceTypeCell');
-    let absenceStateCells = document.querySelectorAll('.absenceStateCell');
-    let justificationStateCells = document.querySelectorAll('.justificationStateCell');
-
-    if (window.innerWidth <= 1000 && !modified) {
-        addLabels(idCells, 'Id: ');
-        addLabels(absenceStartCells, 'Data Inicio Falta: ');
-        addLabels(absenceEndCells, 'Data Fim Falta: ');
-        addLabels(absenceTypeCells, 'Tipo Falta: ');
-        addLabels(absenceStateCells, 'Estado Falta: ');
-        addLabels(justificationStateCells, 'Estado Justificação: ');
-
-        modified = true;
-    } else if (window.innerWidth > 1000 && modified) {
-        removeLabels(idCells, 'Id: ');
-        removeLabels(absenceStartCells, 'Data Inicio Falta: ');
-        removeLabels(absenceEndCells, 'Data Fim Falta: ');
-        removeLabels(absenceTypeCells, 'Tipo Falta: ');
-        removeLabels(absenceStateCells, 'Estado Falta: ');
-        removeLabels(justificationStateCells, 'Estado Justificação: ');
-
-        modified = false;
-    }
-}
-
-// Adiciona o evento de resize ao carregar a página
-window.addEventListener('resize', handleResize);
-
-// Executa a função uma vez ao carregar a página para verificar a largura inicial
-handleResize();
-
 document.addEventListener('DOMContentLoaded', function () {
     const search = document.querySelector('.input-group input'),
         table_rows = document.querySelectorAll('tbody tr'),
@@ -101,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
             row.classList.toggle('hide', table_data.indexOf(search_data) < 0);
             row.style.setProperty('--delay', i / 25 + 's');
 
-            // depois de esconder a linha remove-a
+            //depois de esconder a linha remove-a
             setTimeout(() => {
                 if (row.classList.contains('hide')) {
                     row.style.display = 'none';
@@ -150,34 +64,43 @@ document.addEventListener('DOMContentLoaded', function () {
             .map(sorted_row => document.querySelector('tbody').appendChild(sorted_row));
     }
 
-    // Converte a tabela HTML para PDF
-    const pdf_btn = document.querySelector('#toPDF');
-    const users_table = document.querySelector('#users_table');
-
-    const toPDF = function (users_table) {
-        // Clonar a tabela original
-        const table_clone = users_table.cloneNode(true);
-
-        // Remover as setas dos cabeçalhos
-        const t_headings = table_clone.querySelectorAll('th');
+    // Função para remover as setas dos cabeçalhos
+    function removeArrowsFromHeaders(table) {
+        const t_headings = table.querySelectorAll('th');
         t_headings.forEach(th => {
             const text = th.childNodes[0].nodeValue.trim();
             th.textContent = text;
         });
+    }
 
-        // Remover o botão de justificativa
-        const justifyButton = table_clone.querySelector('.submitButton'); // Seleciona o botão pela classe
-        if (justifyButton) {
-            justifyButton.parentElement.removeChild(justifyButton);
-        }
-
-        // Remover colunas de justificativa
-        const rows = table_clone.querySelectorAll('tr');
+    // Função para remover a coluna de edição e apagar
+    function removeEditDeleteColumns(table) {
+        const rows = table.querySelectorAll('tr');
         rows.forEach(row => {
             if (row.children.length > 1) {
-                row.removeChild(row.lastElementChild); // Remove a última coluna
+                row.removeChild(row.lastElementChild); // Remove a última coluna (Apagar)
+                row.removeChild(row.lastElementChild); // Remove a penúltima coluna (Editar)
             }
         });
+    }
+
+    // Converte a tabela HTML para PDF
+    const pdf_btn = document.querySelector('#toPDF');
+    const users_table = document.querySelector('#users_table');
+
+    const toPDF = function (table) {
+        // Clonar a tabela original
+        const table_clone = table.cloneNode(true);
+
+        // Remover as setas dos cabeçalhos e botão de criar turno
+        removeArrowsFromHeaders(table_clone);
+        removeEditDeleteColumns(table_clone);
+
+        // Remover o botão de criar turno
+        const createButton = table_clone.querySelector('.indexCreateButton');
+        if (createButton) {
+            createButton.parentElement.removeChild(createButton);
+        }
 
         // Adicionar estilos específicos para a impressão
         const styles = `
@@ -191,7 +114,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             .table__header .input-group,
-            .table__header .export__file {
+            .table__header .export__file,
+            .table__header .indexCreateButton {
                 display: none !important;
             }
 
@@ -262,7 +186,6 @@ document.addEventListener('DOMContentLoaded', function () {
         toPDF(users_table);
     };
 
-
     // Converte a tabela HTML para JSON
     const json_btn = document.querySelector('#toJSON');
 
@@ -274,17 +197,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Captura todos os cabeçalhos da tabela e remove as setas
         t_headings.forEach((t_heading, index) => {
-            let actual_head = t_heading.childNodes[0].nodeValue.trim().toLowerCase();
-            let unique_head = actual_head;
-            let counter = 1;
-
-            // Garante que o cabeçalho seja único adicionando um índice, se necessário
-            while (t_head.includes(unique_head)) {
-                unique_head = `${actual_head}_${counter}`;
-                counter++;
+            if (index < t_headings.length - 2) { // Ignora as últimas duas colunas
+                let actual_head = t_heading.childNodes[0].nodeValue.trim(); // Captura o texto sem as setas
+                t_head.push(actual_head.toLowerCase());
             }
-
-            t_head.push(unique_head);
         });
 
         // Captura todos os dados das linhas da tabela
@@ -294,7 +210,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Mapeia cada célula para o respectivo cabeçalho
             t_cells.forEach((t_cell, cell_index) => {
-                row_object[t_head[cell_index]] = t_cell.textContent.trim();
+                if (cell_index < t_cells.length - 2) { // Ignora as últimas duas colunas
+                    row_object[t_head[cell_index]] = t_cell.textContent.trim();
+                }
             });
 
             table_data.push(row_object);
@@ -304,10 +222,9 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     json_btn.onclick = () => {
-        const json = toJSON(users_table);
+        const json = toJSON(document.querySelector('#users_table'));
         downloadFile(json, 'json', 'user_data.json');
     };
-
 
 
     // Converte a tabela HTML para CSV
@@ -317,25 +234,25 @@ document.addEventListener('DOMContentLoaded', function () {
         const t_heads = table.querySelectorAll('th'),
             tbody_rows = table.querySelectorAll('tbody tr');
 
-        // Captura os cabeçalhos da tabela e formata para CSV, removendo setas
-        const headings = [...t_heads].map(head => head.childNodes[0].nodeValue.trim().toLowerCase()).join(',');
+        // Captura os cabeçalhos da tabela e formata para CSV, excluindo as últimas duas colunas e removendo setas
+        const headings = [...t_heads].slice(0, -2).map(head => head.childNodes[0].nodeValue.trim().toLowerCase()).join(',');
 
-        // Captura os dados das linhas da tabela e formata para CSV
+        // Captura os dados das linhas da tabela e formata para CSV, excluindo as últimas duas colunas
         const table_data = [...tbody_rows].map(row => {
             const cells = row.querySelectorAll('td');
-            return [...cells].map(cell => cell.textContent.replace(/,/g, ".").trim()).join(',');
+            return [...cells].slice(0, -2).map(cell => cell.textContent.replace(/,/g, ".").trim()).join(',');
         }).join('\n');
 
         return headings + '\n' + table_data;
     };
 
     csv_btn.onclick = () => {
-        const csv = toCSV(users_table);
+        const csv = toCSV(document.querySelector('#users_table'));
         downloadFile(csv, 'csv', 'user_data.csv');
     };
 
 
-    // Converte a tabela HTML para EXCEL usando SheetJS
+// Converte a tabela HTML para EXCEL usando SheetJS
     const excel_btn = document.querySelector('#toEXCEL');
 
     const toExcel = function (table) {
@@ -345,18 +262,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const t_heads = table.querySelectorAll('th');
         const tbody_rows = table.querySelectorAll('tbody tr');
 
-        // Captura os cabeçalhos da tabela e remove as setas
-        const headers = [...t_heads].map(head => head.childNodes[0].nodeValue.trim());
-        // Remove o cabeçalho da coluna de justificativa se necessário
-        headers.pop();
+        // Captura os cabeçalhos da tabela e adiciona ao excel, excluindo as últimas duas colunas
+        const headers = [...t_heads].map((head, index) => {
+            if (index < t_heads.length - 2) {
+                return head.childNodes[0].nodeValue.trim();
+            }
+        }).filter(Boolean);
         worksheet_data.push(headers);
 
-        // Captura os dados das linhas da tabela e adiciona ao excel
+        // Captura os dados das linhas da tabela e adiciona ao excel, excluindo as últimas duas colunas
         [...tbody_rows].forEach(row => {
             const cells = row.querySelectorAll('td');
-            const row_data = [...cells].map(cell => cell.textContent.trim());
-            // Remove o dado da coluna de justificativa se necessário
-            row_data.pop();
+            const row_data = [...cells].map((cell, index) => {
+                if (index < cells.length - 2) {
+                    return cell.textContent.trim();
+                }
+            }).filter(Boolean);
             worksheet_data.push(row_data);
         });
 
@@ -368,11 +289,10 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     excel_btn.onclick = () => {
-        toExcel(users_table);
+        toExcel(document.querySelector('#users_table'));
     };
 
-
-    // Função para baixar arquivos em diferentes formatos
+// Função para baixar arquivos em diferentes formatos
     const downloadFile = function (data, fileType, fileName) {
         const a = document.createElement('a');
         a.download = fileName;
@@ -389,6 +309,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     };
+
+
 
     // Fecha o modal se clicar fora dele
     document.addEventListener('click', (event) => {

@@ -165,6 +165,7 @@ if (userLink) {
     });
 }
 
+//manipulação do botão de entrada e saída
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM fully loaded and parsed");
     const entryExitButton = document.getElementById('entryExitButton');
@@ -172,10 +173,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateButtonStatus(status, shift) {
         if (entryExitButton) {
+            entryExitButton.classList.remove('btn-in', 'btn-out', 'btn-completed');
             if (status === 'in') {
                 entryExitButton.textContent = 'Saída';
                 entryExitButton.classList.add('btn-out');
-                entryExitButton.classList.remove('btn-in');
             } else if (status === 'completed') {
                 entryExitButton.textContent = 'Presença Completa';
                 entryExitButton.disabled = true;
@@ -183,7 +184,6 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 entryExitButton.textContent = 'Entrada';
                 entryExitButton.classList.add('btn-in');
-                entryExitButton.classList.remove('btn-out');
                 entryExitButton.dataset.shift = shift;
             }
         }
@@ -191,12 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function fetchStatusAndUpdateButton() {
         fetch(presenceStatusUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 console.log("Status fetched:", data);
                 updateButtonStatus(data.status, data.shift);
@@ -211,15 +206,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (entryExitButton) {
         entryExitButton.addEventListener('click', function(e) {
             e.preventDefault();
+
+            // Desativa o botão imediatamente
+            entryExitButton.disabled = true;
+            console.log("Botão desativado imediatamente após clique");
+
             const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
             fetch(presenceStatusUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     console.log("Status fetched after click:", data);
                     if (data.status === 'out') {
@@ -236,6 +231,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     } else if (data.status === 'completed') {
                         alert('Presença já registrada completamente para hoje.');
+                        // Reativa o botão porque não houve submissão
+                        entryExitButton.disabled = false;
+                        console.log("Botão reativado após status completo");
                         return;
                     }
 
@@ -246,15 +244,58 @@ document.addEventListener('DOMContentLoaded', function() {
                         second_end: document.getElementById('second_end').value,
                     });
 
-                    e.target.form.submit();
+                    // Submete o formulário via AJAX
+                    const formData = new FormData();
+                    formData.append('first_start', document.getElementById('first_start').value);
+                    formData.append('first_end', document.getElementById('first_end').value);
+                    formData.append('second_start', document.getElementById('second_start').value);
+                    formData.append('second_end', document.getElementById('second_end').value);
+                    formData.append('_token', document.querySelector('input[name="_token"]').value);
+
+                    fetch(e.target.form.action, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.text()) // Mudança aqui para pegar a resposta como texto
+                        .then(responseText => {
+                            try {
+                                const data = JSON.parse(responseText);
+                                console.log('Success:', data);
+                                fetchStatusAndUpdateButton(); // Atualiza o botão após a submissão
+                                // Desativa o botão por 5 minutos
+                                setTimeout(() => {
+                                    entryExitButton.disabled = false;
+                                    fetchStatusAndUpdateButton(); // Atualiza o botão após 5 minutos
+                                    console.log("Botão reativado após 5 minutos");
+                                }, 300000); // 300000 ms = 5 minutes
+                            } catch (error) {
+                                console.error('Erro ao analisar JSON:', error);
+                                console.error('Resposta do servidor:', responseText);
+                                alert('Erro ao submeter o formulário: ' + error.message);
+                                // Reativa o botão em caso de erro
+                                entryExitButton.disabled = false;
+                                console.log("Botão reativado após erro");
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                            alert('Erro ao submeter o formulário: ' + error.message);
+                            // Reativa o botão em caso de erro
+                            entryExitButton.disabled = false;
+                            console.log("Botão reativado após erro");
+                        });
                 })
                 .catch(error => {
                     console.error('Erro ao verificar status:', error);
                     alert('Erro ao verificar status: ' + error.message);
+                    // Reativa o botão em caso de erro
+                    entryExitButton.disabled = false;
+                    console.log("Botão reativado após erro");
                 });
         });
     }
 });
+
 
 document.addEventListener('DOMContentLoaded', function() {
     toggle.onclick = function() {
