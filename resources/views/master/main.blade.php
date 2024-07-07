@@ -106,12 +106,11 @@
 
                         <li class="nav-item">
                             <a href="/menu">
+                                <span>
+                                    <ion-icon name="notifications-outline" size="large"></ion-icon>
+                                </span>
                                 <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }}
                                     ({{ $role }})</a>
-
-                                <span id="notification-bell" style="display: none;">
-                                    <i class="fa-regular fa-bell"></i>
-                                </span>
                             </a>
                         </li>
                     @endif
