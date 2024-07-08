@@ -9,17 +9,8 @@
     <div class="containerExcel">
         <h1 class="titleExcel">Exportação e Importação de dados</h1>
 
-        @if (session('success'))
-            <div class="alert alert-success successMessage">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="alert alert-danger errorMessage">
-                {{ session('error') }}
-            </div>
-        @endif
+        @component('components.alerts.alerts')
+        @endcomponent
 
         <div class="firstContainer">
             <form action="{{ route('import') }}" method="POST" enctype="multipart/form-data" class="importForm">

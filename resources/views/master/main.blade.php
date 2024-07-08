@@ -21,6 +21,8 @@
     <link href="{{ asset('css/daily-tasks.css') }}" rel="stylesheet">
     <link href="{{ asset('css/showform.css') }}" rel="stylesheet">
     <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('/css/alerts.css') }}">
+
     @yield('styles')
     <!-- Script de js para correr primeiro para resolver problema de expansão no recarregamento da página -->
     <script>
@@ -153,6 +155,7 @@
 
 
 
+    <script src="{{ asset('/js/alerts.js') }}"></script>
 
 
 
