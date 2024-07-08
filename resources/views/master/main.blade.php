@@ -1,5 +1,3 @@
-@php use Illuminate\Support\Facades\Auth; @endphp
-
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 
@@ -23,15 +21,8 @@
     <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
     @yield('styles')
 
-    <!-- Script para ajustar o estado da barra lateral -->
-    <script>
-        (function() {
-            const sidebarState = localStorage.getItem('sidebarState');
-            if (sidebarState === 'collapsed') {
-                document.documentElement.classList.add('sidebar-collapsed');
-            }
-        })();
-    </script>
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
 
     <!-- Pusher Configuration -->
     <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
@@ -47,29 +38,10 @@
             console.log('Received notification: ' + data.message);
             fetchNotifications();
         });
-
-        function fetchNotifications() {
-            $.ajax({
-                url: '{{ route('notifications.unreadCount') }}',
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    if (response.unread_count > 0) {
-                        $('#notification-bell').show();
-                    } else {
-                        $('#notification-bell').hide();
-                    }
-                },
-                error: function(xhr) {
-                    console.error(xhr.responseText);
-                }
-            });
-        }
-
-        // Inicialmente busca notificações
-        fetchNotifications();
-        setInterval(fetchNotifications, 60000); // Verifica a cada minuto
     </script>
+
+    <!-- Inclua o arquivo de notificações -->
+    <script src="{{ asset('js/notifications.js') }}"></script>
 </head>
 
 <body>
@@ -102,11 +74,9 @@
                             }
                         @endphp
 
-
-
                         <li class="nav-item">
                             <a href="/menu">
-                                <span>
+                                <span id="notification-bell" style="display: none;">
                                     <ion-icon name="notifications-outline" size="large"></ion-icon>
                                 </span>
                                 <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }}

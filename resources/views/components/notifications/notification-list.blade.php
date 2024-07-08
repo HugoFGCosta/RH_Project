@@ -6,13 +6,14 @@
                 <th scope="col">#</th>
                 <th scope="col">TIPO</th>
                 <th scope="col">DESCRIÇÃO</th>
-                <th scope="col">STATE</th>
+                <th scope="col">ESTADO</th>
                 <th scope="col">AÇÃO</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($notifications as $notification)
                 <tr>
+                    {{-- # --}}
                     <td>
                         <input type="checkbox" name="notifications[{{ $notification->id }}][id]"
                             value="{{ $notification->id }}">
@@ -26,6 +27,8 @@
                             value="{{ $notification->state }}">
                     </td>
 
+
+                    {{-- TIPO --}}
                     @if ($notification->events_id != null)
                         <td>EVENTOS</td>
                     @elseif ($notification->absence_id != null)
@@ -34,6 +37,8 @@
                         <td>FERIAS</td>
                     @endif
 
+
+                    {{-- DESCRICAO --}}
                     @if ($notification->events_id != null)
                         <td>{{ $notification->event->title }}</td>
                     @elseif ($notification->absence_id != null)
@@ -56,18 +61,21 @@
                         @endif
                     @endif
 
+
+                    {{-- ESTADO --}}
                     @if ($notification->state == 0)
                         <td>Nao Lido</td>
                     @else
                         <td>Lido</td>
                     @endif
 
+                    {{-- AÇÃO --}}
                     @if ($notification->events_id != null)
-                        <td> --- </td>
+                        <td> 1--- </td>
                     @elseif ($notification->absence_id != null)
-                        <td><a href="/pending-justifications"> Justificar</a></td>
+                        <td><a href="/users/{{ $user->id }}/absences"> Justificar</a></td>
                     @elseif ($notification->vacation_id != null)
-                        <td> --- </td>
+                        <td> 3--- </td>
                     @endif
                 </tr>
             @endforeach

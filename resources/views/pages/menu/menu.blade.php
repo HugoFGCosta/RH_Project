@@ -148,16 +148,21 @@
 
                             html += `
                             <td>${notification.state === 0 ? 'Nao Lido' : 'Lido'}</td>
-                            <td> --- </td>
-                        </tr>
+
+                            <td>
+                                ${notification.events_id !== null ? '1---' : ''}
+                                ${notification.absence_id !== null ? '<a href="/users/' + notification.user_id + '/absences">Justificar</a>' : ''}
+                                ${notification.vacation_id !== null ? '3---' : ''}
+                            </td>
+                            </tr>
                         `;
                         });
 
                         html += `
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
+                    </tbody>
+                </table>
+            </div>
+            `;
 
                         notificationListContainer.append(html);
                     }
