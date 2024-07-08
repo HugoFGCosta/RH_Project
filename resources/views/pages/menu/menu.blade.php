@@ -42,7 +42,7 @@
                         <form action="{{ route('notifications.changeState') }}" method="POST">
                             @csrf
                             <div id="notification-list-container">
-                                <!-- A lista de notificações será carregada aqui -->
+                                <!-- A lista de notificações será carregada aquiii -->
                             </div>
                             <button type="submit" class="btn btn-primary">Marcar como lido</button>
                             <button type="button" id="mark-all" class="btn btn-secondary">Marcar todos</button>
