@@ -292,9 +292,6 @@ class BankHourController extends Controller
 
         $totalMinutes =+ $time;
 
-        echo "Total faltas antes: ".$timePresencas;
-        echo "Total minutes antes: ".$totalMinutes;
-
 
         if($timePresencas < $totalMinutes  ){   // Total faltas maior que 0 e total presencas menor que 0
 
@@ -308,24 +305,26 @@ class BankHourController extends Controller
         }
 
 
-        echo "Total minutes depois: ".$totalMinutes;
-
         // Converte o banco de minutos para formato HH:MM
         $horas = floor($time / 60);
         $minutos = $time % 60;
+
+        if($minutos!=0){
+            $horas = $horas + 1;
+        }
+
         $bankFormattedFaltas = sprintf('%d:%02d', $horas, $minutos);
 
         //Vai buscar o nome do mes pelo numero em portugues
         $meses = array("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
             "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro");
+
+
         if($month == "Todos"){
-            $month = 0;
+            $month == 'Todos';
         }
         else if($month != 0){
             $month = $meses[$month-1];
-        }
-        else{
-            $month = 'Todos';
         }
 
         if($year == null){
@@ -334,6 +333,11 @@ class BankHourController extends Controller
 
         $horas = floor($totalMinutes / 60);
         $minutos = $totalMinutes % 60;
+
+        if($minutos!=0){
+            $horas = $horas + 1;
+        }
+
         $bankTotal = sprintf('%d:%02d', $horas, $minutos);
 
         return view('pages.time-bank-balance.time-bank-balance ', ['month'=>$month, 'year'=>$year,'totalMinutes'=>$totalMinutes, 'bankFormattedFaltas'=>$bankFormattedFaltas, 'bankFormattedPresencas'=>$bankFormattedPresencas, 'bankTotal'=>$bankTotal]);

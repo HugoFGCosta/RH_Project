@@ -1,0 +1,70 @@
+/* public/css/alerts.css */
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    border-radius: 8px;
+    position: relative;
+    width: 80%;
+    height: 200px;
+    max-width: 900px;
+    opacity: 0; /* Inicie com o modal invisível */
+    animation: fadeIn 0.1s forwards; /* Aplique a animação de fade in */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.modal-content .alert {
+    padding: 15px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.modal-content .alert.success {
+    color: black;
+    background-color: #77ff81;
+    border: 5px #3dbe45 solid;
+    font-size: 18px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content .alert.error {
+    color: black;
+    background-color: #ff7b7b;
+    border: 5px #ff5a5a solid;
+    font-size: 18px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
