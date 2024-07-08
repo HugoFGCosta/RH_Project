@@ -12,119 +12,156 @@
         <div class="row">
             <div class="left-column">
                 <div class="button-In-Out">
-                    @component('components.users.user-form-presence', [
-                        'user' => $user,
-                        'presence' => $presence,
-                    ])
-
+                    @component('components.users.user-form-presence', ['user' => $user, 'presence' => $presence])
                     @endcomponent
                 </div>
 
                 <div class="calendar">
-                    @component('components.calendar.calendar', [
-                        'events' => $events,
-                    ])
+                    @component('components.calendar.calendar', ['events' => $events])
                     @endcomponent
                 </div>
             </div>
             <div class="right-column">
                 <div class="notifications">
                     <h2>Notificações</h2>
-
-                    <table>
-                        <tr>
-                            <td style="width: 60px">
-                                <img src="{{ asset('images/notifications.svg') }}" alt="notifications">
-                            </td>
-                        </tr>
-
-                        @component('components.notifications.notification-list', ['notifications' => $notifications])
-                        @endcomponent
-
-
-
-                    </table>
+                    <form action="{{ route('notifications.changeState') }}" method="POST">
+                        @csrf
+                        <div id="notification-list-container">
+                            <!-- A lista de notificações será carregada aquiii -->
+                        </div>
+                        <button type="submit" class="btn btn-primary">Marcar como lido</button>
+                        <button type="button" id="mark-all" class="btn btn-secondary">Marcar todos</button>
+                    </form>
                 </div>
             </div>
         </div>
 
-            <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    if (typeof window.pusher === 'undefined') {
-                        // Initialize the Pusher client
-                        window.pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
-                            cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
-                            useTLS: true
-                        });
-                    }
+        <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                    cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
+                    useTLS: true
+                });
 
-                    // Subscribe to the notification channel
-                    const channel = window.pusher.subscribe('notification-channel');
+                const channel = pusher.subscribe('notification-channel');
 
-                    // Handle events received on the channel
-                    channel.bind('App\\Events\\NotificationEvent', function(data) {
-                        // Add the new notification to the list
-                        const notificationList = document.getElementById('notification-list');
-                        const newItem = document.createElement('li');
-                        newItem.textContent = data.message;
-                        newItem.dataset.id = data.notificationId; // Include the notification ID
-                        notificationList.appendChild(newItem);
-                        fetchNotifications();
+                channel.bind('App\\Events\\NotificationEvent', function(data) {
+                    fetchNotifications();
+                });
+
+                function fetchNotifications() {
+                    $.ajax({
+                        url: '{{ route('notifications.index') }}',
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(response) {
+                            console.log('AJAX response:', response);
+                            if (response && response.notifications) {
+                                const notifications = response.notifications;
+                                if (Array.isArray(notifications)) {
+                                    updateNotificationList(notifications);
+                                } else {
+                                    console.error('notifications não é um array:', notifications);
+                                }
+                            } else {
+                                console.error('Resposta inesperada:', response);
+                            }
+                        },
+                        error: function(xhr) {
+                            console.error(xhr.responseText);
+                        }
+                    });
+                }
+
+                function updateNotificationList(notifications) {
+                    const notificationListContainer = $('#notification-list-container');
+                    notificationListContainer.empty();
+
+                    let html = `
+                        <div class="container mt-5">
+                            <h1>Notificações de hoje</h1>
+                            <table class="table-notifications">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">TIPO</th>
+                                        <th scope="col">DESCRIÇÃO</th>
+                                        <th scope="col">STATE</th>
+                                        <th scope="col">AÇÃO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+
+                    notifications.forEach(notification => {
+                        html += `
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="notifications[${notification.id}][id]" value="${notification.id}">
+                                    <input type="hidden" name="notifications[${notification.id}][events_id]" value="${notification.events_id}">
+                                    <input type="hidden" name="notifications[${notification.id}][absence_id]" value="${notification.absence_id}">
+                                    <input type="hidden" name="notifications[${notification.id}][vacation_id]" value="${notification.vacation_id}">
+                                    <input type="hidden" name="notifications[${notification.id}][state]" value="${notification.state}">
+                                </td>
+                        `;
+
+                        if (notification.events_id !== null) {
+                            html += `<td>EVENTOS</td>`;
+                            html += `<td>${notification.event.title}</td>`;
+                        } else if (notification.absence_id !== null) {
+                            html += `<td>FALTAS</td>`;
+                            let description = 'Injustificado';
+                            if (notification.absence.absence_states_id === 1) {
+                                description = 'Aprovado';
+                            } else if (notification.absence.absence_states_id === 2) {
+                                description = 'Rejeitado';
+                            } else if (notification.absence.absence_states_id === 3) {
+                                description = 'Pendente';
+                            }
+                            html += `<td>${description}</td>`;
+                        } else if (notification.vacation_id !== null) {
+                            html += `<td>FERIAS</td>`;
+                            let description = 'Pendente';
+                            if (notification.vacation.vacation_approval_states_id === 1) {
+                                description = 'Aprovado';
+                            } else if (notification.vacation.vacation_approval_states_id === 2) {
+                                description = 'Negado';
+                            }
+                            html += `<td>${description}</td>`;
+                        }
+
+                        html += `
+                            <td>${notification.state === 0 ? 'Nao Lido' : 'Lido'}</td>
+
+                            <td>
+                                ${notification.events_id !== null ? '---' : ''}
+                                ${notification.absence_id !== null ? '<a href="/users/' + notification.user_id + '/absences">Justificar</a>' : ''}
+                                ${notification.vacation_id !== null ? '---' : ''}
+                            </td>
+                            </tr>
+                        `;
                     });
 
-                    function fetchNotifications() {
-                        $.ajax({
-                            url: '{{ route('notifications.index') }}',
-                            type: 'GET',
-                            dataType: 'json',
-                            success: function(notifications) {
-                                updateNotificationTable(notifications);
-                            },
-                            error: function(xhr) {
-                                console.error(xhr.responseText);
-                            }
-                        });
-                    }
+                    html += `
+                    </tbody>
+                </table>
+            </div>
+            `;
 
-                    function updateNotificationTable(notifications) {
-                        const tbody = $('#notification-table tbody');
-                        tbody.empty();
+                    notificationListContainer.append(html);
+                }
 
-                        notifications.forEach(notification => {
-                            const row = $('<tr></tr>');
-                            row.append(
-                                `<td><input type="checkbox" name="notifications[${notification.id}][id]" value="${notification.id}"></td>`
-                            );
-                            if (notification.events_id) {
-                                row.append('<td>EVENTOS</td>');
-                                row.append(`<td>${notification.event.title}</td>`);
-                            } else if (notification.absence_id) {
-                                row.append('<td>FALTAS</td>');
-                                let description = 'Injustificado';
-                                if (notification.absence.absence_states_id == 1) {
-                                    description = 'Aprovado';
-                                } else if (notification.absence.absence_states_id == 2) {
-                                    description = 'Rejeitado';
-                                } else if (notification.absence.absence_states_id == 3) {
-                                    description = 'Pendente';
-                                }
-                                row.append(`<td>${description}</td>`);
-                            } else if (notification.vacation_id) {
-                                row.append('<td>FERIAS</td>');
-                                let description = 'Pendente';
-                                if (notification.vacation.vacation_approval_states_id == 1) {
-                                    description = 'Aprovado';
-                                } else if (notification.vacation.vacation_approval_states_id == 2) {
-                                    description = 'Negado';
-                                }
-                                row.append(`<td>${description}</td>`);
-                            }
-                            row.append('<td>Nao Lido</td>');
-                            row.append('<td> --- </td>');
-                            tbody.append(row);
+                fetchNotifications(); // Initial fetch
+
+                // Add event listener for "Marcar todos" button
+                document.getElementById('mark-all').addEventListener('click', function() {
+                    document.querySelectorAll('#notification-list-container input[type="checkbox"]').forEach(
+                        checkbox => {
+                            checkbox.checked = true;
                         });
-                    }
                 });
-            </script>
+            });
+        </script>
+    </div>
 @endsection
