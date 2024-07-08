@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+@php use Illuminate\Support\Facades\Auth; @endphp
+    <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 
 <head>
@@ -19,6 +20,8 @@
     <link href="{{ asset('css/daily-tasks.css') }}" rel="stylesheet">
     <link href="{{ asset('css/showform.css') }}" rel="stylesheet">
     <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css" rel="stylesheet" />
+
     @yield('styles')
 
     <!-- jQuery CDN -->
@@ -105,6 +108,9 @@
     <script>
         var presenceStatusUrl = '{{ url('user/presence/status') }}';
     </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"></script>
 
     @yield('scripts')
     @stack('scripts')
