@@ -17,7 +17,7 @@
                 <label>Exportar como &nbsp; &#10140;</label>
                 <label for="export-file" id="toPDF">PDF</label>
                 <label for="export-file" id="toJSON">JSON</label>
-                <label for="export-file" id="toCSV">CSV </label>
+                <label for="export-file" id="toCSV">CSV</label>
                 <label for="export-file" id="toEXCEL">EXCEL</label>
             </div>
         </div>
@@ -29,7 +29,7 @@
                 <th> Id <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Nome <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Estado <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Aprovado por <span class="icon-arrow">&UpArrow;</span></th>
+                <th> Processado por <span class="icon-arrow">&UpArrow;</span></th>
                 <th> De <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Até <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Editar <span class="icon-arrow">&UpArrow;</span></th>
@@ -52,7 +52,7 @@
                             <img src="" height="33px" width="63px" alt="">
                         @endif
                     </td>
-                    <td>{{ $vacation->approved_by }}</td>
+                    <td>{{ $vacation->approvedBy ? $vacation->approvedBy->name : '' }}</td>
                     <td>{{ $vacation->date_start }}</td>
                     <td>{{ $vacation->date_end }}</td>
                     <td>
@@ -74,7 +74,4 @@
             </tbody>
         </table>
     </section>
-    <div style="" class="">
-        {{ $vacations->links() }}
-    </div>
 </main>

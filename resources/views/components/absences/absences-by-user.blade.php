@@ -76,5 +76,3 @@
     </main>
 </form>
 
-<script src="{{ asset('js/show-all.js') }}"></script>
-<script src="{{asset('js/absences-by-user.js')}}"></script>
