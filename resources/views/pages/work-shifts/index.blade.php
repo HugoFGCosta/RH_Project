@@ -13,3 +13,7 @@
     </div>
 
 @endsection
+
+@section('scripts')
+    <script src="{{ asset('js/work-shifts/work-shift-index.js') }}"></script>
+@endsection

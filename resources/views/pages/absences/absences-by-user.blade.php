@@ -13,3 +13,7 @@
     </div>
 
 @endsection
+
+@section('scripts')
+    <script src="{{asset('js/absences-by-user.js')}}"></script>
+@endsection
