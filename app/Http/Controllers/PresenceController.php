@@ -218,7 +218,7 @@ class PresenceController extends Controller
 
         if (!$userShift) {
             Log::error('User shift not found for user', ['user_id' => $user->id]);
-            return redirect()->to(url('/menu'))->with('error', 'User shift not found.');
+            return response()->json(['error' => 'User shift not found.'], 404);
         }
 
         $workShift = Work_Shift::find($userShift->work_shift_id);
@@ -230,7 +230,7 @@ class PresenceController extends Controller
 
         // VERIFICA se todos os 4 registros já foram preenchidos
         if ($presence && $presence->first_start && $presence->first_end && $presence->second_start && $presence->second_end) {
-            return redirect()->to(url('menu'))->with('error', 'Já existe um registro de presença completo para hoje.');
+            return response()->json(['error' => 'Já existe um registro de presença completo para hoje.'], 400);
         }
 
         // Verificar se o usuário tem uma falta no primeiro turno
@@ -302,8 +302,9 @@ class PresenceController extends Controller
 
         $presence->save();
 
-        return redirect()->to(url('/menu'));
+        return response()->json(['success' => 'Presença registrada com sucesso.']);
     }
+
 
 
 

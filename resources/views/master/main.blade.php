@@ -21,6 +21,7 @@
     <link href="{{ asset('css/showform.css') }}" rel="stylesheet">
     <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('/css/alerts.css') }}">
 
     @yield('styles')
 
@@ -29,6 +30,7 @@
 
     <!-- Pusher Configuration -->
     <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <script>
         window.pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
             cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
@@ -111,6 +113,51 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"></script>
+
+
+    <!-- Scripts Notifications-->
+
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+    <script>
+        // Enable pusher logging - don't include this in production
+        Pusher.logToConsole = true;
+
+        var pusher = new Pusher('f680f8f49f5085f74a06', {
+            cluster: 'ap1'
+        });
+
+        var channel = pusher.subscribe('notification-channel');
+
+        channel.bind('notification-event', function(data) {
+            if (data.event_type === 'vacation_approval') {
+                var vacationId = data.vacation_id;
+                var newApprovalStatus = data.approval_status;
+
+                // Exemplo: Atualizar dinamicamente o estado de aprovação na interface
+                var approvalSelect = document.getElementById('vacation_approval_states_id');
+                if (approvalSelect) {
+                    approvalSelect.value = newApprovalStatus;
+                }
+
+                // Exemplo: Mostrar uma mensagem de notificação na interface
+                var notificationElement = document.createElement('div');
+                notificationElement.classList.add('alert', 'alert-info');
+                notificationElement.innerHTML = 'Aprovação de férias atualizada para ' + newApprovalStatus;
+                document.body.appendChild(notificationElement);
+            }
+        });
+
+        // Callback para pusher:subscription_succeeded
+        channel.bind('pusher:subscription_succeeded', function() {
+            console.log('Subscribed to notification-channel');
+            // Aqui você pode adicionar qualquer lógica adicional necessária após a subscrição
+        });
+    </script>
+
+
+
+    <script src="{{ asset('/js/alerts.js') }}"></script>
+
 
     @yield('scripts')
     @stack('scripts')

@@ -7,7 +7,7 @@
                     <span class="icon">
                         <ion-icon name="accessibility-outline"></ion-icon>
                     </span>
-                    <span class="title">Recursos Humanos</span>
+                    <span class="logo-name">QualiTask</span>
                 </a>
             </li>
             <li id="home">
@@ -46,7 +46,6 @@
                 </div>
             </li>
             <div id="requests-content" class="dropdown-content">
-                <li><a href="/users/{{Auth::user()->id}}/absences">Ver faltas</a></li>
                 <li><a href="/vacation">Plano de férias</a></li>
             </div>
 
