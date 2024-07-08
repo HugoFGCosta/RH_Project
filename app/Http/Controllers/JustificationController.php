@@ -97,7 +97,8 @@ class JustificationController extends Controller
             'observation' => 'required',
             'file' => 'required|file|mimes:png,jpg,jpeg,pdf,docx|max:2048', // Adicione a validação do ficheiro
             'selected_absences' => 'required|array' // Adicione a validação para faltas selecionadas
-        ]);
+        ], $this->messages());
+
 
         $paath = "";
 
@@ -121,6 +122,16 @@ class JustificationController extends Controller
 
         // Obter o ficheiro do request
         $ficheiro = $request->file('file');
+
+        // Caso o ficheiro não seja, jpeg, jpg, png, ou pdf, retorna para a view com uma mensagem de erro
+        if (!in_array($ficheiro->getClientOriginalExtension(), ['jpeg', 'jpg', 'png', 'pdf'])) {
+            return redirect()->back()->with('error', 'O ficheiro deve ser jpeg, jpg, png, ou pdf');
+        }
+
+        if ($ficheiro->getSize() > 1000 * 2084) {
+            return redirect()->back()->with('error', 'O ficheiro não pode ser maior que 2MB');
+        }
+
 
         //
         //If we have an image file, we store it, and move it in the database
@@ -177,7 +188,17 @@ class JustificationController extends Controller
         }
 
         // Redirecionar com uma mensagem de sucesso
-        return redirect('/users/' . Auth::user()->id . '/absences')->with('success', 'Justificação criada com sucesso');
+        return redirect('/users/' . Auth::user()->id . '/absences')->with('success', 'Registo efetuado com sucesso');
+    }
+
+    //MÉTODO PARA APRESENTAR MENSAGENS DE ERRO PERSONALIZADAS
+    public function messages()
+    {
+        return [
+            'file.max' => 'O arquivo não pode ser maior que 1.5MB.',
+            'file.required' => 'O arquivo é obrigatório.',
+            'file.mimes' => 'O arquivo deve ser do tipo: jpeg, jpg, png, pdf, docx.',
+        ];
     }
 
     /**

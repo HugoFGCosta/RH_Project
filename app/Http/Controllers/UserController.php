@@ -241,8 +241,37 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        $user->delete();
-        return redirect('/users/show-all')->with('status', 'Usuário apagado com sucesso!');
+        $id = $user->id;
+        $verAdmin = false;
+        $ver = false;
+
+        $users = User::all();
+
+        // Verifica se o usuário é o único administrador
+        if($user-> role_id == 3){
+            $verAdmin = true;
+
+            // Se houver outro admin
+            foreach ($users as $userCicle) {
+                if($userCicle-> role_id == 3 && $userCicle-> id != $id){
+                    $user->delete();
+                    return redirect('/users/show-all')->with('success', 'Usuário apagado com sucesso!');
+
+                }
+            }
+
+            if($ver == false){
+                return redirect('/users/show-all')->with('error', 'Não pode apagar o único administrador!');
+            }
+
+        }
+
+        if($verAdmin == false){
+            $user->delete();
+            return redirect('/users/show-all')->with('success', 'Usuário apagado com sucesso!');
+        }
+
+
     }
 
     public function import(Request $request)

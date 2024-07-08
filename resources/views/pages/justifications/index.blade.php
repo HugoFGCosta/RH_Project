@@ -2,17 +2,8 @@
 
 @section('content')
 
-    @if (session('success'))
-        <div class="alert alert-success successMessage">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="alert alert-danger errorMessage">
-            {{ session('error') }}
-        </div>
-    @endif
+    @component('components.alerts.alerts')
+    @endcomponent
 
     <div class="container pt-5">
 
@@ -21,4 +12,8 @@
 
     </div>
 
+@endsection
+
+@section('scripts')
+    <script src="{{ asset('js/justification-list.js') }}"></script>
 @endsection
