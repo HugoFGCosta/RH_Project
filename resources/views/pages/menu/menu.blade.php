@@ -1,99 +1,84 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('master.main')
+@component('components.styles.home')
+@endcomponent
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"></script>
-</head>
-
-<body>
-
-    @extends('master.main')
-    @component('components.styles.home')
-    @endcomponent
-
-    @section('content')
-        <div class="container-menu">
-            @if (session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
+@section('content')
+    <div class="container-menu">
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+        <div class="row">
+            <div class="left-column">
+                <div class="button-In-Out">
+                    @component('components.users.user-form-presence', ['user' => $user, 'presence' => $presence])
+                    @endcomponent
                 </div>
-            @endif
-            <div class="row">
-                <div class="left-column">
-                    <div class="button-In-Out">
-                        @component('components.users.user-form-presence', ['user' => $user, 'presence' => $presence])
-                        @endcomponent
-                    </div>
 
-                    <div class="calendar">
-                        @component('components.calendar.calendar', ['events' => $events])
-                        @endcomponent
-                    </div>
-                </div>
-                <div class="right-column">
-                    <div class="notifications">
-                        <h2>Notificações</h2>
-                        <form action="{{ route('notifications.changeState') }}" method="POST">
-                            @csrf
-                            <div id="notification-list-container">
-                                <!-- A lista de notificações será carregada aquiii -->
-                            </div>
-                            <button type="submit" class="btn btn-primary">Marcar como lido</button>
-                            <button type="button" id="mark-all" class="btn btn-secondary">Marcar todos</button>
-                        </form>
-                    </div>
+                <div class="calendar">
+                    @component('components.calendar.calendar', ['events' => $events])
+                    @endcomponent
                 </div>
             </div>
+            <div class="right-column">
+                <div class="notifications">
+                    <h2>Notificações</h2>
+                    <form action="{{ route('notifications.changeState') }}" method="POST">
+                        @csrf
+                        <div id="notification-list-container">
+                            <!-- A lista de notificações será carregada aquiii -->
+                        </div>
+                        <button type="submit" class="btn btn-primary">Marcar como lido</button>
+                        <button type="button" id="mark-all" class="btn btn-secondary">Marcar todos</button>
+                    </form>
+                </div>
+            </div>
+        </div>
 
-            <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
-                        cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
-                        useTLS: true
-                    });
+        <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+                    cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
+                    useTLS: true
+                });
 
-                    const channel = pusher.subscribe('notification-channel');
+                const channel = pusher.subscribe('notification-channel');
 
-                    channel.bind('App\\Events\\NotificationEvent', function(data) {
-                        fetchNotifications();
-                    });
+                channel.bind('App\\Events\\NotificationEvent', function(data) {
+                    fetchNotifications();
+                });
 
-                    function fetchNotifications() {
-                        $.ajax({
-                            url: '{{ route('notifications.index') }}',
-                            type: 'GET',
-                            dataType: 'json',
-                            success: function(response) {
-                                console.log('AJAX response:', response);
-                                if (response && response.notifications) {
-                                    const notifications = response.notifications;
-                                    if (Array.isArray(notifications)) {
-                                        updateNotificationList(notifications);
-                                    } else {
-                                        console.error('notifications não é um array:', notifications);
-                                    }
+                function fetchNotifications() {
+                    $.ajax({
+                        url: '{{ route('notifications.index') }}',
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(response) {
+                            console.log('AJAX response:', response);
+                            if (response && response.notifications) {
+                                const notifications = response.notifications;
+                                if (Array.isArray(notifications)) {
+                                    updateNotificationList(notifications);
                                 } else {
-                                    console.error('Resposta inesperada:', response);
+                                    console.error('notifications não é um array:', notifications);
                                 }
-                            },
-                            error: function(xhr) {
-                                console.error(xhr.responseText);
+                            } else {
+                                console.error('Resposta inesperada:', response);
                             }
-                        });
-                    }
+                        },
+                        error: function(xhr) {
+                            console.error(xhr.responseText);
+                        }
+                    });
+                }
 
-                    function updateNotificationList(notifications) {
-                        const notificationListContainer = $('#notification-list-container');
-                        notificationListContainer.empty();
+                function updateNotificationList(notifications) {
+                    const notificationListContainer = $('#notification-list-container');
+                    notificationListContainer.empty();
 
-                        let html = `
+                    let html = `
                         <div class="container mt-5">
                             <h1>Notificações de hoje</h1>
                             <table class="table-notifications">
@@ -109,8 +94,8 @@
                                 <tbody>
                     `;
 
-                        notifications.forEach(notification => {
-                            html += `
+                    notifications.forEach(notification => {
+                        html += `
                             <tr>
                                 <td>
                                     <input type="checkbox" name="notifications[${notification.id}][id]" value="${notification.id}">
@@ -121,65 +106,62 @@
                                 </td>
                         `;
 
-                            if (notification.events_id !== null) {
-                                html += `<td>EVENTOS</td>`;
-                                html += `<td>${notification.event.title}</td>`;
-                            } else if (notification.absence_id !== null) {
-                                html += `<td>FALTAS</td>`;
-                                let description = 'Injustificado';
-                                if (notification.absence.absence_states_id === 1) {
-                                    description = 'Aprovado';
-                                } else if (notification.absence.absence_states_id === 2) {
-                                    description = 'Rejeitado';
-                                } else if (notification.absence.absence_states_id === 3) {
-                                    description = 'Pendente';
-                                }
-                                html += `<td>${description}</td>`;
-                            } else if (notification.vacation_id !== null) {
-                                html += `<td>FERIAS</td>`;
-                                let description = 'Pendente';
-                                if (notification.vacation.vacation_approval_states_id === 1) {
-                                    description = 'Aprovado';
-                                } else if (notification.vacation.vacation_approval_states_id === 2) {
-                                    description = 'Negado';
-                                }
-                                html += `<td>${description}</td>`;
+                        if (notification.events_id !== null) {
+                            html += `<td>EVENTOS</td>`;
+                            html += `<td>${notification.event.title}</td>`;
+                        } else if (notification.absence_id !== null) {
+                            html += `<td>FALTAS</td>`;
+                            let description = 'Injustificado';
+                            if (notification.absence.absence_states_id === 1) {
+                                description = 'Aprovado';
+                            } else if (notification.absence.absence_states_id === 2) {
+                                description = 'Rejeitado';
+                            } else if (notification.absence.absence_states_id === 3) {
+                                description = 'Pendente';
                             }
+                            html += `<td>${description}</td>`;
+                        } else if (notification.vacation_id !== null) {
+                            html += `<td>FERIAS</td>`;
+                            let description = 'Pendente';
+                            if (notification.vacation.vacation_approval_states_id === 1) {
+                                description = 'Aprovado';
+                            } else if (notification.vacation.vacation_approval_states_id === 2) {
+                                description = 'Negado';
+                            }
+                            html += `<td>${description}</td>`;
+                        }
 
-                            html += `
+                        html += `
                             <td>${notification.state === 0 ? 'Nao Lido' : 'Lido'}</td>
 
                             <td>
-                                ${notification.events_id !== null ? '1---' : ''}
+                                ${notification.events_id !== null ? '---' : ''}
                                 ${notification.absence_id !== null ? '<a href="/users/' + notification.user_id + '/absences">Justificar</a>' : ''}
-                                ${notification.vacation_id !== null ? '3---' : ''}
+                                ${notification.vacation_id !== null ? '---' : ''}
                             </td>
                             </tr>
                         `;
-                        });
+                    });
 
-                        html += `
+                    html += `
                     </tbody>
                 </table>
             </div>
             `;
 
-                        notificationListContainer.append(html);
-                    }
+                    notificationListContainer.append(html);
+                }
 
-                    fetchNotifications(); // Initial fetch
+                fetchNotifications(); // Initial fetch
 
-                    // Add event listener for "Marcar todos" button
-                    document.getElementById('mark-all').addEventListener('click', function() {
-                        document.querySelectorAll('#notification-list-container input[type="checkbox"]').forEach(
-                            checkbox => {
-                                checkbox.checked = true;
-                            });
-                    });
+                // Add event listener for "Marcar todos" button
+                document.getElementById('mark-all').addEventListener('click', function() {
+                    document.querySelectorAll('#notification-list-container input[type="checkbox"]').forEach(
+                        checkbox => {
+                            checkbox.checked = true;
+                        });
                 });
-            </script>
-        </div>
-    @endsection
-</body>
-
-</html>
+            });
+        </script>
+    </div>
+@endsection
