@@ -27,4 +27,14 @@ class Vacation extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function notification()
+    {
+        return $this->hasOne(Notification::class);
+    }
 }

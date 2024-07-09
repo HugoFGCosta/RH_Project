@@ -9,6 +9,8 @@ class Absence extends Model
 {
     use HasFactory;
 
+
+
     protected $fillable = [
         'user_id',
         'absence_states_id',
@@ -35,7 +37,12 @@ class Absence extends Model
 
     public function justification()
     {
-        return $this->hasOne(Justification::class);
+        return $this->belongsTo(Justification::class);
+    }
+
+    public function notification()
+    {
+        return $this->hasOne(Notification::class);
     }
 
 }

@@ -8,14 +8,14 @@
     <section class="table__header">
         <h1>Lista de justificações</h1>
         <div class="input-group">
-            <input type="search" placeholder="Search Data...">
+            <input type="search" placeholder="Procurar...">
             <ion-icon name="search-outline"></ion-icon>
         </div>
         <div class="export__file">
             <label for="export-file" class="export__file-btn" title="Export File"></label>
             <input type="checkbox" id="export-file">
             <div class="export__file-options">
-                <label>Export As &nbsp; &#10140;</label>
+                <label>Exportar como &nbsp; &#10140;</label>
                 <label for="export-file" id="toPDF">PDF</label>
                 <label for="export-file" id="toJSON">JSON</label>
                 <label for="export-file" id="toCSV">CSV </label>
@@ -28,7 +28,6 @@
         <table>
             <thead>
             <tr>
-                <th class="leftCell"> Colaborador <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Motivo <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Data da Justificação <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Observações <span class="icon-arrow">&UpArrow;</span></th>
@@ -39,34 +38,48 @@
             <tbody>
             @foreach ($justifications as $justification)
                 <tr>
-                    <td class="usernameCell">{{ $justification->absence->user->name }}</td>
                     <td class="motiveCell">{{ $justification->motive }}</td>
                     <td class="justificationDateCell">{{ $justification->justification_date }}</td>
                     <td class="observationCell">{{ $justification->observation }}</td>
                     <td class="stateCell">
-                        @if($justification->absence->absence_states_id == 1)
-                            Aprovado
-                        @elseif($justification->absence->absence_states_id == 2)
-                            Rejeitado
-                        @elseif($justification->absence->absence_states_id == 3)
-                            Pendente
-                        @else
-                            Por justificar
-                        @endif
+                        @foreach($justification->absences as $absence)
+                            @if($absence->absence_states_id == 1)
+                                Aprovado
+                                @break
+                            @elseif($absence->absence_states_id == 2)
+                                Rejeitado
+                                @break
+                            @elseif($absence->absence_states_id == 3)
+                                Aguarda validação
+                                @break
+                            @else
+                                Injustificado
+                                @break
+                            @endif
+                        @endforeach
+                    </td>
+                    <td>
+                        @foreach($justification->absences as $absence)
+                            @if($absence->absence_states_id == 3)
+                                <a href="{{ url('/justification/'. $justification->id.'/manage') }}" class="btn-detail-edit">Aprovar/Rejeitar</a>
+                                @break;
+                            @else
+                                <a href="#" class="btn-detail-edit">Validado</a>
+                                @break;
+                            @endif
+
+                        @endforeach
+
                     </td>
 
-                    <td>
-                        <a href="{{ url('/justification/'. $justification->id.'/manage') }}" class="btn-detail-edit">Aprovar/Rejeitar</a>
-                    </td>
 
                 </tr>
             @endforeach
             </tbody>
         </table>
+
     </section>
 </main>
 
-<script src="{{ asset('js/show-all.js') }}"></script>
-<script src="{{ asset('js/justification-list.js') }}"></script>
 
 

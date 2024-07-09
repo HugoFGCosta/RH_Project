@@ -13,6 +13,7 @@ use App\Models\Work_Shift;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 
@@ -51,60 +52,70 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
+
     public function show()
     {
         $this->checkAndExtendUserShifts();
         $user = auth()->user();
-        $today = Carbon::today();
+        $today = Carbon::today()->toDateString();
         $user_shift = User_Shift::where('user_id', $user->id)
-            ->where(function($query) use ($today) {
+            ->where(function ($query) use ($today) {
                 $query->whereNull('end_date')
-                    ->orWhere('end_date', '>=', $today);
+                    ->orWhereDate('end_date', '>=', $today);
             })
-            ->where('start_date', '<=', $today)
+            ->whereDate('start_date', '<=', $today)
             ->orderBy('start_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->first();
 
         return view('pages.users.show', ['user' => $user, 'user_shift' => $user_shift]);
     }
+
+
 
     public function showSpec($id)
     {
         $this->checkAndExtendUserShifts();
         $user = User::find($id);
-        $today = Carbon::today();
+        $today = Carbon::today()->toDateString();
+        $user_shifts = User_Shift::where('user_id', $user->id)->get();
         $user_shift = User_Shift::where('user_id', $user->id)
-            ->where(function($query) use ($today) {
+            ->where(function ($query) use ($today) {
                 $query->whereNull('end_date')
-                    ->orWhere('end_date', '>=', $today);
+                    ->orWhereDate('end_date', '>=', $today);
             })
-            ->where('start_date', '<=', $today)
+            ->whereDate('start_date', '<=', $today)
             ->orderBy('start_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->first();
-
         return view('pages.users.show', ['user' => $user, 'user_shift' => $user_shift]);
     }
+
+
+
 
     public function showAll()
     {
         $this->checkAndExtendUserShifts();
-        $today = Carbon::today();
+        $today = Carbon::today()->toDateString();
         $users = User::all();
         foreach ($users as $user) {
-            $user->shift = User_Shift::where('user_id', $user->id)
-                ->where(function($query) use ($today) {
+            $user_shifts = User_Shift::where('user_id', $user->id)
+                ->where(function ($query) use ($today) {
                     $query->whereNull('end_date')
-                        ->orWhere('end_date', '>=', $today);
+                        ->orWhereDate('end_date', '>=', $today);
                 })
-                ->where('start_date', '<=', $today)
+                ->whereDate('start_date', '<=', $today)
                 ->orderBy('start_date', 'desc')
                 ->orderBy('created_at', 'desc')
-                ->first();
+                ->get();
+            $user_shift = $user_shifts->sortByDesc('created_at')->first();
+            $user->shift = $user_shift;
         }
         return view('pages.users.show-all', ['users' => $users]);
     }
+
+
 
     /**
      * Show the form for editing the specified resource.
@@ -114,9 +125,8 @@ class UserController extends Controller
         $this->checkAndExtendUserShifts();
         $work_shifts = Work_Shift::all();
         $roles = Role::all();
-
         $user = auth()->user();
-        $today = Carbon::today();
+        $today = Carbon::now();
         $user_shift = User_Shift::where('user_id', $user->id)
             ->where(function($query) use ($today) {
                 $query->whereNull('end_date')
@@ -135,9 +145,8 @@ class UserController extends Controller
         $this->checkAndExtendUserShifts();
         $work_shifts = Work_Shift::all();
         $roles = Role::all();
-
         $user = User::find($id);
-        $today = Carbon::today();
+        $today = Carbon::now();
         $user_shift = User_Shift::where('user_id', $user->id)
             ->where(function($query) use ($today) {
                 $query->whereNull('end_date')
@@ -218,12 +227,13 @@ class UserController extends Controller
         User_Shift::create([
             'user_id' => $user->id,
             'work_shift_id' => $request->input('work_shift_id'),
-            'start_date' => now(),
+            'start_date' => now(), // Salva a data e hora atuais
             'end_date' => null,
         ]);
 
         return redirect('/users/show-all')->with('success', 'Especificações do usuário atualizadas com sucesso!');
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -231,8 +241,37 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        $user->delete();
-        return redirect('/users/show-all')->with('status', 'Usuário apagado com sucesso!');
+        $id = $user->id;
+        $verAdmin = false;
+        $ver = false;
+
+        $users = User::all();
+
+        // Verifica se o usuário é o único administrador
+        if($user-> role_id == 3){
+            $verAdmin = true;
+
+            // Se houver outro admin
+            foreach ($users as $userCicle) {
+                if($userCicle-> role_id == 3 && $userCicle-> id != $id){
+                    $user->delete();
+                    return redirect('/users/show-all')->with('success', 'Usuário apagado com sucesso!');
+
+                }
+            }
+
+            if($ver == false){
+                return redirect('/users/show-all')->with('error', 'Não pode apagar o único administrador!');
+            }
+
+        }
+
+        if($verAdmin == false){
+            $user->delete();
+            return redirect('/users/show-all')->with('success', 'Usuário apagado com sucesso!');
+        }
+
+
     }
 
     public function import(Request $request)
@@ -427,15 +466,27 @@ class UserController extends Controller
             ->first();
 
         if ($previousShift) {
-            $previousShift->end_date = Carbon::parse($validated['start_date'])->subDay()->toDateString();
+            $previousShift->end_date = Carbon::parse($validated['start_date'])->subSecond()->format('Y-m-d 23:59:59');
             $previousShift->save();
         }
 
+        // Adiciona hora padrão ao start_date e end_date
+        $startDateTime = Carbon::parse($validated['start_date'])->startOfDay();
+        $endDateTime = isset($validated['end_date']) ? Carbon::parse($validated['end_date'])->endOfDay() : null;
+
         // Cria um novo turno de trabalho para o usuário
-        $newShift = User_Shift::create($validated);
+        $newShift = User_Shift::create([
+            'user_id' => $validated['user_id'],
+            'work_shift_id' => $validated['work_shift_id'],
+            'start_date' => $startDateTime,
+            'end_date' => $endDateTime,
+        ]);
 
         return redirect()->route('work-times.index')->with('success', 'Work time added successfully.');
     }
+
+
+
 
     private function checkAndExtendUserShifts()
     {
@@ -454,12 +505,28 @@ class UserController extends Controller
                     User_Shift::create([
                         'user_id' => $userShift->user_id,
                         'work_shift_id' => $userShift->work_shift_id,
-                        'start_date' => $nextDay->toDateString(),
+                        'start_date' => $nextDay->toDateString() . ' 00:00:00',
                         'end_date' => null,
                     ]);
                 }
             }
         }
+
+        // Fechar qualquer turno com end_date nulo que tenha um próximo turno
+        $openShifts = User_Shift::whereNull('end_date')->get();
+
+        foreach ($openShifts as $openShift) {
+            $nextShift = User_Shift::where('user_id', $openShift->user_id)
+                ->where('start_date', '>', $openShift->start_date)
+                ->orderBy('start_date', 'asc')
+                ->first();
+
+            if ($nextShift) {
+                $openShift->end_date = Carbon::parse($nextShift->start_date)->subDay()->endOfDay()->toDateTimeString();
+                $openShift->save();
+            }
+        }
     }
+
 }
 ?>

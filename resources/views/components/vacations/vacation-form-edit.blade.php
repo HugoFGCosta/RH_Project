@@ -1,5 +1,4 @@
-
-<form method="POST" action="{{ url('vacations') }}/{{$vacations->id}}">
+<form method="POST" action="{{ url('vacations') }}/{{$vacations->id}}" class="vacation-form">
     @csrf
     @if (session('status'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -9,59 +8,56 @@
             </button>
         </div>
     @endif
+
     <div class="form-group">
-    <h1>Editar férias</h1>
         @method('PUT')
         @if($role >= 3 || $role > $role_id_table)
-        <label for="id">id</label>
-        <input
-            disabled
-            value="{{ $vacations->id}}"
-            type="text"
-            name="id"
-            id="id"
-
-        ><br>
-
-        <label for="vacation_approval_states_id">Aprovação de férias</label>
-        <select name="vacation_approval_states_id" id="vacation_approval_states_id">
-        <option value="3">Pendente</option>
-        <option value="1">Aprovar</option>
-        <option value="2">Rejeitar</option>-
-
-        </select>
-        <br>
-
-
-
+            <div class="input-group">
+                <label for="id">ID</label>
+                <input
+                    disabled
+                    value="{{ $vacations->id }}"
+                    type="text"
+                    name="id"
+                    id="id"
+                >
+            </div>
+            <div class="input-group">
+                <label for="vacation_approval_states_id">Aprovação de Férias</label>
+                <select name="vacation_approval_states_id" id="vacation_approval_states_id">
+                    <option value="3">Pendente</option>
+                    <option value="1">Aprovar</option>
+                    <option value="2">Rejeitar</option>
+                </select>
+            </div>
         @endif
-        <input
-            value="{{ $vacations->date_start}}"
 
+        <div class="input-group">
+            <label for="date_start">Início</label>
+            <input
+                value="{{ $vacations->date_start }}"
+                required
+                type="date"
+                name="date_start"
+                id="date_start"
+            >
+        </div>
 
-            required
-            type="date"
-            name="date_start"
-            id="date_start"
-
-        >
-
-        <label for="date_end">end</label>
-        <input
-       value="{{$vacations->date_end }}"
-
-
-       required
-       type="date"
-       name="date_end"
-       id="date_end"
-        >
-
-
+        <div class="input-group">
+            <label for="date_end">Fim</label>
+            <input
+                value="{{ $vacations->date_end }}"
+                required
+                type="date"
+                name="date_end"
+                id="date_end"
+            >
+        </div>
     </div>
-    <button type="submit" class="btn btn-primary">
-        Enviar
-    </button>
+
+    @error('date_start')
+    <p class="error-message"><i class="ion-icon ion-alert-circled"></i>{{ $message }}</p>
+    @enderror
+
+    <button type="submit" class="btn btn-primary">Enviar</button>
 </form>
-
-

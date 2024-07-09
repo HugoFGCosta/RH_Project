@@ -22,3 +22,7 @@
     </div>
 
 @endsection
+
+@section('scripts')
+    <script src="{{ asset('js/justification-list.js') }}"></script>
+@endsection

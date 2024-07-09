@@ -1,7 +1,9 @@
 <?php
 
+use App\Events\VacationEvent;
 use App\Http\Controllers\AdminRegisterController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserShiftController;
@@ -38,7 +40,8 @@ Route::get('/logout', function () {
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 /*Rotas Menu ->  IMPLEMENTADO MIDDLEWARE*/
-Route::get('/menu', [App\Http\Controllers\ButtonController::class, 'index']); // menu
+Route::get('/menu', [App\Http\Controllers\ButtonController::class, 'index'])->name('menu'); // menu
+
 Route::get('/register-schedule', [App\Http\Controllers\ButtonController::class, 'registerSchedule']);
 Route::get('/dashboard-statistics', [App\Http\Controllers\ButtonController::class, 'dashboardStatistics']); // dashboard das horas extras
 Route::get('/view-absences', [App\Http\Controllers\ButtonController::class, 'viewAbsences']);
@@ -82,8 +85,19 @@ Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update'])-
 //rotas vacation   ->  IMPLEMENTADO MIDDLEWARE
 
 Route::get('/vacation', [VacationController::class, 'index'])->name('vacations.index');
+Route::get('/vacation/show/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
 Route::get('/vacations/create', [VacationController::class, 'create'])->name('vacations.create');
 Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
+
+
+/*
+Route::post('/vacations', function () {
+    $states = request()->states;
+    event(new VacationEvent($states));
+})->name('vacations.store');
+ */
+
+
 Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
 Route::get('/vacations/edit/{vacation}', [VacationController::class, 'edit'])->name('vacations.edit')->middleware('AdminMiddleware'); // Apenas ADMIN aprovar ferias
 Route::put('/vacations/{vacation}', [VacationController::class, 'update'])->name('vacations.update')->middleware('AdminMiddleware'); // Apenas ADMIN aprovar ferias
@@ -93,8 +107,8 @@ Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destr
 
 /* ROTA PRESENÇA   ->  AINDA NAO IMPLEMENTADO MIDDLEWARE */
 
-Route::post('/user/presence/store', [PresenceController::class, 'store']); /* <<<<<<<<<<< ESSA ROTA  */
-Route::get('/user/presence/status', [PresenceController::class, 'getStatus']);
+Route::get('/get-status', [PresenceController::class, 'getStatus']);
+Route::post('/store-presence', [PresenceController::class, 'store']);
 //Route::post('user/presence/storeSimulated', [PresenceController::class, 'storeSimulated']); //ROTA SIMULADA
 /*Route::post('/user/presence', [PresenceController::class, 'presence']);*/
 /*Route::get('/user/presence', [PresenceController::class, 'getPresence']);*/
@@ -131,10 +145,12 @@ Route::get('users/{user}/absences', [\App\Http\Controllers\AbsenceController::cl
 Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences']);
 
 /* Rotas Justificações */
-Route::get('absences/{absence}/justification/create', [\App\Http\Controllers\JustificationController::class, 'create']);
+//Route::get('absences/{absence}/justification/create', [\App\Http\Controllers\JustificationController::class, 'create']);
+Route::get('/justification/create', [\App\Http\Controllers\JustificationController::class, 'create']);
 Route::get('absences', [\App\Http\Controllers\AbsenceController::class, 'index']);
 Route::resource('justifications', \App\Http\Controllers\JustificationController::class);
-Route::post('absences/{absence}/justification', [\App\Http\Controllers\JustificationController::class, 'store']);
+//Route::post('absences/{absence}/justification', [\App\Http\Controllers\JustificationController::class, 'store']);
+Route::post('absences/justification/store', [\App\Http\Controllers\JustificationController::class, 'store']);
 Route::get('/justifications/show', [\App\Http\Controllers\JustificationController::class, 'show']);
 Route::get('/justifications/edit/{justifications}', [\App\Http\Controllers\JustificationController::class, 'edit']);
 Route::put('/justifications/{justifications}', [\App\Http\Controllers\JustificationController::class, 'update']);
@@ -164,6 +180,23 @@ Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftControll
 /*Rotas estatisticas*/
 Route::get('/dashboard-statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
 Route::post('/dashboard-statistics/filter', [DashboardController::class, 'filterStatistics'])->name('dashboard.filter');
+
+
+/* ROTAS NOTIFICAÇOES */
+
+/*
+Route::get('/notifications', [NotificationController::class, 'show'])->name('notifications.index');
+Route::post('/notifications/change-state', [NotificationController::class, 'changeState'])->name('notifications.changeState');
+Route::get('/notifications/show', [NotificationController::class, 'showNotifications'])->name('notifications.show');
+ */
+
+/* ROTAS NOTIFICAÇOES */
+Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+Route::post('/notifications/change-state', [NotificationController::class, 'changeState'])->name('notifications.changeState');
+Route::get('/notifications/show', [NotificationController::class, 'showNotifications'])->name('notifications.show');
+
+/* Rota Saldo */
+Route::get('/time-bank-balance', [\App\Http\Controllers\BankHourController::class, 'index']);
 
 /*Rotas de gestão do horário mensal*/
 Route::get('/work-times', [UserController::class, 'manageWorkTimes'])->name('work-times.index');

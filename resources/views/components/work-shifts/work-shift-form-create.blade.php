@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="{{ asset('css/work-shifts.css') }}">
 
-<div class="container">
+<div class="centralBox">
 
     <h1 class="mt-5 addWorkShiftTitle">Adicionar Turno</h1>
 
@@ -82,4 +82,3 @@
 </div>
 
 <script src="{{ asset('js/work-shifts/work-shift-create.js') }}"></script>
-

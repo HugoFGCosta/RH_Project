@@ -7,5 +7,7 @@
         <a href="{{ url('user/edit') }}" type="button"><button class="sub-menu">Gerir Dados</button></a>
         <a href="{{ url('user/show') }}" type="button"><button class="sub-menu">Mostrar Dados</button></a>
         <a href="/vacation-plans"><button class="sub-menu">Plano de férias</button></a>
+        <a href="/time-bank-balance"><button class="sub-menu">Saldo</button></a>
+
     </div>
 @endsection

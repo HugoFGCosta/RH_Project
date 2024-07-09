@@ -7,14 +7,14 @@
     <section class="table__header">
         <h1>Lista de faltas (Gestão)</h1>
         <div class="input-group">
-            <input type="search" placeholder="Search Data...">
+            <input type="search" placeholder="Pesquisar...">
             <ion-icon name="search-outline"></ion-icon>
         </div>
         <div class="export__file">
             <label for="export-file" class="export__file-btn" title="Export File"></label>
             <input type="checkbox" id="export-file">
             <div class="export__file-options">
-                <label>Export As &nbsp; &#10140;</label>
+                <label>Exportar como &nbsp; &#10140;</label>
                 <label for="export-file" id="toPDF">PDF</label>
                 <label for="export-file" id="toJSON">JSON</label>
                 <label for="export-file" id="toCSV">CSV </label>
@@ -43,7 +43,7 @@
                 <tr>
                     <td class="idCell">{{$absence->id}}</td>
                     <td class="nameCell">{{$absence->user->name}}</td>
-                    <td class="dateAbsenceCell">{{$absence->absences_start_date." ". $absence->absence_end_date}}</td>
+                    <td class="dateAbsenceCell">{{$absence->absence_start_date."-". $absence->absence_end_date}}</td>
                     <td class="motiveCell">
                         @if ($absence->justification)
                             {{ $absence->justification->motive }}
@@ -98,8 +98,10 @@
                                     Aprovado
                                 @elseif ($absences_state->description == "Rejeitado")
                                     Rejeitado
+                                @elseif ($absences_state->description == "Injustificado Permanentemente")
+                                    Injustificado Permanentemente
                                 @else
-                                    <a href="{{ url('absences/' . $absence->id . '/justification/create') }}" class="btn-detail-edit">Justificar</a>
+                                    <a class="btn-detail-edit">Por Justificar</a>
                                 @endif
                             @endif
                         @endforeach
@@ -112,8 +114,4 @@
         </table>
     </section>
 </main>
-
-<script src="{{ asset('js/show-all.js') }}"></script>
-<script src="{{asset('js/absences-list.js')}}"></script>
-
 

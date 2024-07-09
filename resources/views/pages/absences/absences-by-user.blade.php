@@ -1,7 +1,7 @@
 @extends('master.main')
 
 @section('content')
-
+    <h1>Lista de Faltas</h1>
     @if (session('success'))
         <div class="alert alert-success successMessage">
             {{ session('success') }}
@@ -21,4 +21,8 @@
 
     </div>
 
+@endsection
+
+@section('scripts')
+    <script src="{{asset('js/absences-by-user.js')}}"></script>
 @endsection
