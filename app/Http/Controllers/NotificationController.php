@@ -14,10 +14,12 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        $notifications = Notification::with(['event', 'absence', 'vacation'])->where('state', false)->get();
-
-        // Passe as notificações para a view
-        return view('pages.notifications.show', ['notifications' => $notifications]);
+        $user = auth()->user();
+        $notifications = Notification::with(['event', 'absence', 'vacation'])
+            ->where('state', 0)
+            ->where('user_id', $user->id)
+            ->get();
+        return response()->json(['notifications' => $notifications]);
     }
 
     /**
@@ -41,18 +43,25 @@ class NotificationController extends Controller
      */
     public function show(Notification $notification)
     {
-        $notifications = Notification::with(['event', 'absence', 'vacation'])->get();
+        $user = auth()->user();
+        $notifications = Notification::with(['event', 'absence', 'vacation'])
+            ->where('state', 0)
+            ->where('user_id', $user->id)
+            ->get();
 
-        dd($notifications);
+        if (request()->ajax()) {
+            return response()->json($notifications);
+        }
+
         return view('pages.notifications.show', ['notifications' => $notifications]);
     }
 
-
-
     public function showNotifications()
     {
+        $user = auth()->user();
         $notifications = Notification::with('event', 'absence', 'vacation')
-            ->where('state', 0) // Exemplo de condição
+            ->where('state', 0)
+            ->where('user_id', $user->id)
             ->get();
 
         return view('pages.notifications.show', compact('notifications'));
@@ -60,25 +69,18 @@ class NotificationController extends Controller
 
     public function changeState(Request $request)
     {
-
-        // Recupera todas as notificações enviadas
         $notifications = $request->input('notifications', []);
 
-        // Itera sobre cada notificação para processá-la
         foreach ($notifications as $notificationData) {
-            // Verifica se o ID da notificação está definido
             if (isset($notificationData['id'])) {
-                // Atualiza o estado da notificação no banco de dados
                 \DB::table('notifications')
                     ->where('id', $notificationData['id'])
                     ->update(['state' => 1]);
             }
         }
 
-        // Redireciona de volta para a página de notificações com uma mensagem de sucesso
         return redirect()->route('menu')->with('status', 'Notificações marcadas como lidas.');
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -103,4 +105,15 @@ class NotificationController extends Controller
     {
         //
     }
+
+    public function unreadCount()
+    {
+        $user = auth()->user();
+        $unreadCount = Notification::where('state', 0)
+            ->where('user_id', $user->id)
+            ->count();
+
+        return response()->json(['unread_count' => $unreadCount]);
+    }
+
 }
