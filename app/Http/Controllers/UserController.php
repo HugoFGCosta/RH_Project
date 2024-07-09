@@ -249,7 +249,7 @@ class UserController extends Controller
 
         // Verifica se o utilizador se está a apagar a si mesmo
         if($user->id == auth()->user()->id){
-            return redirect('/users/show-all')->with('error', 'Não se pode apagar a si mesmo! Por favor, troque para outro administrador e tente novamente.');
+            return redirect('/users/show-all')->with('error', 'Não se pode apagar a si mesmo! Por favor, solicite a outro administrador.');
         }
 
         // Verifica se o utilizador é o único administrador
