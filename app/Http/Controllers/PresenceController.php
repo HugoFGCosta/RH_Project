@@ -156,11 +156,8 @@ class PresenceController extends Controller
         $end_hour = Carbon::parse($workShift->end_hour);
 
 
-        // CALCULA as horas extras
-        $extra_hours = 0;
-
-
         // CALCULA hora extra para quem entra antes da hora do turno
+        $extra_hours = 0;
         $first_start = Carbon::parse($presence->first_start);
         if ($first_start->lt($start_hour)) {
             $extra_hours_early = $first_start->diffInMinutes($start_hour) / 60;
@@ -172,9 +169,17 @@ class PresenceController extends Controller
             $extra_hours += Carbon::parse($presence->second_end)->diffInMinutes($end_hour) / 60;
         }
 
-
+        if ($extra_hours < 0) {
+            $extra_hours = 0;
+        }
         $presence->extra_hour = $extra_hours;
-        $presence->effective_hour = $effective_hour - $extra_hours;
+
+        if (($effective_hour - $extra_hours) < 0) {
+            $presence->effective_hour = 0;
+        } else {
+            $presence->effective_hour = $effective_hour - $extra_hours;
+        }
+
         $presence->save();
         return response()->json(['success' => 'Presença registrada com sucesso.']);
     }
