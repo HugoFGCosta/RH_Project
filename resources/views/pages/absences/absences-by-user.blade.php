@@ -13,14 +13,8 @@
             {{ session('error') }}
         </div>
     @endif
-
-    <div class="container pt-5">
-
         @component('components.absences.absences-by-user', ['absences' => $absences, 'absences_states' => $absences_states, 'absences_types' => $absences_types])
         @endcomponent
-
-    </div>
-
 @endsection
 
 @section('scripts')
