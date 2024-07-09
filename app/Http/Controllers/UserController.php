@@ -19,11 +19,6 @@ use Illuminate\Support\Facades\Schema;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-
-
     // Metodo Index - Lista todos os users.    NAO ESTA SENDO UTILIZADO
     public function index()
     {
@@ -32,10 +27,6 @@ class UserController extends Controller
         $users = User::orderBy('id', 'desc')->get();
         return view('pages.users.index', ['users' => $users]);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
 
 
     // Metodo Create - Cria um user com cargo, turno
@@ -48,17 +39,11 @@ class UserController extends Controller
         return view('pages.users.create', ['users' => $users, 'work_shifts' => $work_shifts, 'roles' => $roles]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
         // Lógica de armazenamento anterior ou ajustada conforme necessário
     }
-
-    /**
-     * Display the specified resource.
-     */
 
 
     // Metodo Show - Mostra todas as informaçoes do user logado. 
@@ -131,13 +116,6 @@ class UserController extends Controller
     }
 
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-
-
-
     // Metodo edit - Edita as informaçoes do user que está logado. 
     public function edit()
     {
@@ -182,10 +160,6 @@ class UserController extends Controller
 
         return view('pages.users.edit-spec', ['user' => $user, 'user_shift' => $user_shift, 'work_shifts' => $work_shifts, 'roles' => $roles]);
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
 
 
     // Metodo update - Responsavel por verificar as novas informaçoes e validar para que atualize os dados. 
@@ -263,11 +237,6 @@ class UserController extends Controller
 
         return redirect('/users/show-all')->with('success', 'Especificações do usuário atualizadas com sucesso!');
     }
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
 
 
     // Metodo destroy - Recebe por parametro o $id para que apague um user.
