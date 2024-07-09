@@ -169,11 +169,14 @@ class PresenceController extends Controller
             $extra_hours += Carbon::parse($presence->second_end)->diffInMinutes($end_hour) / 60;
         }
 
+        // Se hora extra for menos que 0, atribui valor 0
         if ($extra_hours < 0) {
             $extra_hours = 0;
         }
         $presence->extra_hour = $extra_hours;
 
+
+        // Se hora efetiva for menor que 0, atribui valor 0. Caso contrario subtrai as horas extras da hora efetiva.
         if (($effective_hour - $extra_hours) < 0) {
             $presence->effective_hour = 0;
         } else {
