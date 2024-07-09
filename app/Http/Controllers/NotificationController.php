@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Metodo Index - Mostra todas as notificaçoes do user logado.
     public function index()
     {
         $user = auth()->user();
@@ -22,43 +20,31 @@ class NotificationController extends Controller
         return response()->json(['notifications' => $notifications]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(StoreNotificationRequest $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(Notification $notification)
     {
-        $user = auth()->user();
-        $notifications = Notification::with(['event', 'absence', 'vacation'])
-            ->where('state', 0)
-            ->where('user_id', $user->id)
-            ->get();
-
-        if (request()->ajax()) {
-            return response()->json($notifications);
-        }
-
-        return view('pages.notifications.show', ['notifications' => $notifications]);
+        //
     }
 
+
+    // Metodo showNotifications - Mostra todas as notificaçoes do user logado na rota /menu.
     public function showNotifications()
     {
         $user = auth()->user();
+
+        // Busca as notificaçoes com state = 0 (nao lida) do user logado.
         $notifications = Notification::with('event', 'absence', 'vacation')
             ->where('state', 0)
             ->where('user_id', $user->id)
@@ -67,6 +53,8 @@ class NotificationController extends Controller
         return view('pages.notifications.show', compact('notifications'));
     }
 
+
+    // Metodo changeState - Muda o state para 1 (lido).
     public function changeState(Request $request)
     {
         $notifications = $request->input('notifications', []);
@@ -82,30 +70,25 @@ class NotificationController extends Controller
         return redirect()->route('menu')->with('status', 'Notificações marcadas como lidas.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit(Notification $notification)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(UpdateNotificationRequest $request, Notification $notification)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(Notification $notification)
     {
         //
     }
 
+    // Metodo unreadCount - Conta quantas notificaçoes com state = 0 (nao lida)
     public function unreadCount()
     {
         $user = auth()->user();
