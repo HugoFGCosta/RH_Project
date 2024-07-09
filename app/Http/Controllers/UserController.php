@@ -279,17 +279,22 @@ class UserController extends Controller
 
     }
 
+    // Metodo Import - Serve para importar utilizadores para a base de dados
     public function import(Request $request)
     {
+
+        // Vai buscar o ficheiro inserido no formulário
         $file = $request->file('file');
         $users = User::all();
 
+        // Se o ficheiro não foi submetido mostra mensagem de erro
         if (!$file) {
             return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
         }
 
         $handle = fopen($file->getPathname(), 'r');
 
+        // Se por algum motivo houver erro ao abrir o ficheiro mostra mensagem de erro
         if (!$handle) {
             return redirect()->back()->with('error', 'Erro ao abrir o ficheiro.');
         }
@@ -361,6 +366,7 @@ class UserController extends Controller
         $numeroUsers = count($userData);
         $numeroUsersAtuais = count($users);
 
+        // Percorre os emails e verifica se existe algum email repetido
         for ($i = 0; $i < $numeroUsers; $i++) {
             for ($j = 0; $j < $numeroUsers; $j++) {
                 if ($userData[$i]['email'] == $userData[$j]['email'] && $i != $j) {
@@ -369,7 +375,7 @@ class UserController extends Controller
             }
         }
 
-        // Verifica se existem users com o mesmo nif
+        // Percorre os emails e verifica se existe algum nif repetido
         for ($i = 0; $i < $numeroUsers; $i++) {
             for ($j = 0; $j < $numeroUsers; $j++) {
                 if ($userData[$i]['nif'] == $userData[$j]['nif'] && $i != $j) {
@@ -414,6 +420,8 @@ class UserController extends Controller
         return redirect()->back()->with('success', 'Utilizadores importados com sucesso.');
     }
 
+
+    // Metodo Export- Serve para exportar as informaçóes relativamente aos utilizadores existentes
     public function export()
     {
         $work_shifts = Work_Shift::all();
@@ -441,7 +449,6 @@ class UserController extends Controller
         return Response::make('', 200, $headers);
     }
 
-    // Adicionar os métodos de WorkTimeController aqui
     public function manageWorkTimes()
     {
         $this->checkAndExtendUserShifts();
