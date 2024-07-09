@@ -9,15 +9,16 @@
 
 /* Tabela principal */
 main.table {
-    width: 82vw;
+    width: calc(100% - 40px); /* Ajusta a largura para ocupar o container */
     height: auto;
     min-height: calc(100vh - 100px); /* Ajusta a altura mínima para preencher a área até o footer */
-    min-width: 100%;
     background-color: #fff5;
     box-shadow: 0 .4rem .8rem #0005;
-    border-radius: .8rem;
+    border-radius: .8rem; /* Arredonda as bordas do container principal */
     overflow: hidden;
     margin-bottom: 50px; /* Ajusta o espaço inferior para não colar no footer */
+    transition: width 0.3s; /* Adiciona transição para a largura */
+    padding: 10px; /* Adiciona padding para garantir que a tabela não seja cortada */
 }
 
 .form-container {
@@ -29,15 +30,18 @@ main.table {
     height: 100%;
     padding-top: 10px;
 }
+
 /* Cabeçalho da tabela */
 .table__header {
     width: 100%;
-    height: 15%;
+    height: auto;
     background-color: #fff4;
     padding: .8rem 1rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: center; /* Centraliza a barra de pesquisa */
     align-items: center;
+    position: relative; /* Necessário para posicionar a exportação à direita */
+    border-radius: .8rem .8rem 0 0; /* Aplicando border-radius no topo esquerdo e direito */
 }
 
 /* Grupo de busca */
@@ -71,24 +75,96 @@ main.table {
     outline: none;
 }
 
+/* Exportação de arquivos */
+.export__file {
+    position: absolute;
+    right: 1rem; /* Alinha a área de exportação à direita */
+    top: 50%;
+    transform: translateY(-50%); /* Centraliza verticalmente */
+    z-index: 10; /* Garante que a área de exportação esteja acima do resto do conteúdo */
+}
 
+/* Botão de exportação */
+.export__file .export__file-btn {
+    display: inline-block;
+    width: 3rem;
+    height: 3rem;
+    background: url('/images/menu.svg') center / 100% no-repeat;
+    background-size: contain;
+    border-radius: 50%;
+    transition: .2s ease-in-out;
+    filter: brightness(0);
+    margin-right: 1rem;
+}
 
-/* Entrada de busca */
-.table__header .input-group input {
+/* Efeito de hover no botão de exportação */
+.export__file .export__file-btn:hover {
+    transform: scale(1.15);
+    cursor: pointer;
+    background-color: var(--green);
+    filter: brightness(1);
+}
+
+/* Estilos do input de exportação */
+.export__file input {
+    display: none; /* Oculta o input */
+}
+
+/* Opções de exportação */
+.export__file .export__file-options {
+    position: absolute;
+    right: 0;
+    width: 12rem;
+    border-radius: .5rem;
+    overflow: hidden;
+    text-align: center;
+    opacity: 0;
+    transform: scale(.8);
+    transform-origin: top right;
+    box-shadow: 0 .2rem .5rem #0004;
+    transition: .2s;
+    background-color: #fff; /* Adiciona cor de fundo para visibilidade */
+    z-index: 100; /* Garante que as opções estejam acima do resto do conteúdo */
+}
+
+/* opções de exportação quando o input está selecionado */
+.export__file input:checked + .export__file-options {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* opções de exportação */
+.export__file .export__file-options label {
+    display: block;
     width: 100%;
-    padding: 0 .5rem 0 .3rem;
-    background-color: transparent;
-    border: none;
-    outline: none;
+    height: 45px;
+    padding: .6rem 0;
+    background-color: #f2f2f2;
+    justify-content: space-around;
+    align-items: center;
+    transition: .2s ease-in-out;
+}
+
+/*primeira opção de exportação */
+.export__file .export__file-options label:first-of-type {
+    padding: 1rem 0;
+    background-color: #86e49d !important;
+}
+
+/* hover nas opções de exportação */
+.export__file .export__file-options label:hover {
+    transform: scale(1.05);
+    background-color: #fff;
+    cursor: pointer;
 }
 
 /* body tabela */
 .table__body {
-    width: 95%;
-    max-height: calc(89% - 1.6rem);
+    width: 100%; /* Ajusta a largura para ocupar o container */
+    max-height: calc(100vh - 200px); /* define a altura máxima da tabela */
     background-color: #fffb;
-    margin: .8rem auto;
-    border-radius: .6rem;
+    margin: 0 auto; /* Remove margens laterais */
+    border-radius: 0 0 .8rem .8rem; /* Aplicando border-radius no fundo esquerdo e direito */
     overflow: auto;
 }
 
@@ -110,12 +186,13 @@ main.table {
 
 table {
     width: 100%;
-    overflow-x: auto; /* Enable horizontal scrolling on smaller screens */
+    border-radius: .8rem; /* Adiciona bordas arredondadas à tabela */
+    overflow: hidden;
+    border-collapse: collapse; /* Certifique-se de que a borda esteja colapsada */
 }
 
 /* células  */
 table, th, td {
-    border-collapse: collapse;
     text-align: left;
     padding: 10px;
     white-space: nowrap; /* Prevent text wrapping */
@@ -125,12 +202,12 @@ table, th, td {
 thead th {
     position: sticky;
     top: 0;
-    left: 0;
     background-color: var(--blue);
     cursor: pointer;
     text-transform: capitalize;
     color: #fff;
     font-weight: 400;
+    z-index: 5;
 }
 
 /*linhas pares do corpo */
@@ -191,84 +268,6 @@ thead th.asc span.icon-arrow {
     transform: rotate(180deg);
 }
 
-/* Exportação de arquivos */
-.export__file {
-    position: relative;
-}
-
-/* Botão de exportação */
-.export__file .export__file-btn {
-    display: inline-block;
-    width: 3rem;
-    height: 3rem;
-    background: url('/images/menu.svg') center / 100% no-repeat;
-    background-size: contain;
-    border-radius: 50%;
-    transition: .2s ease-in-out;
-    filter: brightness(0);
-    margin-right: 1rem;
-}
-
-/* Efeito de hover no botão de exportação */
-.export__file .export__file-btn:hover {
-    transform: scale(1.15);
-    cursor: pointer;
-    background-color: var(--green);
-    filter: brightness(1);
-}
-
-/* Estilos do input de exportação */
-.export__file input {
-    display: none; /* Oculta o input */
-}
-
-/* Opções de exportação */
-.export__file .export__file-options {
-    position: absolute;
-    right: 0;
-    width: 12rem;
-    border-radius: .5rem;
-    overflow: hidden;
-    text-align: center;
-    opacity: 0;
-    transform: scale(.8);
-    transform-origin: top right;
-    box-shadow: 0 .2rem .5rem #0004;
-    transition: .2s;
-}
-
-/* opções de exportação quando o input está selecionado */
-.export__file input:checked + .export__file-options {
-    opacity: 1;
-    transform: scale(1);
-    z-index: 100;
-}
-
-/* opções de exportação */
-.export__file .export__file-options label {
-    display: block;
-    width: 100%;
-    height: 45px;
-    padding: .6rem 0;
-    background-color: #f2f2f2;
-    justify-content: space-around;
-    align-items: center;
-    transition: .2s ease-in-out;
-}
-
-/*primeira opção de exportação */
-.export__file .export__file-options label:first-of-type {
-    padding: 1rem 0;
-    background-color: #86e49d !important;
-}
-
-/* hover nas opções de exportação */
-.export__file .export__file-options label:hover {
-    transform: scale(1.05);
-    background-color: #fff;
-    cursor: pointer;
-}
-
 .red-text {
     color: rgb(255, 40, 40);
 }
@@ -287,6 +286,10 @@ thead th.asc span.icon-arrow {
 @media only screen and (min-width: 992px) {
     .table td {
         font-size: 18px;
+    }
+
+    .sidebar-collapsed main.table {
+        width: calc(100% - 80px); /* Ajusta a largura quando a sidebar está encolhida */
     }
 }
 
@@ -316,6 +319,10 @@ thead th.asc span.icon-arrow {
         flex-direction: column; /* Alinha elementos verticalmente */
         align-items: flex-start;
     }
+
+    .sidebar-collapsed main.table {
+        width: calc(100% - 40px); /* Ajusta a largura quando a sidebar está encolhida */
+    }
 }
 
 /* Ajustes para tablets */
@@ -330,6 +337,10 @@ thead th.asc span.icon-arrow {
 
     .export__file .export__file-options {
         width: 11rem; /* Ajusta largura das opções */
+    }
+
+    .sidebar-collapsed main.table {
+        width: calc(100% - 60px); /* Ajusta a largura quando a sidebar está encolhida */
     }
 }
 
@@ -358,5 +369,9 @@ thead th.asc span.icon-arrow {
 
     .export__file .export__file-options {
         width: 10rem;
+    }
+
+    .sidebar-collapsed main.table {
+        width: calc(100% - 40px); /* Ajusta a largura quando a sidebar está encolhida */
     }
 }

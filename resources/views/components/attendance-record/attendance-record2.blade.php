@@ -3,7 +3,6 @@
 @endphp
 <main class="table" id="users_table">
     <section class="table__header">
-        <h1>Registo de Assiduidade</h1>
         <div class="input-group">
             <input type="search" placeholder="Pesquisar...">
             <ion-icon name="search-outline"></ion-icon>
