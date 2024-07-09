@@ -9,7 +9,7 @@
             <div class="groupYear">
                 <label class="labelMonth" for="month">Selecione o Mês:</label>
                 <select class="inputClass" name="month" id="month">
-                    <option value="Todos" @if($month === null || $month == "Todos" || $month == "0") selected @endif>Todos</option>
+                    <option value="Todos" @if($month === null || $month == "Todos") selected @endif>Todos</option>
                     <option value="1" @if($month == "Janeiro") selected @endif>Janeiro</option>
                     <option value="2" @if($month == "Fevereiro") selected @endif>Fevereiro</option>
                     <option value="3" @if($month == "Março") selected @endif>Março</option>

@@ -7,8 +7,17 @@
 @section('content')
     <div class="container p-5">
 
-        @component('components.alerts.alerts')
-        @endcomponent
+        @if (session('success'))
+            <div class="alert alert-success successMessage">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger errorMessage">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <div class="form-container">
             @component('components.users.user-form-show-all', ['users' => $users])

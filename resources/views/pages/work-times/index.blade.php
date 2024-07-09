@@ -8,8 +8,11 @@
     <div class="centralBox">
         <h1>Períodos de Trabalho</h1>
 
-        @component('components.alerts.alerts')
-        @endcomponent
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
 
         <div class="table__header">
             <div class="input-group">
