@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-
+        /*
         User::factory()->count(5)->create()->each(function ($user) {
             User_Shift::create([
                 'user_id' => $user->id,
@@ -24,6 +24,6 @@ class UserSeeder extends Seeder
                 'start_date' => '2021-01-01 00:00:00',
                 'end_date' => null,
             ]);
-        });
+        });*/
     }
 }
