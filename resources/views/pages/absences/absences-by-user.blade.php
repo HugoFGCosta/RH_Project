@@ -2,8 +2,17 @@
 
 @section('content')
     <h1>Lista de Faltas</h1>
-    @component('components.alerts.alerts')
-    @endcomponent
+    @if (session('success'))
+        <div class="alert alert-success successMessage">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger errorMessage">
+            {{ session('error') }}
+        </div>
+    @endif
 
     <div class="container pt-5">
 

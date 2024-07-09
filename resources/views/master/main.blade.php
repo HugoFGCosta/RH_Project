@@ -1,7 +1,7 @@
 @php use Illuminate\Support\Facades\Auth; @endphp
 
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
+    <!DOCTYPE html>
+<html lang="{{app()->getLocale() }}">
 
 <head>
     <meta charset="utf-8">
@@ -21,37 +21,38 @@
     <link href="{{ asset('css/daily-tasks.css') }}" rel="stylesheet">
     <link href="{{ asset('css/showform.css') }}" rel="stylesheet">
     <link href="{{ asset('css/forms.css') }}" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css" rel="stylesheet" />
-
-    <link rel="stylesheet" href="{{ asset('/css/alerts.css') }}">
-
     @yield('styles')
+    <!-- Script de js para correr primeiro para resolver problema de expansão no recarregamento da página -->
+    <script>
+        (function() {
+            const sidebarState = localStorage.getItem('sidebarState');
+            if (sidebarState === 'collapsed') {
+                document.documentElement.classList.add('sidebar-collapsed');
+            }
+        })();
+    </script>
 
-    <!-- jQuery CDN -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
-
-    <!-- Pusher Configuration -->
     <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <script>
-        window.pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+        const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
             cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
-            useTLS: true
+            useTLS: true, // Ajuste conforme seu ambiente (true/false)
         });
 
-        window.pusherChannel = window.pusher.subscribe('notification-channel');
-
-        window.pusherChannel.bind('App\\Events\\NotificationEvent', function(data) {
-            console.log('Received notification: ' + data.message);
-            fetchNotifications();
+        const channel = pusher.subscribe('notification-channel');
+        channel.bind('App\\Events\\NotificationEvent', function(data) {
+            alert('Received notification: ' + data.message);
+            // Aqui você pode adicionar lógica para lidar com a notificação recebida
         });
     </script>
 
-    <!-- Inclua o arquivo de notificações -->
-    <script src="{{ asset('js/notifications.js') }}"></script>
+
 </head>
 
 <body>
+
+
     @component('master.header')
     @endcomponent
 
@@ -79,24 +80,21 @@
                             } else {
                                 $role = 'Utilizador';
                             }
-                        @endphp
 
+                        @endphp
                         <li class="nav-item">
-                            <a href="/menu">
-                                <span id="notification-bell" style="display: none;">
-                                    <ion-icon name="notifications-outline" size="large"></ion-icon>
-                                </span>
-                                <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }}
-                                    ({{ $role }})</a>
-                            </a>
+                            <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }}
+                                ({{ $role }})</a>
                         </li>
                     @endif
                 </div>
+
             </div>
         </div>
         <div class="content-area hidden">
             @yield('content')
         </div>
+
     </main>
 
     @component('master.footer')
@@ -104,7 +102,7 @@
 
     <script src="{{ asset('js/menu.js') }}"></script>
 
-    <!-- Ícones -->
+    <!-- Icons -->
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
@@ -114,9 +112,6 @@
     </script>
 
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"></script>
     <!-- Scripts Notifications-->
 
     <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
@@ -158,12 +153,12 @@
 
 
 
-    <script src="{{ asset('/js/alerts.js') }}"></script>
 
 
 
     @yield('scripts')
     @stack('scripts')
+
 </body>
 
 </html>

@@ -21,9 +21,6 @@ class JustificationController extends Controller
     /**
      * Display a listing of the resource.
      */
-
-    // Metodo index- serve para listar todas as justificações
-
     public function index()
     {
         //
@@ -32,7 +29,6 @@ class JustificationController extends Controller
         return view ('pages.justifications.index',['justifications'=>$justifications]);
     }
 
-    // Metodo pendingJustifications- serve para listar todas as justificações
     public function pendingJustifications()
     {
         //
@@ -45,8 +41,6 @@ class JustificationController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-
-    // Metodo create- serve para personalizar a view do criação de uma justificação
     public function create(Request $request)
     {
         //
@@ -94,7 +88,6 @@ class JustificationController extends Controller
         //
     }*/
 
-    // Metodo store- serve para criar uma justificação
     public function store(Request $request)
     {
         // Validação do request
@@ -198,7 +191,7 @@ class JustificationController extends Controller
         return redirect('/users/' . Auth::user()->id . '/absences')->with('success', 'Registo efetuado com sucesso');
     }
 
-    // Metodo messages- serve para guardar as possiveis mensagens de erro
+    //MÉTODO PARA APRESENTAR MENSAGENS DE ERRO PERSONALIZADAS
     public function messages()
     {
         return [
@@ -216,7 +209,6 @@ class JustificationController extends Controller
         //
     }
 
-    // Metodo justificationManage- serve para enviar os dados da justificação para a pagina de aprovação/rejeição de falta
     public function justificationManage(Justification $justification){
 
         $absences = Absence::all();
@@ -251,7 +243,6 @@ class JustificationController extends Controller
 
     }
 
-    // Metodo justificationDownload- serve para fazer download da justificação
     public function justificationDownload($id){
 
         $justification = Justification::find($id);
@@ -262,7 +253,6 @@ class JustificationController extends Controller
 
     }
 
-    // Metodo justificationReject- serve para rejeitar uma justificação de falta
     public function justificationReject($id){
 
         $absences = Absence::all();
@@ -287,7 +277,6 @@ class JustificationController extends Controller
 
     }
 
-    // Metodo justificationApprove- serve para aprovar uma justificação de faltas
     public function justificationApprove($id){
 
         $absences = Absence::all();

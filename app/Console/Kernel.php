@@ -19,9 +19,14 @@ class Kernel extends ConsoleKernel
         //$schedule->command('check:presences')->everyThirtyMinutes(); // CORRE a verificaçao cada 30 minutos
 
         //Verificações de faltas Primeiro e Segundo Turno
-        //$schedule->call('App\Http\Controllers\AbsenceController@verifyFirstShiftAbsence')->everyMinute();
-        //$schedule->call('App\Http\Controllers\AbsenceController@verifySecondShiftAbsence')->everyMinute();
-        //$schedule->call('App\Http\Controllers\PresenceController@verifyPresence')->everyMinute();
+        $schedule->call('App\Http\Controllers\AbsenceController@verifyFirstShiftAbsence')->everyMinute();
+        $schedule->call('App\Http\Controllers\AbsenceController@verifySecondShiftAbsence')->everyMinute();
+
+
+
+
+
+        $schedule->call('App\Http\Controllers\PresenceController@verifyPresence')->everyMinute();
 
     }
 
