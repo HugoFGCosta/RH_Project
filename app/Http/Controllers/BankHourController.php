@@ -17,21 +17,25 @@ class BankHourController extends Controller
 
     public function index(Request $request)
     {
-        //
+        // Vai buscar os inputs introduzidos pelo utilizador
         $month = $request->input('month');
         $year = $request->input('year');
 
-
+        // Se a pesquisa for por todos os meses e todos os anos
         if ($month == 'Todos' && $year == null){
             $absences = Absence::all();
             $presences = Presence::all();
         }
+
+        // Se a pesquisa for por todos os meses e um ano em especifico
         else if($month == 'Todos' && $year != null){
             $absences = Absence::whereYear('absence_start_date', $year)->get();
             $presencesFirst = Presence::whereYear('first_start', $year)->get();
             $presencesSecond = Presence::whereYear('second_start', $year)->get();
             $presences = $presencesFirst->merge($presencesSecond);
         }
+
+        // Se a pesquisa for por um mes e um ano em especifico
         else if($month != null && $year != null){
             $absences = Absence::whereMonth('absence_start_date', $month)->whereYear('absence_start_date', $year)->get();
             $presencesFirst = Presence::whereMonth('first_start', $month)->whereYear('first_start', $year)->get();
@@ -39,6 +43,8 @@ class BankHourController extends Controller
             $presences = $presencesFirst->merge($presencesSecond);
 
         }
+
+        // Se a pesquisa for por um mes em especifico e por todos os anos
         else if($month != null && $year == null){
             $absences = Absence::whereMonth('absence_start_date', $month)->get();
             $presencesFirst = Presence::whereMonth('first_start', $month)->get();
@@ -53,8 +59,7 @@ class BankHourController extends Controller
 
 
 
-        $totalMinutes = 0;
-
+        $timeAbsences = 0;
         $userShifts = User_Shift::all();
         $workShifts = Work_Shift::all();
         $bank = 0;
@@ -66,40 +71,45 @@ class BankHourController extends Controller
         /*Percorre as presencas*/
         foreach ($presences as $presence){
 
-            $horasChegouMaisCedoManha = 0;
-            $horasChegouMaisCedoTarde = 0;
-            $desconto = 0;
+            $timeEarlyArrivedFirstShift = 0;
+            $timeEarlyArrivedSecondShift = 0;
+            $diferenceWorkedTime = 0;
 
             //Percorre as presencas do utilizador logado
             if($presence->user_id == $user_id_logged){
 
-                $duracaoManha = 0;
-                $duracaoTarde = 0;
-                $horasTrabalhadas = 0;
+                $durationFirstShift = 0;
+                $durationSecondShift = 0;
+                $workedTime = 0;
 
                 //Se apareceu de manha vai buscar o horario pela hora de entrada de manha
                 if($presence->first_start!=null){
-                    $horaEntrada = $presence->first_start;
+
+                    $arrivalTime = $presence->first_start;
 
                 }
-                else{   //Senão vai buscar o horario pela hora de entrada de tarde
-                    $horaEntrada = $presence->second_start;
-                }
 
-                info("hora entrada".$horaEntrada);
+                //Senão vai buscar o horario pela hora de entrada de tarde
+                else{
+
+                    $arrivalTime = $presence->second_start;
+
+                }
 
                 /*Pesquisa qual o horario que o utilizador tinha no dia da presenca*/
                 foreach ($userShifts as $userShift){
+
                     if($userShift -> user_id == $user_id_logged){
-                        if($horaEntrada >= $userShift->start_date && $horaEntrada <= $userShift->end_date  && $userShift->user_id == $user_id_logged){
+                        if($arrivalTime >= $userShift->start_date && $arrivalTime <= $userShift->end_date  && $userShift->user_id == $user_id_logged){
                             $userShiftsId = $userShift->work_shift_id;
                             break;
                         }
-                        else if($horaEntrada >= $userShift->start_date && $userShift->end_date == null &&  $userShift->user_id == $user_id_logged){
+                        else if($arrivalTime >= $userShift->start_date && $userShift->end_date == null &&  $userShift->user_id == $user_id_logged){
                             $userShiftsId = $userShift->work_shift_id;
                             break;
                         }
                     }
+
                 }
 
                 /*Calcula minutos que devia ter trabalhado*/
@@ -107,15 +117,15 @@ class BankHourController extends Controller
                 $startHour = Carbon::parse($work_shift->start_hour);
                 $endHour = Carbon::parse($work_shift->end_hour);
                 $diff = $startHour->diffInMinutes($endHour);
-                $horasDeTrabalho = $diff; // minutos que o trabalhador devia ter trabalhado
+                $totalWorkedHours = $diff; // minutos que o trabalhador devia ter trabalhado
 
                 /*Calcula hora almoco*/
                 $startHour = Carbon::parse($work_shift->break_start);
                 $endHour = Carbon::parse($work_shift->break_end);
-                $duracaoAlmoco = $startHour->diffInMinutes($endHour);
+                $lunchBreakDuration = $startHour->diffInMinutes($endHour);
 
                 // Calcula as horas de trabalho sem hora de almoço
-                $horasDeTrabalho -= $duracaoAlmoco;
+                $totalWorkedHours -= $lunchBreakDuration;
 
                 /*CALCULA ATRASOS MAS EM PERIODO DE TOLERANCIA (15 minutos mais cedo ou 15 minutos mais tarde)*/
 
@@ -123,99 +133,99 @@ class BankHourController extends Controller
 
                 //Entrar 15 minutos mais tarde
 
-                $horaEntradaFuncionario = Carbon::parse($presence->first_start);    //Hora entrada do funcionaro
-                $horaEntradaHorario = Carbon::parse($work_shift->start_hour);
-                $horaEntradaHorario->setDate($horaEntradaFuncionario->year, $horaEntradaFuncionario->month, $horaEntradaFuncionario->day); //Hora que devia ter entrado
-                $horaEntradaComTolerancia = $horaEntradaHorario->copy()->addMinutes(15);    //Hora entrada no horario mais tolerancia
+                $arrivalTimeColaborator = Carbon::parse($presence->first_start);    //Hora entrada do funcionaro
+                $arrivalTimeWorkShift = Carbon::parse($work_shift->start_hour);
+                $arrivalTimeWorkShift->setDate($arrivalTimeColaborator->year, $arrivalTimeColaborator->month, $arrivalTimeColaborator->day); //Hora que devia ter entrado
+                $arrivalTimeWorkShiftTolerated = $arrivalTimeWorkShift->copy()->addMinutes(15);    //Hora entrada no horario mais tolerancia
 
 
                 //Se chegou a horas guarda quantos minutos chegou atrasado
-                if($horaEntradaFuncionario >= $horaEntradaHorario && $horaEntradaFuncionario<=$horaEntradaComTolerancia){
-                    $desconto = $horaEntradaFuncionario->diffInMinutes($horaEntradaHorario);
+                if($arrivalTimeColaborator >= $arrivalTimeWorkShift && $arrivalTimeColaborator<=$arrivalTimeWorkShiftTolerated){
+                    $diferenceWorkedTime = $arrivalTimeColaborator->diffInMinutes($arrivalTimeWorkShift);
                 }
                 //Se chegou mais cedo guarda quantos minutos chegou adiantado
-                else if($horaEntradaFuncionario<=$horaEntradaHorario){
-                    $horasChegouMaisCedoManha = $horaEntradaFuncionario->diffInMinutes($horaEntradaHorario);
+                else if($arrivalTimeColaborator<=$arrivalTimeWorkShift){
+                    $timeEarlyArrivedFirstShift = $arrivalTimeColaborator->diffInMinutes($arrivalTimeWorkShift);
                 }
 
                 /*SEGUNDO TURNO*/
 
                 //Entrar 15 minutos mais tarde
-                $horaEntradaFuncionario = Carbon::parse($presence->second_start);    //Hora entrada do funcionaro
-                $horaEntradaHorario = Carbon::parse($work_shift->break_end);
-                $horaEntradaHorario->setDate($horaEntradaFuncionario->year, $horaEntradaFuncionario->month, $horaEntradaFuncionario->day); //Hora que devia ter entrado
-                $horaEntradaComTolerancia = $horaEntradaHorario->copy()->addMinutes(15);    //Hora entrada no horario mais tolerancia
-                $horaSaidaParaIntervalo = Carbon::parse($work_shift->break_start);    //Hora entrada no horario mais tolerancia
-                $horaSaidaParaIntervalo->setDate($horaSaidaParaIntervalo->year, $horaEntradaFuncionario->month, $horaEntradaFuncionario->day); //Hora que devia ter entrado
+                $arrivalTimeColaborator = Carbon::parse($presence->second_start);    //Hora entrada do funcionaro
+                $arrivalTimeWorkShift = Carbon::parse($work_shift->break_end);
+                $arrivalTimeWorkShift->setDate($arrivalTimeColaborator->year, $arrivalTimeColaborator->month, $arrivalTimeColaborator->day); //Hora que devia ter entrado
+                $arrivalTimeWorkShiftTolerated = $arrivalTimeWorkShift->copy()->addMinutes(15);    //Hora entrada no horario mais tolerancia
+                $timeForBreak = Carbon::parse($work_shift->break_start);    //Hora entrada no horario mais tolerancia
+                $timeForBreak->setDate($timeForBreak->year, $arrivalTimeColaborator->month, $arrivalTimeColaborator->day); //Hora que devia ter entrado
 
 
                 //Se estrou a horas
-                if($horaEntradaFuncionario >= $horaEntradaHorario && $horaEntradaFuncionario<=$horaEntradaComTolerancia){
-                    $descontoSegundoTurno = $horaEntradaFuncionario->diffInMinutes($horaEntradaHorario);
-                    $desconto+=$descontoSegundoTurno;
+                if($arrivalTimeColaborator >= $arrivalTimeWorkShift && $arrivalTimeColaborator<=$arrivalTimeWorkShiftTolerated){
+                    $differenceSecondShift = $arrivalTimeColaborator->diffInMinutes($arrivalTimeWorkShift);
+                    $diferenceWorkedTime+=$differenceSecondShift;
                 }
-                else if ($horaEntradaFuncionario >= $horaSaidaParaIntervalo && $horaEntradaFuncionario<=$horaEntradaHorario){
-                    $horasChegouMaisCedoTarde = $horaEntradaFuncionario->diffInMinutes($horaEntradaHorario);
+                else if ($arrivalTimeColaborator >= $timeForBreak && $arrivalTimeColaborator<=$arrivalTimeWorkShift){
+                    $timeEarlyArrivedSecondShift = $arrivalTimeColaborator->diffInMinutes($arrivalTimeWorkShift);
                 }
-
 
                 /*Calcula quantas horas trabalhou de manha*/
                 $startHour = Carbon::parse($presence->first_start);
                 $endHour = Carbon::parse($presence->first_end);
-                $duracaoManha = $startHour->diffInMinutes($endHour);
-
+                $durationFirstShift = $startHour->diffInMinutes($endHour);
 
                 /*Se o funcionario apareceu de tarde é que vai calcular quantas horas trabalhou de tarde*/
                 if($presence->second_start!=null && $presence->second_end != null){
                     /*Calcula quantas horas trabalhou de tarde*/
                     $startHour = Carbon::parse($presence->second_start);
                     $endHour = Carbon::parse($presence->second_end);
-                    $duracaoTarde = $startHour->diffInMinutes($endHour);
+                    $durationSecondShift = $startHour->diffInMinutes($endHour);
 
                 }
 
-
-                // $horasTrabalhadas é o número de minutos que o trabalhador trabalhou
-                $horasTrabalhadas = $duracaoManha + $duracaoTarde;
+                // $workedTime é o número de minutos que o trabalhador trabalhou
+                $workedTime = $durationFirstShift + $durationSecondShift;
 
                 // Diferença de minutos entre as que trabalhou e as que devia ter trabalhado
-                $resultado = $horasTrabalhadas - $horasDeTrabalho;
-
+                $result = $workedTime - $totalWorkedHours;
 
                 // Soma ao banco as horas que deve em minutos
-                $bank += $resultado;
-                $bank += $desconto;
+                $bank += $result;
+                $bank += $diferenceWorkedTime;
 
-                if($horasChegouMaisCedoManha!= 0){
-                    $bank -= $horasChegouMaisCedoManha;
+                if($timeEarlyArrivedFirstShift!= 0){
+
+                    $bank -= $timeEarlyArrivedFirstShift;
 
                 }
-                if($horasChegouMaisCedoTarde!= 0){
-                    $bank -= $horasChegouMaisCedoTarde;
+                if($timeEarlyArrivedSecondShift!= 0){
+
+                    $bank -= $timeEarlyArrivedSecondShift;
 
                 }
 
             }
         }
 
-        $timePresencas = $bank;
+        $timePresences = $bank;
 
         // Converte o banco de minutos para formato HH:MM
-        $horas = floor($bank / 60);
-        $minutos = $bank % 60;
+        $hours = floor($bank / 60);
+        $minutes = $bank % 60;
 
-        if($minutos!=0){
-            $horas = $horas + 1;
+        //Se os minutos forem diferentes de 0 entao adiciona uma hora
+        if($minutes!=0){
+            $hours = $hours + 1;
 
-            if($minutos!=0 && $horas==1){
-                $horas = $horas - 1;
+            if($minutes!=0 && $hours==1){
+
+                $hours = $hours - 1;
 
             }
         }
 
-        $bankFormattedPresencas = sprintf('%d:%02d', $horas, $minutos);
+        $bankFormattedPresences = sprintf('%d:%02d', $hours, $minutes);
 
-        $totalMinutes =+ $bank;
+        $timeAbsences =+ $bank;
 
         /*CALCULA SE O TRABALHADOR DEVE HORAS POR CAUSA DE FALTAS*/
         $time = 0;
@@ -225,9 +235,9 @@ class BankHourController extends Controller
             $ver = false;
 
             if($absence->user_id == $user_id_logged){
-                $duracaoAtraso = 0;
-                $duracaoAlmoco= 0;
-                $duracaoFaltaSemAlmoco=0;
+                $durationDelay = 0;
+                $lunchBreakDuration= 0;
+                $absenceDuration=0;
                 $ver = false;   //serve para verificar se o utilizador chegou atrasado
 
                 /*Calcula duracao da falta*/
@@ -250,33 +260,32 @@ class BankHourController extends Controller
                 }
 
                 if($absence->absence_types_id == 3){
+
                     /*Calcula duracao almoço*/
                     $work_shift= Work_Shift::where('id', $userShiftsId)->first();
                     $startHourInt = Carbon::parse($work_shift->break_start);
                     $endHourInt = Carbon::parse($work_shift->break_end);
                     $diffInt = $startHourInt->diffInMinutes($endHourInt);
-
                     $diff= $diff - $diffInt;
+
                 }
 
 
-                /*VERIFICA SE CHEGOU ATRASADO*/
-                /*Verifica atrasos para primeiro turno*/
+                /*Verifica se chegou atrasado no primeiro ou no segundo turno*/
                 foreach ($presences as $presence){
 
                     if ($presence->user_id == $user_id_logged) {
-                        // Se chegou atrasado no primeiro turno ou chegou atrasado no segundo turno
                         if ($presence->first_start >= $absence->absence_start_date && $presence->first_start <= $absence->absence_end_date){
 
                             $ver = true;
 
                         }
                         else if ($presence->second_start >= $absence->absence_start_date && $presence->second_start <= $absence->absence_end_date){
+
                             $ver = true;
 
                         }
                     }
-
                 }
 
                 //Se o utilizador teve falta e nem sequer chegou a comparecer, é retirado a duração de falta ao banco de horas
@@ -285,62 +294,70 @@ class BankHourController extends Controller
                     $time = $time - $diff;
 
                 }
-
             }
-
         }
 
-        $totalMinutes =+ $time;
+        $timeAbsences =+ $time;
 
+        // Faz a soma de total de tempo devido por presenças e por faltas
+        if($timePresences < $timeAbsences  ){
 
-        if($timePresencas < $totalMinutes  ){   // Total faltas maior que 0 e total presencas menor que 0
-
-            $totalMinutes = $timePresencas + $totalMinutes;
+            $timeAbsences = $timePresences + $timeAbsences;
 
         }
-        else if($timePresencas > $totalMinutes || $timePresencas == $totalMinutes){   // Total faltas maior que 0 e total presencas maior que 0
+        else if($timePresences > $timeAbsences || $timePresences == $timeAbsences){
 
-            $totalMinutes = $totalMinutes + $timePresencas;
+            $timeAbsences = $timeAbsences + $timePresences;
 
         }
 
 
         // Converte o banco de minutos para formato HH:MM
-        $horas = floor($time / 60);
-        $minutos = $time % 60;
+        $hours = floor($time / 60);
+        $minutes = $time % 60;
 
-        if($minutos!=0){
-            $horas = $horas + 1;
+        if($minutes!=0){
+
+            $hours = $hours + 1;
         }
 
-        $bankFormattedFaltas = sprintf('%d:%02d', $horas, $minutos);
+        $bankFormattedAbsences = sprintf('%d:%02d', $hours, $minutes);
 
         //Vai buscar o nome do mes pelo numero em portugues
-        $meses = array("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+        $monthsArray = array("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
             "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro");
 
 
         if($month == "Todos"){
+
             $month == 'Todos';
+
         }
         else if($month != 0){
-            $month = $meses[$month-1];
+
+            $month = $monthsArray[$month-1];
+
         }
 
         if($year == null){
+
             $year = 'Todos';
+
         }
 
-        $horas = floor($totalMinutes / 60);
-        $minutos = $totalMinutes % 60;
+        $hours = floor($timeAbsences / 60);
+        $minutes = $timeAbsences % 60;
 
-        if($minutos!=0){
-            $horas = $horas + 1;
+        //Se os minutos forem diferentes de 0 entao adiciona uma hora
+        if($minutes!=0){
+
+            $hours = $hours + 1;
+
         }
 
-        $bankTotal = sprintf('%d:%02d', $horas, $minutos);
+        $bankTotal = sprintf('%d:%02d', $hours, $minutes);
 
-        return view('pages.time-bank-balance.time-bank-balance ', ['month'=>$month, 'year'=>$year,'totalMinutes'=>$totalMinutes, 'bankFormattedFaltas'=>$bankFormattedFaltas, 'bankFormattedPresencas'=>$bankFormattedPresencas, 'bankTotal'=>$bankTotal]);
+        return view('pages.time-bank-balance.time-bank-balance ', ['month'=>$month, 'year'=>$year,'totalMinutes'=>$timeAbsences, 'bankFormattedFaltas'=>$bankFormattedAbsences, 'bankFormattedPresencas'=>$bankFormattedPresences, 'bankTotal'=>$bankTotal]);
 
     }
 
