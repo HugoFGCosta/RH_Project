@@ -7,6 +7,7 @@ use App\Http\Requests\StoreAbsenceRequest;
 use App\Http\Requests\UpdateAbsenceRequest;
 use App\Models\Absence_State;
 use App\Models\AbsenceType;
+use App\Models\Justification;
 use App\Models\Presence;
 use App\Models\User;
 use App\Models\User_Shift;
@@ -17,26 +18,31 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
+use Termwind\Components\Anchor;
 
 class AbsenceController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
+    /*Metodo index- serve para listar todas as faltas*/
     public function index()
     {
         //
+        $absences = Absence::all();
+        $absences_states = Absence_State::all();
+        $absences_types = AbsenceType::all();
+        $justifications = Justification::all();
+
+        return view('pages.absences.absences-list', ['absences'=>$absences, 'absences_states'=>$absences_states, 'absences_types'=>$absences_types, 'justifications'=>$justifications]);
+
     }
 
-    public function approvedAbsences(){
-
-        $absences = Absence::where('absence_states_id', 1)->get();
-
-        return view('absences.approved', compact('absences'));
-    }
-
+    /*Metodo absencesByUser- serve para listar todas as faltas de um user*/
     public function absencesByUser($id){
 
+        //Vai buscar todas as faltas do utilizador e com absences_states_id = 3 (pendentes) e nenhuma justificação
         $absences = Absence::where('user_id', $id)->get();
         $absences_states = Absence_State::all();
         $absences_types = AbsenceType::all();
@@ -93,6 +99,7 @@ class AbsenceController extends Controller
         //
     }
 
+    /*Metodo import- serve para importar faltas para a base de dados*/
     public function import(Request $request)
     {
         $file = $request->file('file');
@@ -129,37 +136,41 @@ class AbsenceController extends Controller
             $data = str_getcsv($line);
 
             // Verifica se há exatamente 5 campos
-            if (count($data) != 5) {
+            if (count($data) != 8) {
                 return redirect()->back()->with('error', 'Certifique-se que este ficheiro contém informações de faltas.');
             }
 
-            // Verifica se os IDs são inteiros
-            if (!is_int($data[0]) || !is_int($data[1]) || !is_int($data[2])) {
+            // Verifica se os IDs são numéricos e depois converte para inteiros
+            if (!is_numeric($data[0]) || !is_numeric($data[1]) || !is_numeric($data[2])) {
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador, estado de falta e aprovador são números válidos.');
             }
 
-            // Verifica se o campo absence_date é uma data válida
-            if (strtotime($data[3]) === false) {
-                return redirect()->back()->with('error', 'A data fornecida não é válida.');
-            }
 
-            // Verifica se a justificativa não pode ser convertida para uma data válida
-            if (strtotime($data[4]) !== false) {
-                return redirect()->back()->with('error', 'A justificativa não deve ser uma data.');
+            // Verifica se o campo absence_date é uma data válida
+            if (strtotime($data[4]) === false||strtotime($data[5]) === false) {
+                return redirect()->back()->with('error', 'As datas fornecidas não são válidas.');
             }
 
             // Verifica se o ID de estado de aprovação de falta está entre 1 e 3
-            if ($data[1] < 1 || $data[1] > 3){
+            if ($data[1] < 1 || $data[1] > 4){
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de estado são números válidos.');
             }
 
-            Absence::create([
+            $absenceData = [
                 'user_id' => $data[0],
                 'absence_states_id' => $data[1],
-                'approved_by' => $data[2],
-                'absence_date' => $data[3],
-                'justification' => $data[4],
-            ]);
+                'absence_types_id' => $data[2],
+                'absence_start_date' => $data[4],
+                'absence_end_date' => $data[5],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            $absenceData['approved_by'] = !empty($data[3]) ? $data[3] : null;
+
+            Absence::create($absenceData);
+
+
         }
 
         fclose($handle);
@@ -173,10 +184,8 @@ class AbsenceController extends Controller
         return redirect()->back()->with('success', 'Faltas importadas com sucesso.');
     }
 
-
+    /*Metodo export- serve para exportar todas as faltas existentes na base de dados*/
     public function export(){
-
-        //
 
         // Define o nome do ficheiro e os cabeçalhos
         $absences = Absence::all();
@@ -188,11 +197,11 @@ class AbsenceController extends Controller
 
         //Escreve os cabeçalhos no ficheiro
         $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['User_id','Absence_states_id', 'Approved_by','Absence_date','Justification']);
+        fputcsv($handle, ['Id_Utilizador','Id_Estado_Falta','Id_Tipo_Falta', 'Aprovado_Por','Data_Comeco_Falta','Data_Fim_Falta','Criado_A','Atualizado_A']);
 
         //Para cada falta insere uma linha no ficheiro
         foreach ($absences as $absence) {
-            fputcsv($handle, [$absence->user_id,$absence->absence_states_id, $absence->approved_by,$absence->absence_date,$absence->justification]); // Add more fields as needed
+            fputcsv($handle, [$absence->user_id,$absence->absence_states_id,$absence->absence_types_id, $absence->approved_by,$absence->absence_start_date,$absence->absence_end_date, $absence->created_at, $absence->updated_at]); // Add more fields as needed
         }
 
         // Fecha o ficheiro
@@ -201,6 +210,7 @@ class AbsenceController extends Controller
         return Response::make('', 200, $headers);
     }
 
+    // Metodo verifyPresences- serve para correr todos os metodos do procedure
     public function verifyPresences(){
 
         $this->verifyFirstShiftAbsence();
@@ -208,6 +218,7 @@ class AbsenceController extends Controller
 
     }
 
+    // Metodo verifyFirstShiftAbsence- serve para verificar se o utilizador faltou ao primeiro turno
     public function verifyFirstShiftAbsence(){
 
         $users = User::all();
@@ -284,17 +295,10 @@ class AbsenceController extends Controller
                     ]);
                 }
             }
-
-
-
-
-
-
-
         }
-
     }
 
+    // Metodo verifySecondShiftAbsence- serve para verificar se o utilizador faltou ao segundo turno
     public function verifySecondShiftAbsence(){
 
         $users = User::all();
@@ -306,17 +310,17 @@ class AbsenceController extends Controller
             $user_shift = User_Shift::where('user_id', $user->id)->latest()->first();
             $work_shiftId = $user_shift->work_shift_id;
             $work_shift= Work_Shift::where('id', $work_shiftId)->first();
-            $horaEntrada = Carbon::now()->format('Y-m-d') . ' ' . Carbon::parse($work_shift->break_end)->format('H:i:s');
+            $entranceHour = Carbon::now()->format('Y-m-d') . ' ' . Carbon::parse($work_shift->break_end)->format('H:i:s');
 
             //Cria uma variavel com a hora de entrada mais 15 minutos
-            $horaEntradaComTolerancia = Carbon::parse($horaEntrada)->addMinutes(15)->format('Y-m-d H:i:s');
+            $entranceHourWithToleration = Carbon::parse($entranceHour)->addMinutes(15)->format('Y-m-d H:i:s');
 
-            if($this->verifyUserInVacation($user->id,$horaEntradaComTolerancia)){    //Se o utilizador estiver de férias não é marcada falta
+            if($this->verifyUserInVacation($user->id,$entranceHourWithToleration)){    //Se o utilizador estiver de férias não é marcada falta
                 continue;
             }
 
             //Cria uma variavel com a hora de entrada menos 15 minutos
-            $horaEntradaMenosTolerancia = Carbon::parse($horaEntrada)->subMinutes(15)->format('Y-m-d H:i:s');
+            $horaEntradaMenosTolerancia = Carbon::parse($entranceHour)->subMinutes(15)->format('Y-m-d H:i:s');
 
             //Obtem data e hora atual
             $currentDateTime = Carbon::now()->format('Y-m-d H:i:s');
@@ -332,9 +336,6 @@ class AbsenceController extends Controller
 
             $diff = $breakEnd->diffInMinutes($endHour);
 
-            //Retira a diferença de tempo ao $work_shift->break_start para obter a hora de entrada do turno
-            $horaEntradaCalculo = Carbon::parse($work_shift->end_hour)->subMinutes($diff)->format('Y-m-d H:i:s');
-
             //Cria uma variavel com a hora de saída do turno
             $horaSaida = Carbon::parse($work_shift->end_hour)->format('Y-m-d H:i:s');
 
@@ -345,7 +346,7 @@ class AbsenceController extends Controller
 
 
             //Se a hora atual for igual a hora de entrada com tolerancia deste user significa que está na hora de verificar se este utilizador marcou a sua presença
-            if($currentDateTime == $horaEntradaComTolerancia){
+            if($currentDateTime == $entranceHourWithToleration){
 
                 if($this->verifyTotalAbsence($user)){    //Se o utilizador já tiver uma falta no turno da manhã é lhe marcada falta total
                     continue; //Portanto a falta de segundo turno não é marcada
@@ -355,7 +356,7 @@ class AbsenceController extends Controller
                 //Verifica se o user marcou presença 15 minutos antes ou depois da hora de entrada
                 foreach ($presences as $presence){
                     if($presence->user_id == $user->id){
-                        if($presence->first_start >= $horaEntradaMenosTolerancia && $presence->first_start <= $horaEntradaComTolerancia) {
+                        if($presence->first_start >= $horaEntradaMenosTolerancia && $presence->first_start <= $entranceHourWithToleration) {
                             $ver= true;
                         }
                     }
@@ -368,19 +369,16 @@ class AbsenceController extends Controller
                         'absence_states_id' => 4,
                         'absence_types_id'=>2,
                         'approved_by' => null,
-                        'absence_start_date' => $horaEntrada,
+                        'absence_start_date' => $entranceHour,
                         'absence_end_date' => $horaSaida,
                         'justification' => 'Falta ao segundo turno',
                     ]);
                 }
-
             }
-
-
         }
-
     }
 
+    // Metodo verifySecondShiftAbsence- serve para verificar se o utilizador está de férias
     public function verifyUserInVacation($user_id, $data){
 
         $vacations = Vacation::all();
@@ -395,6 +393,7 @@ class AbsenceController extends Controller
 
     }
 
+    // Metodo verifyTotalAbsence- serve para verificar se o colaborador faltou o dia inteiro
     public function verifyTotalAbsence($user)
     {
         $absences = Absence::all();
@@ -441,5 +440,6 @@ class AbsenceController extends Controller
         }
 
         return false;   //Caso o utilizador não tenha falta no turno da manhã retorna false
+
     }
 }

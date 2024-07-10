@@ -1,18 +1,9 @@
 @extends('master.main')
 
 @section('content')
-
-    @if (session('success'))
-        <div class="alert alert-success successMessage">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="alert alert-danger errorMessage">
-            {{ session('error') }}
-        </div>
-    @endif
+    <h1>Lista de Faltas</h1>
+    @component('components.alerts.alerts')
+    @endcomponent
 
     <div class="container pt-5">
 
@@ -21,4 +12,8 @@
 
     </div>
 
+@endsection
+
+@section('scripts')
+    <script src="{{asset('js/absences-by-user.js')}}"></script>
 @endsection

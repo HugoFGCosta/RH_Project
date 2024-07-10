@@ -6,13 +6,15 @@
 
 @section('content')
     <div class="container p-5">
+        <h1>Registo de Assiduidade</h1>
+
         <div class="form-container">
-            @component('components.attendance-record.attendance-record', ['user' => $user,'presences' => $presences, 'user_shifts' => $user_shifts]);
+            @component('components.attendance-record.attendance-record2', ['user' => $user,'presences' => $presences, 'user_shifts' => $user_shifts]);
             @endcomponent
         </div>
     </div>
 @endsection
 
 @section('scripts')
-    <script src="{{ asset('/js/show-all.js') }}"></script>
+    <script src="{{ asset('/js/attendance-record.js') }}"></script>
 @endsection

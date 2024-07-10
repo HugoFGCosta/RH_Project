@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NotificationEvent;
+use App\Models\Notification;
 use App\Models\Vacation;
 use App\Http\Requests\StoreVacationRequest;
 use App\Http\Requests\UpdateVacationRequest;
@@ -14,76 +16,104 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use Mockery\Exception;
 
+
 class VacationController extends Controller
 {
     public function difTotal($user)
     {
 
-        $vacation_start= Vacation::where('user_id',$user)->pluck('date_start');
-        $vacation_end = Vacation::where('user_id',$user)->pluck('date_end');
-        $total= 0;
-        $totaldias=0;
-        foreach ($vacation_start as $x){
-            $total = $total +1;
+        $vacation_start = Vacation::where('user_id', $user)->pluck('date_start');
+        $vacation_end = Vacation::where('user_id', $user)->pluck('date_end');
+        $total = 0;
+        $totaldias = 0;
+        foreach ($vacation_start as $x) {
+            $total = $total + 1;
         }
-        for($i=0;$total>$i;$i++){
-            $diff_date = Carbon::parse($vacation_start[$i])->diffInDaysFiltered(function (Carbon $remover){
+        for ($i = 0; $total > $i; $i++) {
+            $diff_date = Carbon::parse($vacation_start[$i])->diffInDaysFiltered(function (Carbon $remover) {
                 return !$remover->isWeekend();
-            },Carbon::parse($vacation_end[$i]));
-            $totaldias=$totaldias+$diff_date;
+            }, Carbon::parse($vacation_end[$i]));
+            $totaldias = $totaldias + $diff_date;
         }
         return $totaldias;
     }
-    public function difInput($start, $end,$total): bool|int
+    public function difInput($start, $end, $total): bool|int
     {
 
-        $diff_date = Carbon::parse($start)->diffInDaysFiltered(function (Carbon $remover){
+        $diff_date = Carbon::parse($start)->diffInDaysFiltered(function (Carbon $remover) {
             return !$remover->isWeekend();
-        },Carbon::parse($end));
-        if ($total + $diff_date <= 22 ){
+        }, Carbon::parse($end));
+        if ($total + $diff_date <= 22) {
             return true;
-        }
-        else
-        return false;
-        }
+        } else
+            return false;
+    }
 
     public function index()
     {
-   $totaldias = $this->difTotal(Auth::id());
-   $roleId = auth()->user()->role_id;
-if ($roleId >1)
-    $vacation = vacation::with('user')->orderBy('id', 'asc')->paginate(3);
-else
-    $vacation = vacation::with('user')->orderBy('id', 'asc')->where('user_id',Auth::id())->paginate(3);
+        $totaldias = $this->difTotal(Auth::id());
+        $roleId = auth()->user()->role_id;
+        if ($roleId > 1) {
+            $vacation = Vacation::with(['user', 'approvedBy'])->orderBy('id', 'asc')->get();
+        } else {
+            $vacation = Vacation::with(['user', 'approvedBy'])->orderBy('id', 'asc')->where('user_id', Auth::id())->get();
+        }
 
-return view('pages.vacations.show',['vacations' => $vacation])->with('totaldias',$totaldias)->with('role',$roleId);
-
+        return view('pages.vacations.show', ['vacations' => $vacation])->with('totaldias', $totaldias)->with('role', $roleId);
     }
+
+
     public function create()
     {
         $roleId = auth()->user()->role_id;
         $totaldias = $this->difTotal(Auth::id());
-        return view ('pages.vacations.create')->with('totaldias', $totaldias)->with('role',$roleId);;
+        return view('pages.vacations.create')->with('totaldias', $totaldias)->with('role', $roleId);
+        ;
+    }
+
+    public function timeCollide($vacation_id, $user_id, $start, $end)
+    {
+        $vacations = Vacation::where('user_id', $user_id)
+            ->where('id', '<>', $vacation_id)
+            ->where(function ($query) use ($start, $end) {
+                $query->whereBetween('date_start', [$start, $end])
+                    ->orWhereBetween('date_end', [$start, $end])
+                    ->orWhere(function ($query) use ($start, $end) {
+                        $query->where('date_start', '<=', $start)
+                            ->where('date_end', '>=', $end);
+                    });
+            })
+            ->exists();
+        return !$vacations;
     }
 
     public function store(StoreVacationRequest $request)
     {
-        $request->validate([
-            'date_start' => 'required|after:today,before:date_end' ,
-            'date_end' => 'required|after:tomorrow|after:date_start'
-        ]);
-       if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::id()))!=null){
+        $messages = [
+            'date_start.required' => 'A data de inicio é obrigatória.',
+            'date_start.after' => 'A data de inicio deve ser uma data após hoje.',
+            'date_start.before' => 'A data de inicio deve ser antes da data de fim.',
+            'date_end.required' => 'A data de fim é obrigatória.',
+            'date_end.after' => 'A data de fim deve ser uma data após amanhã.',
+            'date_end.after:date_start' => 'A data de fim deve ser após a data de inicio.',
+        ];
+        $validatedData = $request->validate([
+            'date_start' => 'required|date|after:today|before:date_end',
+            'date_end' => 'required|date|after:tomorrow|after:date_start',
+        ], $messages);
+        if ($this->difInput($request->date_start, $request->date_end, $this->difTotal(Auth::id())) != null && $this->timeCollide(0, auth::id(), $request->date_start, $request->date_end)) {
 
-           $vacation = new Vacation();
-           $vacation->user_id = Auth::id();
-           $vacation->vacation_approval_states_id = 3;
-           $vacation->approved_by = null;
-           $vacation->date_start =$request->date_start ;
-           $vacation->date_end = $request->date_end ;
-           $vacation->save();
-           return redirect(url('/vacation'))->with('status','Item created successfully!');
-    }
-else return redirect(url('/vacations/create'))->with('status','error!');
+            $vacation = new Vacation();
+            $vacation->user_id = Auth::id();
+            $vacation->vacation_approval_states_id = 3;
+            $vacation->approved_by = null;
+            $vacation->date_start = $request->date_start;
+            $vacation->date_end = $request->date_end;
+            $vacation->save();
+            return redirect(url('/vacation'))->with('status', 'Criado com sucesso!');
+        } else
+            return redirect(url('/vacations/create'))->with('status', 'O Utilizador já marcou ferias neste(s) dia(s)!!');
+
     }
 
 
@@ -94,52 +124,72 @@ else return redirect(url('/vacations/create'))->with('status','error!');
 
     public function edit(Vacation $vacation)
     {
-    //   print   Vacation::with('user')->where('role_id', auth::id())->pluck("role_id");
         $roleId = Auth::user()->role_id;
-        $totaldias= $this->difTotal($roleId);
-        return view('pages.vacations.edit', ['vacations' => $vacation])->with('totaldias', $totaldias)->with('role',$roleId);;
+        $totaldias = $this->difTotal(Auth::id());
+        $role_id_table = $vacation->user->role_id;
 
+        return view('pages.vacations.edit', [
+            'vacations' => $vacation,
+            'totaldias' => $totaldias,
+            'role' => $roleId,
+            'role_id_table' => $role_id_table
+        ]);
     }
+
 
     public function update(UpdateVacationRequest $request, Vacation $vacation)
     {
-        $request->validate([
-            'date_start' => 'required|after:today,before:date_end' ,
-            'date_end' => 'required|after:tomorrow|after:date_start',
+        $messages = [
+            'date_start.required' => 'O dia de inicio é obrigatório.',
+            'date_start.after' => 'O dia de inicio deve ser uma data após hoje.',
+            'date_start.before' => 'O dia de inicio deve ser antes do dia de fim.',
+            'date_end.required' => 'O dia de fim é obrigatório.',
+            'date_end.after' => 'O dia de fim deve ser uma data após amanhã.',
+            'date_end.after:date_start' => 'O dia de fim deve ser após o dia de inicio.',
+        ];
+        $validatedData = $request->validate([
+            'date_start' => 'required|date|after:today|before:date_end',
+            'date_end' => 'required|date|after:tomorrow|after:date_start',
+        ], $messages);
 
-        ]);
         $roleId = auth()->user()->role_id;
-       if($this->difInput($request->date_start , $request->date_end ,$this->difTotal(Auth::user())) ) {
+        if ($this->timeCollide($vacation->id, $vacation->user_id, $request->date_start, $request->date_end)) {
 
+            $vacation = Vacation::find($vacation->id);
+            if ($roleId >= 2 && $vacation->vacation_approval_states_id != $request->vacation_approval_states_id) {
+                $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
+                $vacation->approved_by = auth()->user()->id;
+            } else {
+                $vacation->vacation_approval_states_id = 3;
+                $vacation->approved_by = null;
 
-           $vacation = Vacation::find($vacation->id);
-           //  if(find($vacation->approved_by))
-           $vacation->approved_by = null;
+            }
+            $vacation->date_start = $request->date_start;
+            $vacation->date_end = $request->date_end;
 
-           if($roleId > 2){
-               $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
-           $vacation->approved_by=auth::id();
-           }
-           else
-               $vacation->vacation_approval_states_id = 3;
+            $vacation->save();
 
-           $vacation->date_start = $request->date_start;
-           $vacation->date_end = $request->date_end;
+            // Criar uma nova notificação
+            $notification = new Notification();
+            $notification->user_id = $vacation->user_id; // Aqui você pode ajustar para o ID do usuário apropriado
+            $notification->vacation_id = $vacation->id;
+            $notification->state = false; // não lido
+            $notification->save();
 
-           $vacation->save();
-           print $roleId;
-           return redirect(url('/vacation'))->with('status', 'Item edited successfully!');
-       }
-       else
-           return redirect('/vacation')->with('status', 'Erro!');
-        }
+            // Enviar evento para Pusher após a atualização ser bem-sucedida
+            event(new NotificationEvent('Vacation details updated successfully!', $notification->id));
+
+            return redirect(url('/vacation'))->with('status', 'Atualizado com sucesso!');
+        } else
+            return redirect('/vacation')->with('status', 'O Utilizador já marcou ferias neste(s) dia(s)!');
+    }
 
 
     public function destroy(Vacation $vacation)
     {
         $vacation = vacation::find($vacation->id);
         $vacation->delete();
-        return redirect('vacation')->with('status','Item deleted successfully!');
+        return redirect('vacation')->with('status', 'Eliminado com sucesso!');
 
     }
 
@@ -173,7 +223,7 @@ else return redirect(url('/vacations/create'))->with('status','error!');
 
             // Verifica se os IDs são inteiros
             if (!is_numeric($data[0]) || !is_numeric($data[1]) || !is_numeric($data[2])) {
-                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador, de estado de Aprovação, e Aprovado_Por são números válidos.');
             }
 
             // Valida se os campos date_start e date_end são datas válidas
@@ -210,6 +260,8 @@ else return redirect(url('/vacations/create'))->with('status','error!');
                 'approved_by' => $data[2],
                 'date_start' => $data[3],
                 'date_end' => $data[4],
+                'created_at' => now(),
+                'updated_at' => now()
             ]);
         }
 
@@ -219,7 +271,8 @@ else return redirect(url('/vacations/create'))->with('status','error!');
         return redirect()->back()->with('success', 'Férias importadas com sucesso.');
     }
 
-    public function export(){
+    public function export()
+    {
 
         // Cria um vetor com todas as férias, define o nome do ficheiro e os cabeçalhos
         $vacations = Vacation::all();
@@ -230,11 +283,11 @@ else return redirect(url('/vacations/create'))->with('status','error!');
         ];
 
         $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['User_id','Vacation_approval_states_id', 'Approved_by','Date_start','Date_end']); // Add more headers as needed
+        fputcsv($handle, ['Id_Utilizador', 'Id_Estado_Aprovacao_Falta', 'Aprovado_Por', 'Data_Comeco', 'Data_Fim', 'Criado_A', 'Atualizado_A']); // Add more headers as needed
 
         //Percorre o vetor com as férias e escreve no ficheiro
         foreach ($vacations as $vacation) {
-            fputcsv($handle, [$vacation->user_id,$vacation->vacation_approval_states_id, $vacation->approved_by,$vacation->date_start,$vacation->date_end]); // Add more fields as needed
+            fputcsv($handle, [$vacation->user_id, $vacation->vacation_approval_states_id, $vacation->approved_by, $vacation->date_start, $vacation->date_end, $vacation->created_at, $vacation->updated_at]); // Add more fields as needed
         }
 
         fclose($handle);

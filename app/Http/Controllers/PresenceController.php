@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Absence;
 use App\Models\Presence;
 use App\Http\Requests\StorePresenceRequest;
 use App\Http\Requests\UpdatePresenceRequest;
@@ -16,156 +17,46 @@ use Illuminate\Http\Request;
 
 class PresenceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
 
-
-    /*  public function store(Request $request)
-     {
-        // metodo antigo
-
-         $user = auth()->user();
-         $userShift = User_Shift::where('user_id', $user->id)->whereNull('end_date')->first();
-         $workShift = Work_Shift::find($userShift->work_shift_id);
-
-         // VERIFICA se existe um registro de presença para user hoje
-         $presence = Presence::where('user_id', $user->id)
-             ->whereDate('created_at', Carbon::today())
-             ->first();
-
-         // VERIFICA se todos os 4 registros já foram preenchidos
-         if ($presence && $presence->first_start && $presence->first_end && $presence->second_start && $presence->second_end) {
-             return redirect()->to(url('user/presence'))->with('error', 'Já existe um registro de presença completo para hoje.');
-         }
-
-         if (!$presence) {
-             $presence = new Presence;
-             $presence->user_id = $user->id;
-             $presence->first_start = Carbon::parse($request->first_start);
-         } elseif (!$presence->first_end) {
-             $presence->first_end = Carbon::parse($request->first_end);
-         } elseif (!$presence->second_start) {
-             $presence->second_start = Carbon::parse($request->second_start);
-         } else {
-             $presence->second_end = Carbon::parse($request->second_end);
-         }
-
-         // CALCULA a diferença em minutos e guarda em $presence->effective_hour
-
-
-
-         $effective_hour = 0;
-
-
-
-         if ($presence->first_start && $presence->first_end) {
-             $first_start = Carbon::parse($presence->first_start);
-             $first_end = Carbon::parse($presence->first_end);
-             $effective_hour += $first_start->diffInMinutes($first_end);
-         }
-         if ($presence->second_start && $presence->second_end) {
-             $second_start = Carbon::parse($presence->second_start);
-             $second_end = Carbon::parse($presence->second_end);
-             $effective_hour += $second_start->diffInMinutes($second_end);
-         }
-
-
-         $effective_hour /= 60;
-
-         // PEGA a hora de término do turno
-         $start_hour = Carbon::parse($workShift->start_hour);
-         $end_hour = Carbon::parse($workShift->end_hour);
-
-         // CALCULA as horas extras
-         $extra_hours = 0;
-
-         // CALCULA hora extra para quem entra antes da hora do turno
-         $first_start = Carbon::parse($presence->first_start);
-         if ($first_start->lt($start_hour)) {
-             $extra_hours_early = $first_start->diffInMinutes($start_hour) / 60;
-             if ($extra_hours_early >= 1) {
-                 $extra_hours += $extra_hours_early;
-             }
-         }
-
-         if ($presence->second_end && $presence->second_end->gt($end_hour)) {
-             $extra_hours += $presence->second_end->diffInMinutes($end_hour) / 60;
-         }
-
-         $presence->extra_hour = $extra_hours;
-         $presence->effective_hour = $effective_hour - $extra_hours;
-
-
-         $verify_effective_hour = $effective_hour - $extra_hours;
-
-         if ($verify_effective_hour < 0) {
-             $effective_hour == 0;
-             $presence->effective_hour = $effective_hour;
-         } else {
-             $presence->effective_hour = $effective_hour - $extra_hours;
-         }
-
-         $presence->save();
-
-         return redirect()->to(url('/menu'));
-     }  */
-
-
-
-
+    // Metodo verifyPresence - Verifica as presenças em caso de esquecimento de saida
+    // Caso tenha passado 15 horas da entrada fecha o turno e atribui hora efetiva e extra como 0
+    // função agora desempenhada pelo MYSQL
     public function verifyPresence()
     {
-        // METODO das 15 horas auto-picagem
-
-        /*  $presences = Presence::all()->where('first_start', '>=', Carbon::now()->subHours(15))
-             ->whereNull('first_end'); */
-
-        /* $presences = Presence::where('first_start', '>=', Carbon::now()->subHours(15))
-            ->whereNull('first_end')
-            ->get(); */
-        //$presences = Presence::all();
-
         $presences = Presence::whereNull('first_end')
             ->orWhereNull('second_start')
             ->orWhereNull('second_end')
             ->get();
 
 
-        //dd($presences);
-
-
         foreach ($presences as $presence) {
-            //dd($presence);
             $first_start = Carbon::parse($presence->first_start);
             if ($first_start->addHours(15) <= Carbon::now()->addHour()) {
-                //dd($presence);
+
+                // Se nao tiver a first_end do periodo de trabalho apos 15 horas
+                // Atribui a hora de entrada para (first_end, second_start, second_end) como first_start + 15horas
                 if ($presence->first_end == null) {
-                    //dd($presence);
                     $presence->first_end = $first_start;
                     $presence->second_start = $first_start;
                     $presence->second_end = $first_start;
                     $presence->extra_hour = 0;
                     $presence->effective_hour = 0;
                     $presence->save();
-                    //dd($presence);
 
+
+                    // Se nao tiver a second_end do periodo de trabalho apos 15 horas
+                    // Atribui a hora de entrada para (first_end, second_start, second_end) como first_start + 15horas
                 } elseif ($presence->second_end == null) {
                     $presence->second_end = $first_start;
                     $presence->extra_hour = 0;
@@ -174,104 +65,79 @@ class PresenceController extends Controller
                 }
             }
         }
-
-        /* 
-                $presences_second = Presence::WhereNull('second_end')->get();
-
-                foreach ($presences_second as $presence) {
-
-                    $first_start = Carbon::parse($presence->first_start);
-
-                    if ($first_start->addHours(15) <= Carbon::now()) {
-
-                        if ($presence->second_end === null) {
-                            $presence->second_end = $first_start;
-                            $presence->extra_hour = 0;
-                            $presence->effective_hour = 0;
-                            $presence->save();
-                        }
-                    }
-                } */
     }
 
 
-
-
-
-
+    //Metodo store - Guarda as presenças de cada user logado.
     public function store(Request $request)
     {
         $user = auth()->user();
-        $userShift = User_Shift::where('user_id', $user->id)->whereNull('end_date')->first();
+        $today = Carbon::today()->toDateString();
+
+
+        // Buscar o turno de trabalho mais recente para o usuário
+        $userShift = User_Shift::where('user_id', $user->id)
+            ->where(function ($query) use ($today) {
+                $query->whereNull('end_date')
+                    ->orWhereDate('end_date', '>=', $today);
+            })
+            ->whereDate('start_date', '<=', $today)
+            ->orderBy('start_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$userShift) {
+            Log::error('User shift not found for user', ['user_id' => $user->id]);
+            return response()->json(['error' => 'User shift not found.'], 404);
+        }
         $workShift = Work_Shift::find($userShift->work_shift_id);
+
 
         // VERIFICA se existe um registro de presença para user hoje
         $presence = Presence::where('user_id', $user->id)
             ->whereDate('created_at', Carbon::today())
             ->first();
 
+
         // VERIFICA se todos os 4 registros já foram preenchidos
         if ($presence && $presence->first_start && $presence->first_end && $presence->second_start && $presence->second_end) {
-            return redirect()->to(url('menu'))->with('error', 'Já existe um registro de presença completo para hoje.');
+            return response()->json(['error' => 'Já existe um registro de presença completo para hoje.'], 400);
         }
 
-        if (!$presence) {
+
+        // Verificar se o usuário tem uma falta no primeiro turno
+        $absenceFirstShift = Absence::where('user_id', $user->id)
+            ->where('absence_types_id', 1)
+            ->whereDate('absence_start_date', Carbon::today())
+            ->first();
+
+
+        //Se houver uma falta no primeiro turno  e nao existir presença cria a presença no segundo turno
+        if ($absenceFirstShift && !$presence) {
             $presence = new Presence;
             $presence->user_id = $user->id;
-            $presence->first_start = Carbon::parse($request->first_start)->addHour();
-        } elseif (!$presence->first_end) {
-            $presence->first_end = Carbon::parse($request->first_end)->addHour();
-        } elseif (!$presence->second_start) {
-            $presence->second_start = Carbon::parse($request->second_start)->addHour();
+            $presence->second_start = Carbon::now()->addHour();
+        } elseif ($absenceFirstShift && $presence && is_null($presence->second_start)) {
+            $presence->second_start = Carbon::now()->addHour();
+        } elseif ($absenceFirstShift && $presence && is_null($presence->second_end)) {
+            $presence->second_end = Carbon::now()->addHour();
         } else {
-            $presence->second_end = Carbon::parse($request->second_end)->addHour();
-        }
-
-        /*  // teste de 1 minuto       
-        
-         if ($presence->first_start && is_null($presence->first_end)) {
-             $first_start = Carbon::parse($presence->first_start);
-             if (Carbon::now()->diffInMinutes($first_start) >= 1) {
-                 $presence->first_end = Carbon::now();
-             }
-         }
-
-         if ($presence->second_start && is_null($presence->second_end)) {
-             $first_start = Carbon::parse($presence->first_start);
-             if (Carbon::now()->diffInMinutes($first_start) >= 1) {
-                 $presence->second_end = Carbon::now();
-             }
-         } */
-
-
-
-
-        // Adiciona a verificação de 15 horas desde o início do trabalho do user
-
-        if ($presence->first_start && is_null($presence->first_end)) {
-            $first_start = Carbon::parse($presence->first_start);
-            if (Carbon::now()->diffInHours($first_start) >= 15) {
-                $presence->first_end = Carbon::now();
-                $presence->second_start = Carbon::now();
-                $presence->second_end = Carbon::now();
+            if (!$presence) {
+                $presence = new Presence;
+                $presence->user_id = $user->id;
+                $presence->first_start = Carbon::now()->addHour();
+            } elseif (is_null($presence->first_end)) {
+                $presence->first_end = Carbon::now()->addHour();
+            } elseif (is_null($presence->second_start)) {
+                $presence->second_start = Carbon::now()->addHour();
+            } else {
+                $presence->second_end = Carbon::now()->addHour();
             }
         }
-
-        if ($presence->second_start && is_null($presence->second_end)) {
-            $first_start = Carbon::parse($presence->first_start);
-            if (Carbon::now()->diffInHours($first_start) >= 15) {
-                $presence->second_end = Carbon::now();
-            }
-        }
-
-
 
 
         // CALCULA a diferença em minutos e guarda em $presence->effective_hour
         $effective_hour = 0;
-
-
-
         if ($presence->first_start && $presence->first_end) {
             $first_start = Carbon::parse($presence->first_start);
             $first_end = Carbon::parse($presence->first_end);
@@ -282,18 +148,16 @@ class PresenceController extends Controller
             $second_end = Carbon::parse($presence->second_end);
             $effective_hour += $second_start->diffInMinutes($second_end);
         }
-
-
         $effective_hour /= 60;
+
 
         // PEGA a hora começo/fim do turno
         $start_hour = Carbon::parse($workShift->start_hour);
         $end_hour = Carbon::parse($workShift->end_hour);
 
-        // CALCULA as horas extras
-        $extra_hours = 0;
 
         // CALCULA hora extra para quem entra antes da hora do turno
+        $extra_hours = 0;
         $first_start = Carbon::parse($presence->first_start);
         if ($first_start->lt($start_hour)) {
             $extra_hours_early = $first_start->diffInMinutes($start_hour) / 60;
@@ -301,378 +165,96 @@ class PresenceController extends Controller
                 $extra_hours += $extra_hours_early;
             }
         }
-
         if ($presence->second_end && Carbon::parse($presence->second_end)->gt($end_hour)) {
-            $extra_hours += $presence->second_end->diffInMinutes($end_hour) / 60;
+            $extra_hours += Carbon::parse($presence->second_end)->diffInMinutes($end_hour) / 60;
         }
 
+        // Se hora extra for menos que 0, atribui valor 0
+        if ($extra_hours < 0) {
+            $extra_hours = 0;
+        }
         $presence->extra_hour = $extra_hours;
-        $presence->effective_hour = $effective_hour - $extra_hours;
 
 
-        $verify_effective_hour = $effective_hour - $extra_hours;
-
-        if ($verify_effective_hour < 0) {
-            $effective_hour == 0;
-            $presence->effective_hour = $effective_hour;
+        // Se hora efetiva for menor que 0, atribui valor 0. Caso contrario subtrai as horas extras da hora efetiva.
+        if (($effective_hour - $extra_hours) < 0) {
+            $presence->effective_hour = 0;
         } else {
             $presence->effective_hour = $effective_hour - $extra_hours;
         }
 
         $presence->save();
-
-        return redirect()->to(url('/menu'));
+        return response()->json(['success' => 'Presença registrada com sucesso.']);
     }
 
 
-
-    /* public function store(Request $request)
-    {
-        $user = auth()->user();
-        $userShift = User_Shift::where('user_id', $user->id)->first();  // FUNCIONA - MAS ESTA FALTANDO ADICIONAR O END DATE NO USER_SHIFT AO TROCAR DE HORARIO
-        $workShift = Work_Shift::find($userShift->work_shift_id);
-
-        // VERIFICA se existe um registro de presença para user hoje
-        $presence = Presence::where('user_id', $user->id)
-            ->whereDate('created_at', Carbon::today())
-            ->first();
-
-
-        // VERIFICA se todos os 4 registros já foram preenchidos
-        if ($presence && $presence->first_start && $presence->first_end && $presence->second_start && $presence->second_end) {
-            return redirect()->to(url('user/presence'))->with('error', 'Já existe um registro de presença completo para hoje.');
-        }
-
-        if (!$presence) {
-            $presence = new Presence;
-            $presence->user_id = $user->id;
-            $presence->first_start = Carbon::parse($request->first_start);
-        } elseif (!$presence->first_end) {
-            $presence->first_end = Carbon::parse($request->first_end);
-        } elseif (!$presence->second_start) {
-            $presence->second_start = Carbon::parse($request->second_start);
-        } else {
-            $presence->second_end = Carbon::parse($request->second_end);
-        }
-
-        // CALCULA a diferença em minutos e guarda em $presence->effective_hour
-        $effective_hour = 0;
-
-        if ($presence->first_start && $presence->first_end) {
-            $first_start = Carbon::parse($presence->first_start);
-            $first_end = Carbon::parse($presence->first_end);
-            $effective_hour += $first_start->diffInMinutes($first_end);
-        }
-        if ($presence->second_start && $presence->second_end) {
-            $second_start = Carbon::parse($presence->second_start);
-            $second_end = Carbon::parse($presence->second_end);
-            $effective_hour += $second_start->diffInMinutes($second_end);
-        }
-        $effective_hour /= 60;
-
-        // PEGA a hora de término do turno
-        $start_hour = Carbon::parse($workShift->start_hour);
-        $end_hour = Carbon::parse($workShift->end_hour);
-
-
-        // PEGA o horario de entradaa do funcionario
-        $first_start = Carbon::parse($presence->first_start);
-
-
-
-
-        // CALCULA as horas extras
-        $extra_hours = 0;
-
-
-
-        // CALCULA hora extra acima de 1 hora antes da hora do turno
-        $extra_hours_early = 0;
-
-        $extra_hours_early = $first_start->diffInMinutes($start_hour);
-        if ($presence->first_start < $workShift->start_hour && $extra_hours_early >= 60) {
-            $extra_hours += $extra_hours_early;
-        }
-
-
-
-
-
-        if ($presence->second_end && $presence->second_end->gt($end_hour)) {
-            $extra_hours = $presence->second_end->diffInMinutes($end_hour) / 60;
-        }
-
-        $presence->extra_hour = $extra_hours;
-
-        $verify_effective_hour = $effective_hour - $extra_hours;
-
-        if ($verify_effective_hour < 0) {
-            $effective_hour == 0;
-            $presence->effective_hour = $effective_hour;
-        } else {
-            $presence->effective_hour = $effective_hour - $extra_hours;
-        }
-
-
-        $presence->save();
-
-        return redirect()->to(url('/menu'));
-    } */
-
-
-
+    // Metodo getStatus - Determina se está entrando ou saindo do turno
     public function getStatus()
     {
         $user = auth()->user();
         $user_id = $user->id;
         $presence = Presence::where('user_id', $user_id)->whereDate('created_at', Carbon::today())->first();
 
-        if (!$presence || is_null($presence->first_start)) {
-            return response()->json(['status' => 'out']);
-        } elseif (is_null($presence->first_end)) {
-            return response()->json(['status' => 'in']);
-        } elseif (is_null($presence->second_start)) {
-            return response()->json(['status' => 'out']);
-        } elseif (is_null($presence->second_end)) {
-            return response()->json(['status' => 'in']);
-        } else {
+        // Se não há registro de presença, o status é 'out'
+        if (!$presence) {
             return response()->json(['status' => 'out']);
         }
-    }
 
-    /* public function storeSimulated(Request $request)
-    {
-        // CODIGO FUNCIONANDO 100%  até a hora efetiva
-        // SIMULA HORA FICTICIA - % , nao importa as horas efetivas compara com a saida do turno para definir horas extras
-
-        $user = auth()->user();
-        $userShift = User_Shift::where('user_id', $user->id)->first();
-        $workShift = Work_Shift::find($userShift->work_shift_id);
-
-        // VERIFICA se existe um registro de presença para user hoje
-        $existingPresence = Presence::where('user_id', $user->id)
-            ->whereDate('created_at', Carbon::today())
+        // Verifica se há uma ausência no primeiro turno
+        $absenceFirstShift = Absence::where('user_id', $user_id)
+            ->where('absence_types_id', 1)
+            ->whereDate('absence_start_date', Carbon::today())
             ->first();
 
-        if ($existingPresence) {
-            // SE EXISTIR um registro redirecione o user de volta com uma mensagem de erro
-            return redirect()->to(url('user/presence'))->with('error', 'Já existe um registro de presença para hoje.');
-        }
-
-        // CRIA um objeto Presence
-        $presence = new Presence;
-        $presence->user_id = $user->id;
-
-        // SIMULA hora com pre-definida no formulario
-        $presence->first_start = Carbon::parse($request->first_start);
-        $presence->first_end = Carbon::parse($request->first_end);
-        $presence->second_start = Carbon::parse($request->second_start);
-        $presence->second_end = Carbon::parse($request->second_end);
-
-        // CALCULA a diferença em minutos e guarda em $presence->effective_hour
-        $presence->effective_hour = ($first_start->diffInMinutes($first_end) + $second_start->diffInMinutes($second_end)) / 60;
-
-        $presence->save();
-
-        return redirect()->to(url('/menu'));
-    } */
-
-    /* public function storeSimulated(Request $request)
-    {
-        // SIMULA HORA FICTICIA - 80% , nao importa as horas efetivas compara com a saida do turno para definir horas extras
-        // TUDO FUNCIONA, MAS AINDA NAO TEM TOLERANCIA DE ATRASO
-
-        $user = auth()->user();
-        $userShift = User_Shift::where('user_id', $user->id)->first();
-        $workShift = Work_Shift::find($userShift->work_shift_id);
-
-        // VERIFICA se existe um registro de presença para user hoje
-        $existingPresence = Presence::where('user_id', $user->id)
-            ->whereDate('created_at', Carbon::today())
-            ->first();
-
-        if ($existingPresence) {
-            // SE EXISTIR um registro redirecione o user de volta com uma mensagem de erro
-            return redirect()->to(url('user/presence'))->with('error', 'Já existe um registro de presença para hoje.');
-        }
-
-        // CRIA um objeto Presence
-        $presence = new Presence;
-        $presence->user_id = $user->id;
-
-        // SIMULA hora com pre-definida no formulario
-        $first_start = Carbon::parse($request->first_start);
-        $first_end = Carbon::parse($request->first_end);
-        $second_start = Carbon::parse($request->second_start);
-        $second_end = Carbon::parse($request->second_end);
-
-        // CALCULA a diferença em minutos e guarda em $presence->effective_hour
-
-        $effective_hour = ($first_start->diffInMinutes($first_end) + $second_start->diffInMinutes($second_end)) / 60; // HORA efetiva em HORAS*
-
-        $presence->first_start = $first_start;
-        $presence->first_end = $first_end;
-        $presence->second_start = $second_start;
-        $presence->second_end = $second_end;
-
-        // SIMULA hora com pre-definida no formulario
-        $second_end = Carbon::parse($request->second_end);
-
-        // PEGA a hora de término do turno
-        $end_hour = Carbon::parse($workShift->end_hour);
-
-        // CALCULA as horas extras
-
-        $extra_hours = 0;
-
-        $first_start = Carbon::parse($presence->first_start);
-        $start_hour = Carbon::parse($workShift->start_hour);
-
-
-        $extra_hours_early = $first_start->diffInMinutes($start_hour);
-
-        if ($presence->first_start < $workShift->start_hour && $extra_hours_early >= 60) {
-            $extra_hours += $extra_hours_early;
-
-            $extra_hours_early = $first_start->diffInMinutes($start_hour) / 60;
-            $effective_hour -= $extra_hours_early;
-        }
-
-
-        if ($second_end->gt($end_hour)) {
-            $extra_hours = $second_end->diffInMinutes($end_hour) / 60;
-        }
-
-        $presence->extra_hour = $extra_hours;
-
-
-        // ADICIONA as horas extras ao objeto Presence
-        $presence->extra_hour = $extra_hours;
-        $presence->effective_hour = $effective_hour - $extra_hours;
-
-        $presence->save();
-
-        return redirect()->to(url('/menu'));
-    } */
-
-
-    public function storeSimulated(Request $request)
-    {
-        $user = auth()->user();
-        $userShift = User_Shift::where('user_id', $user->id)->whereNull('end_date')->first();
-        $workShift = Work_Shift::find($userShift->work_shift_id);
-
-        // VERIFICA se existe um registro de presença para user hoje
-        $existingPresence = Presence::where('user_id', $user->id)
-            ->whereDate('created_at', Carbon::today())
-            ->first();
-
-        if ($existingPresence) {
-            // SE EXISTIR um registro redirecione o user de volta com uma mensagem de erro
-            return redirect()->to(url('user/presence'))->with('error', 'Já existe um registro de presença para hoje.');
-        }
-
-        // CRIA um objeto Presence
-        $presence = new Presence;
-        $presence->user_id = $user->id;
-
-        // SIMULA hora com pre-definida no formulario
-        $first_start = Carbon::parse($request->first_start);
-        $first_end = Carbon::parse($request->first_end);
-        $second_start = Carbon::parse($request->second_start);
-        $second_end = Carbon::parse($request->second_end);
-
-        // CALCULA a diferença em minutos para cada turno e guarda em $presence->work_hour
-        $first_shift_hours = $first_start->diffInMinutes($first_end) / 60; // HORA de trabalho em HORAS* para o primeiro turno
-        $second_shift_hours = $second_start->diffInMinutes($second_end) / 60; // HORA de trabalho em HORAS* para o segundo turno
-
-        $work_hour = $first_shift_hours + $second_shift_hours; // soma das horas de trabalho dos dois turnos
-
-        $presence->first_start = $first_start;
-        $presence->first_end = $first_end;
-        $presence->second_start = $second_start;
-        $presence->second_end = $second_end;
-
-        // PEGA a hora de término do turno
-        $end_hour = Carbon::parse($workShift->end_hour);
-
-        // CALCULA as horas extras
-        $extra_hours = 0;
-
-        $first_start = Carbon::parse($presence->first_start);
-        $start_hour = Carbon::parse($workShift->start_hour);
-
-        if ($first_start->lt($start_hour)) {
-            $extra_hours_early = $first_start->diffInMinutes($start_hour) / 60;
-            if ($extra_hours_early >= 1) {
-                $extra_hours += $extra_hours_early;
+        // Se houve falta no primeiro turno, a próxima ação deve ser no segundo turno
+        if ($absenceFirstShift) {
+            if (is_null($presence->second_start)) {
+                return response()->json(['status' => 'out', 'shift' => 'second']);
+            } elseif (is_null($presence->second_end)) {
+                return response()->json(['status' => 'in', 'shift' => 'second']);
+            } else {
+                return response()->json(['status' => 'completed']);
             }
         }
 
-        if ($second_end->gt($end_hour)) {
-            $extra_hours += $second_end->diffInMinutes($end_hour) / 60;
+        // Verifica o estado dos registros de presença para determinar o status
+        if (is_null($presence->first_start)) {
+            return response()->json(['status' => 'out', 'shift' => 'first']);
+        } elseif (is_null($presence->first_end)) {
+            return response()->json(['status' => 'in', 'shift' => 'first']);
+        } elseif (is_null($presence->second_start)) {
+            return response()->json(['status' => 'out', 'shift' => 'second']);
+        } elseif (is_null($presence->second_end)) {
+            return response()->json(['status' => 'in', 'shift' => 'second']);
+        } else {
+            return response()->json(['status' => 'completed']);
         }
-
-        $presence->extra_hour = $extra_hours;
-        $presence->effective_hour = $work_hour - $extra_hours;
-
-        $presence->save();
-
-        return redirect()->to(url('/menu'));
     }
 
 
-
-
-
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Presence $presence)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit(Presence $presence)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(UpdatePresenceRequest $request, Presence $presence)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(Presence $presence)
     {
         //
     }
 
-    public function presence(Request $request)
-    {
-        $user = auth()->user();
-        $presence = Presence::where('user_id', $user->id)->first();
-
-        return view('pages.menu.menu', ['user' => $user, 'presence' => $presence]);
-    }
-
-    public function getPresence()
-    {
-        $user = auth()->user();
-        $presence = Presence::where('user_id', $user->id)->first();
-
-        return view('pages.menu.menu', ['user' => $user, 'presence' => $presence]);
-    }
 
     public function import(Request $request)
     {
@@ -704,7 +286,7 @@ class PresenceController extends Controller
             }
 
             // Verifica se os IDs são inteiros
-            if (!is_integer($data[0])) {
+            if (!is_numeric($data[0])) {
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
             }
 

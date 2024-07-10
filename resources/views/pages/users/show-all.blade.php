@@ -6,6 +6,10 @@
 
 @section('content')
     <div class="container p-5">
+
+        @component('components.alerts.alerts')
+        @endcomponent
+
         <div class="form-container">
             @component('components.users.user-form-show-all', ['users' => $users])
             @endcomponent

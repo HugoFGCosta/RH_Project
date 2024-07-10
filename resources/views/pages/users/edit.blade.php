@@ -1,5 +1,9 @@
 @extends('master.main')
 
+@section('styles')
+    <link rel="stylesheet" href="{{ asset('/css/users-edit.css') }}">
+@endsection
+
 @section('content')
     <div class="container">
         <div class="row">
@@ -15,4 +19,21 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script>
+        //Manter o foco no campo de data de nascimento
+        document.addEventListener('DOMContentLoaded', function() {
+            let birthDateField = document.getElementById('birth_date');
+
+            function keepFocus() {
+                birthDateField.focus();
+            }
+
+            birthDateField.addEventListener('blur', keepFocus);
+
+            birthDateField.focus();
+        });
+    </script>
 @endsection

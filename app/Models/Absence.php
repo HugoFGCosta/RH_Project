@@ -9,6 +9,8 @@ class Absence extends Model
 {
     use HasFactory;
 
+
+
     protected $fillable = [
         'user_id',
         'absence_states_id',
@@ -16,8 +18,12 @@ class Absence extends Model
         'approved_by',
         'absence_start_date',
         'absence_end_date',
-        'justification',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function absence_state()
     {
@@ -27,6 +33,16 @@ class Absence extends Model
     public function absence_type()
     {
         return $this->belongsTo(AbsenceType::class);
+    }
+
+    public function justification()
+    {
+        return $this->belongsTo(Justification::class);
+    }
+
+    public function notification()
+    {
+        return $this->hasOne(Notification::class);
     }
 
 }

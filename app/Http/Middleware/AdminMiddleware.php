@@ -20,6 +20,6 @@ class AdminMiddleware
             return $next($request);
         }
 
-        abort(403, 'Apenas administradores podem criar novos usuários.');
+        return response()->view('pages.error-page.error-page');
     }
 }

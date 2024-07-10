@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
         table_rows = document.querySelectorAll('tbody tr'),
         table_headings = document.querySelectorAll('thead th');
 
-    //  Evento de input para a busca na tabela
+    // Evento de input para a busca na tabela
     search.addEventListener('input', searchTable);
 
     function searchTable() {
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     row.style.display = 'table-row';
                 }
             }, 1000);
-        })
+        });
 
         // Altera a cor de fundo das linhas visíveis
         document.querySelectorAll('tbody tr:not(.hide)').forEach((visible_row, i) => {
@@ -43,15 +43,15 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('td').forEach(td => td.classList.remove('active'));
             table_rows.forEach(row => {
                 row.querySelectorAll('td')[i].classList.add('active');
-            })
+            });
 
             // Alterna a classe 'asc' para determinar a ordem de classificação
             head.classList.toggle('asc', sort_asc);
             sort_asc = !head.classList.contains('asc');
 
             sortTable(i, sort_asc);
-        }
-    })
+        };
+    });
 
     // Função para ordenar a tabela
     function sortTable(column, sort_asc) {
@@ -64,8 +64,16 @@ document.addEventListener('DOMContentLoaded', function () {
             .map(sorted_row => document.querySelector('tbody').appendChild(sorted_row));
     }
 
-    //Converte a tabela HTML para PDF
+    // Função para remover setas dos cabeçalhos
+    function removeArrowsFromHeaders(table) {
+        const t_headings = table.querySelectorAll('th');
+        t_headings.forEach(th => {
+            const text = th.childNodes[0].nodeValue.trim();
+            th.textContent = text;
+        });
+    }
 
+    // Converte a tabela HTML para PDF
     const pdf_btn = document.querySelector('#toPDF');
     const users_table = document.querySelector('#users_table');
 
@@ -73,17 +81,83 @@ document.addEventListener('DOMContentLoaded', function () {
         // Clonar a tabela original
         const table_clone = users_table.cloneNode(true);
 
-        // Remover as últimas duas colunas da tabela clonada (delete e edit)
+        // Remover as setas dos cabeçalhos e as últimas duas colunas da tabela clonada (delete e edit)
+        removeArrowsFromHeaders(table_clone);
         const rows = table_clone.querySelectorAll('tr');
         rows.forEach(row => {
             row.removeChild(row.children[row.children.length - 1]);
             row.removeChild(row.children[row.children.length - 1]);
         });
 
+        // Adicionar estilos específicos para a impressão
+        const styles = `
+    <style>
+        @media print {
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+                color: #000;
+            }
+
+            .table__header .input-group,
+            .table__header .export__file {
+                display: none !important;
+            }
+
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 0;
+                padding: 0;
+                table-layout: fixed;
+            }
+
+            table, th, td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: left;
+                word-wrap: break-word;
+            }
+
+            thead th {
+                background-color: #f2f2f2;
+                color: #000;
+                font-weight: bold;
+            }
+
+            tbody tr {
+                background-color: #fff;
+            }
+
+            tbody tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+
+            tbody tr:hover {
+                background-color: #f1f1f1 !important;
+            }
+
+            tbody tr td {
+                vertical-align: top;
+            }
+        }
+    </style>`;
+
         const html_code = `
-        <!DOCTYPE html>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Table PDF</title>
         <link rel="stylesheet" type="text/css" href="style.css">
-        <main class="table" id="users_table">${table_clone.innerHTML}</main>`;
+        ${styles}
+    </head>
+    <body>
+        <main class="table" id="users_table">${table_clone.innerHTML}</main>
+    </body>
+    </html>`;
 
         const new_window = window.open();
         new_window.document.write(html_code);
@@ -92,128 +166,144 @@ document.addEventListener('DOMContentLoaded', function () {
             new_window.print();
             new_window.close();
         }, 400);
-    }
+    };
 
     pdf_btn.onclick = () => {
         toPDF(users_table);
-    }
+    };
 
-    //Converte a tabela HTML para JSON
-
+    // Converte a tabela HTML para JSON
     const json_btn = document.querySelector('#toJSON');
 
     const toJSON = function (table) {
         let table_data = [],
             t_head = [],
-
             t_headings = table.querySelectorAll('th'),
             t_rows = table.querySelectorAll('tbody tr');
 
+        // Captura todos os cabeçalhos da tabela e remove as setas
         t_headings.forEach((t_heading, index) => {
-            if (index < t_headings.length - 2) {
-                let actual_head = t_heading.textContent.trim();
+            if (index < t_headings.length - 2) { // Ignora as últimas duas colunas
+                let actual_head = t_heading.childNodes[0].nodeValue.trim(); // Captura o texto sem as setas
                 t_head.push(actual_head.toLowerCase());
             }
         });
 
+        // Captura todos os dados das linhas da tabela
         t_rows.forEach(row => {
             const row_object = {},
                 t_cells = row.querySelectorAll('td');
 
+            // Mapeia cada célula para o respectivo cabeçalho
             t_cells.forEach((t_cell, cell_index) => {
-                if (cell_index < t_cells.length - 2) {
+                if (cell_index < t_cells.length - 2) { // Ignora as últimas duas colunas
                     row_object[t_head[cell_index]] = t_cell.textContent.trim();
                 }
-            })
+            });
             table_data.push(row_object);
-        })
+        });
 
         return JSON.stringify(table_data, null, 4);
-    }
+    };
 
     json_btn.onclick = () => {
         const json = toJSON(users_table);
-        downloadFile(json, 'json')
-    }
+        downloadFile(json, 'json', 'user_data.json');
+    };
 
     // Converte a tabela HTML para CSV
-
     const csv_btn = document.querySelector('#toCSV');
 
     const toCSV = function (table) {
         const t_heads = table.querySelectorAll('th'),
             tbody_rows = table.querySelectorAll('tbody tr');
 
-        // Captura os cabeçalhos da tabela e formata para CSV, excluindo as duas últimas colunas
-        const headings = [...t_heads].map((head, index) => {
-            if (index < t_heads.length - 2) {
-                return head.textContent.trim().toLowerCase();
-            }
-        }).filter(Boolean).join(',');
+        // Captura os cabeçalhos da tabela e formata para CSV, excluindo as duas últimas colunas e removendo setas
+        const headings = [...t_heads].slice(0, -2).map(head => head.childNodes[0].nodeValue.trim().toLowerCase()).join(',');
 
         // Captura os dados das linhas da tabela e formata para CSV, excluindo as duas últimas colunas
         const table_data = [...tbody_rows].map(row => {
             const cells = row.querySelectorAll('td');
-            return [...cells].map((cell, index) => {
-                if (index < cells.length - 2) {
-                    return cell.textContent.replace(/,/g, ".").trim();
-                }
-            }).filter(Boolean).join(',');
+            return [...cells].slice(0, -2).map(cell => cell.textContent.replace(/,/g, ".").trim()).join(',');
         }).join('\n');
 
         return headings + '\n' + table_data;
-    }
+    };
 
     csv_btn.onclick = () => {
         const csv = toCSV(users_table);
-        downloadFile(csv, 'csv', 'user_data');
-    }
+        downloadFile(csv, 'csv', 'user_data.csv');
+    };
 
-    //Converte a tabela HTML para EXCEL
-
+// Converte a tabela HTML para EXCEL usando SheetJS
     const excel_btn = document.querySelector('#toEXCEL');
 
     const toExcel = function (table) {
-        const t_heads = table.querySelectorAll('th'),
-            tbody_rows = table.querySelectorAll('tbody tr');
+        const workbook = XLSX.utils.book_new();
+        const worksheet_data = [];
 
-        const headings = [...t_heads].map((head, index) => {
+        const t_heads = table.querySelectorAll('th');
+        const tbody_rows = table.querySelectorAll('tbody tr');
+
+        // Captura os cabeçalhos da tabela e adiciona ao excel
+        const headers = [...t_heads].map((head, index) => {
             if (index < t_heads.length - 2) {
-                return head.textContent.trim().toLowerCase();
+                return head.childNodes[0].nodeValue.trim();
             }
-        }).filter(Boolean).join('\t');
+        }).filter(Boolean);
+        worksheet_data.push(headers);
 
-        const table_data = [...tbody_rows].map(row => {
+        // Captura os dados das linhas da tabela e adiciona ao excel
+        [...tbody_rows].forEach(row => {
             const cells = row.querySelectorAll('td');
-            return [...cells].map((cell, index) => {
+            const row_data = [...cells].map((cell, index) => {
                 if (index < cells.length - 2) {
                     return cell.textContent.trim();
                 }
-            }).filter(Boolean).join('\t');
-        }).join('\n');
+            }).filter(Boolean);
+            worksheet_data.push(row_data);
+        });
 
-        return headings + '\n' + table_data;
-    }
+        const worksheet = XLSX.utils.aoa_to_sheet(worksheet_data);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+
+        // Gera o arquivo Excel
+        XLSX.writeFile(workbook, 'user_data.xlsx');
+    };
 
     excel_btn.onclick = () => {
-        const excel = toExcel(users_table);
-        downloadFile(excel, 'excel');
-    }
+        toExcel(users_table);
+    };
 
-    // Função para baixar arquivos em diferentes formatos
-    const downloadFile = function (data, fileType, fileName = '') {
+// Função para baixar arquivos em diferentes formatos
+    const downloadFile = function (data, fileType, fileName) {
         const a = document.createElement('a');
         a.download = fileName;
         const mime_types = {
             'json': 'application/json',
             'csv': 'text/csv',
-            'excel': 'application/vnd.ms-excel',
-        }
-        a.href = `
-            data:${mime_types[fileType]};charset=utf-8,${encodeURIComponent(data)}
-        `;
+            'excel': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        };
+        const blob = new Blob([data], { type: mime_types[fileType] + ';charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        a.href = url;
         document.body.appendChild(a);
         a.click();
-        a.remove();
-    }
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+
+
+    // Fecha o modal se clicar fora dele
+    document.addEventListener('click', (event) => {
+        const exportFileCheckbox = document.querySelector('#export-file');
+        const exportFileOptions = document.querySelector('.export__file-options');
+
+        if (!exportFileOptions.contains(event.target) && event.target !== exportFileCheckbox && exportFileCheckbox.checked) {
+            exportFileCheckbox.checked = false;
+        }
+    });
 });
+
+

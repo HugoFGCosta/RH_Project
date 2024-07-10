@@ -1,5 +1,4 @@
-
-.container form {
+.container > form {
     display: flex;
     flex-direction: column;
     background-color: var(--white);
@@ -10,43 +9,43 @@
     box-sizing: border-box;
     margin-top: 20px;
 }
+
 .container form .form-row {
     display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
     margin: 32px 0;
 }
+
 form .form-row .input-data {
-    width: 100%;
-    height: 40px;
-    margin: 0 20px;
+    flex: 1;
     position: relative;
+    margin-bottom: 20px;
 }
-form .form-row .textarea {
-    height: 70px;
+
+form .form-row .input-data.full-width {
+    flex: 100%;
 }
+
 .input-data input,
-.textarea textarea,
 .input-data select {
     display: block;
     width: 100%;
-    height: 100%;
+    height: 40px;
     border: none;
     font-size: 17px;
     border-bottom: 2px solid rgba(0, 0, 0, 0.12);
     outline: none;
 }
-.input-data input:focus ~ label,
-.textarea textarea:focus ~ label,
-.input-data input:valid ~ label,
-.textarea textarea:valid ~ label,
-.input-data select:focus ~ label,
-.input-data select:valid ~ label {
-    transform: translateY(-20px);
-    font-size: 14px;
-    color: var(--blue);
+
+/*lida com o input do tipo date para que o label não fique sobreposto ao texto*/
+.input-data input[type="date"]::-webkit-datetime-edit {
+    color: transparent;
+    transition: color 0.3s;
 }
-.textarea textarea {
-    resize: none;
-    padding-top: 10px;
+.input-data input[type="date"]:focus::-webkit-datetime-edit,
+.input-data input[type="date"]:valid::-webkit-datetime-edit {
+    color: initial;
 }
 .input-data label {
     position: absolute;
@@ -55,17 +54,23 @@ form .form-row .textarea {
     font-size: 16px;
     transition: all 0.3s ease;
 }
-.textarea label {
-    width: 100%;
-    bottom: 40px;
-    background: var(--white);
+
+.input-data input:focus ~ label,
+.input-data input:valid ~ label,
+.input-data select:focus ~ label,
+.input-data select:valid ~ label {
+    transform: translateY(-20px);
+    font-size: 14px;
+    color: var(--blue);
 }
+
 .input-data .underline {
     position: absolute;
     bottom: 0;
     height: 2px;
     width: 100%;
 }
+
 .input-data .underline:before {
     position: absolute;
     content: "";
@@ -76,20 +81,18 @@ form .form-row .textarea {
     transform-origin: center;
     transition: transform 0.3s ease;
 }
+
 .input-data input:focus ~ .underline:before,
 .input-data input:valid ~ .underline:before,
-.textarea textarea:focus ~ .underline:before,
-.textarea textarea:valid ~ .underline:before,
 .input-data select:focus ~ .underline:before,
 .input-data select:valid ~ .underline:before {
     transform: scale(1);
 }
 
-/* Estilos para o botão */
 .form-row {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
 .btn.showform-btn {
@@ -127,35 +130,54 @@ form .form-row .textarea {
     color: var(--white);
 }
 
-.input-data .readonly-input {
-    cursor: not-allowed;
+.delete-button {
+    display: inline-block;
+    background-color: red;
+    color: var(--white);
+    border: 2px solid red;
+    border-radius: 10px;
+    padding: 8px 15px;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.input-data .readonly-input + label {
-    transform: translateY(-20px);
-    font-size: 14px;
-    color: var(--blue);
+.delete-button:hover {
+    background-color: var(--white);
+    color: red;
+    border: 2px solid red;
+}
+.btn-detail-edit {
+    display: inline-block;
+    background-color: var(--green);
+    color: var(--white);
+    border: 2px solid var(--green);
+    border-radius: 10px;
+    padding: 8px 15px;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-@media (max-width: 700px) {
-    .container .text {
-        font-size: 30px;
-    }
-    .container form {
-        padding: 10px 0 0 0;
-    }
+.btn-detail-edit:hover {
+    background-color: var(--white);
+    color: var(--green);
+    border: 2px solid var(--green);
+}
+
+@media (max-width: 900px) {
     .container form .form-row {
         display: block;
+        margin: 20px 0;
     }
     form .form-row .input-data {
         margin: 35px 0 !important;
     }
-    .submit-btn .input-data {
-        width: 40% !important;
+    .btn.showform-btn {
+        width: 100%;
+        height: 50px;
+        font-size: 20px;
     }
-}
-.container .no-form {
-    display: none;
-    box-shadow: none;
-    padding: 2px;
 }

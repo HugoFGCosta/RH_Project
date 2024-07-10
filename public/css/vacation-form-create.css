@@ -1,0 +1,71 @@
+.vacation-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.vacation-form .form-group {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.vacation-form h1 {
+    color: var(--blue);
+    margin-bottom: 1rem;
+}
+
+.vacation-form label {
+    width: 50%;
+    margin-bottom: 0.5rem;
+    color: #222;
+    font-weight: bold;
+}
+
+.vacation-form input[type="date"] {
+    width: 50%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #E9E9E9;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    box-shadow: 0 .1rem .2rem #0002;
+}
+
+.vacation-form .btn {
+    background-color: #005999;
+    color: #ffffff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.vacation-form .btn:hover {
+    background-color: #097D56;
+}
+
+.alert {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    color: #FF0000;
+    background-color: #FFD2D2;
+    border: 1px solid #FF0000;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+}
+
+.error-message i {
+    margin-right: 0.5rem;
+    font-size: 1.5rem;
+}

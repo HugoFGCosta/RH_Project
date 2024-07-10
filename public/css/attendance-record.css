@@ -9,43 +9,54 @@
 
 /* Tabela principal */
 main.table {
-    width: 82vw;
-    height: auto;
+    max-width: 3600px;
+    height: 80vh;
     background-color: #fff5;
     box-shadow: 0 .4rem .8rem #0005;
     border-radius: .8rem;
     overflow: hidden;
+    border-radius: .8rem; /* Adiciona bordas arredondadas ao container principal */
 }
-
 
 /* Cabeçalho da tabela */
 .table__header {
     width: 100%;
-    height: 10%;
+    height: 15%;
     background-color: #fff4;
     padding: .8rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-top-left-radius: .8rem;
+    border-top-right-radius: .8rem;
+}
+
+/* Wrapper para centralizar o input group */
+.input-group-wrapper {
+    display: flex;
+    justify-content: center;
+    flex-grow: 1;
 }
 
 /* Grupo de busca */
 .table__header .input-group {
-    width: 35%;
-    height: 100%;
+    width: 45%;
+    height: 2.5rem;
     background-color: #fff5;
-    padding: 0 .8rem;
+    padding: 0 1rem;
     border-radius: 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: .4s;
+    transition: .2s;
+    box-shadow: 0 .1rem .4rem #0002;
 }
 
 /* Efeito de foco na busca */
 .table__header .input-group:hover {
-    width: 45%;
-    box-shadow: 0 .1rem .4rem #0002;
+    width: 55%;
+    box-shadow: 0 .2rem .6rem #0004;
+    border: 1px solid #0002;
 }
 
 /* Entrada de busca */
@@ -60,7 +71,7 @@ main.table {
 /* body tabela */
 .table__body {
     width: 95%;
-    max-height: calc(89% - 1.6rem);
+    max-height: calc(100% - 15% - 1.6rem);
     background-color: #fffb;
     margin: .8rem auto;
     border-radius: .6rem;
@@ -83,30 +94,29 @@ main.table {
     visibility: visible;
 }
 
+/* Tabela */
 table {
     width: 100%;
-    overflow-x: auto; /* Enable horizontal scrolling on smaller screens */
+    border-radius: .8rem;
 }
 
 /* células  */
 table, th, td {
     border-collapse: collapse;
+    padding: 1rem;
     text-align: left;
-
-    padding: 10px;
-    white-space: nowrap; /* Prevent text wrapping */
 }
 
 /* cabeçalhos */
 thead th {
     position: sticky;
     top: 0;
-    left: 0;
     background-color: var(--blue);
     cursor: pointer;
     text-transform: capitalize;
     color: #fff;
     font-weight: 400;
+    z-index: 1; /* Certifique-se de que os cabeçalhos estão acima das linhas do corpo */
 }
 
 /*linhas pares do corpo */
@@ -128,7 +138,7 @@ tbody tr.hide {
 
 /* hover nas linhas */
 tbody tr:hover {
-    background-color: rgb(134, 228, 157) !important;
+    background-color: rgba(237, 203, 203, 0.75) !important;
 }
 
 /* células e conteúdo das linhas */
@@ -145,6 +155,19 @@ tbody tr.hide td p {
     transition: .2s ease-in-out .5s;
 }
 
+/* telas menores */
+@media (max-width: 1000px) {
+    td:not(:first-of-type) {
+        min-width: 12.1rem;
+    }
+
+    /* Efeito de foco na busca */
+    .table__header .input-group:hover {
+        width: 100%;
+        box-shadow: 0 .1rem .4rem #0002;
+    }
+}
+
 /* Estilos das setas de ordenação */
 thead th span.icon-arrow {
     display: inline-block;
@@ -153,7 +176,7 @@ thead th span.icon-arrow {
     border-radius: 50%;
     text-align: center;
     font-size: 1rem;
-    margin-left: 1px;
+    margin-left: .5rem;
     transition: .2s ease-in-out;
 }
 
@@ -217,12 +240,66 @@ thead th.asc span.icon-arrow {
 }
 
 /* opções de exportação */
+.export__file {
+    position: relative;
+}
+
+.export__file .export__file-btn {
+    display: inline-block;
+    width: 3rem;
+    height: 3rem;
+    background: url('/images/menu.svg') center / 100% no-repeat;
+    background-size: contain;
+    border-radius: 50%;
+    transition: .2s ease-in-out;
+    filter: brightness(0);
+    margin-right: 1rem;
+}
+
+/* Efeito de hover no botão de exportação */
+.export__file .export__file-btn:hover {
+    transform: scale(1.15);
+    cursor: pointer;
+    background-color: var(--green);
+    filter: brightness(1);
+}
+
+/* Estilos do input de exportação */
+.export__file input {
+    display: none; /* Oculta o input */
+}
+
+/* Opções de exportação */
+.export__file .export__file-options {
+    position: absolute;
+    right: 0;
+    width: 12rem;
+    border-radius: .5rem;
+    overflow: hidden;
+    text-align: center;
+    opacity: 0;
+    transform: scale(.8);
+    transform-origin: top right;
+    box-shadow: 0 .2rem .5rem #0004;
+    transition: opacity .2s, transform .2s, pointer-events .2s;
+    pointer-events: none; /* Desativa a interatividade por padrão */
+}
+
+/* opções de exportação quando o input está selecionado */
+.export__file input:checked + .export__file-options {
+    opacity: 1;
+    transform: scale(1);
+    z-index: 100;
+    pointer-events: auto; /* Ativa a interatividade quando visível */
+}
+
+/* opções de exportação */
 .export__file .export__file-options label {
     display: block;
     width: 100%;
-    height: 45px;
     padding: .6rem 0;
     background-color: #f2f2f2;
+    display: flex;
     justify-content: space-around;
     align-items: center;
     transition: .2s ease-in-out;
@@ -241,49 +318,40 @@ thead th.asc span.icon-arrow {
     cursor: pointer;
 }
 
-
-.red-text {
-    color: rgb(255, 40, 40);
+.new__vacation {
+    background: var(--green);
+    padding: 15px 20px 15px 20px;
+    border: transparent;
+    border-radius: 15px;
+    margin: 15px 0 0 15px;
+    color: var(--white);
+    cursor: pointer;
+    transition: font-size 0.5s ease;
 }
 
-.limit {
-    width: 170px;
+.new__vacation:hover {
+    font-size: medium;
 }
 
-.center-text {
-    text-align: center;
+.red-cross {
+    color: red;
 }
 
-
-
-/* MEDIA QUERIES */
-
-/* Media query for larger screens */
-@media only screen and (min-width: 992px) {
-    .table td {
-        font-size: 18px;
-    }
+.green-check {
+    color: var(--green);
 }
 
-/* Media query for smartphones (iPhone 6/7/8) */
-@media only screen and (max-width: 375px) {
-    .table td {
-        font-size: 14px;
-        padding: 5px;
-    }
+.indexCreateButton {
+    background: var(--green);
+    padding: 15px 20px 15px 20px;
+    border: transparent;
+    border-radius: 15px;
+    color: var(--white);
+    cursor: pointer;
+    transition: font-size 0.5s ease;
+    margin: 0;
 }
 
-/* Media query for tablets */
-@media only screen and (min-width: 768px) and (max-width: 991px) {
-    .table td {
-        font-size: 16px;
-    }
-}
-
-/* Media query for vertical mode */
-@media only screen and (orientation: portrait) {
-    .table td {
-        font-size: 14px; /* Adjust font size for better readability */
-        padding: 5px; /* Adjust padding for smaller screens */
-    }
+.indexCreateButton:hover {
+    font-size: medium;
 }

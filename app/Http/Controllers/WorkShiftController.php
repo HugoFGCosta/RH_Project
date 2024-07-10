@@ -96,7 +96,7 @@ class WorkShiftController extends Controller
 
     public function store(Request $request)
     {
-        //
+        // Valida todos os dados que vêm do input
         $this->validate($request,[
                 'start_hour'=>'required',
                 'break_start'=>'required',
@@ -105,6 +105,7 @@ class WorkShiftController extends Controller
             ]
         );
 
+        // Cria o turno
         Work_shift::create([
             'start_hour' => $request->start_hour,
             'break_start' => $request->break_start,
@@ -116,15 +117,15 @@ class WorkShiftController extends Controller
         return redirect('work-shifts')->with('success', 'Turno criado com sucesso');
     }
 
+    // Metodo Update- Serve para atualizar o horario de trabalho
     public function update(Request $request, Work_shift $work_shift)
     {
-        //
+        // Recebe todos os inputs do utilizador atualizando aquele turno
         $workShift = $work_shift;
         $workShift->start_hour = $request->input('start_hour');
         $workShift->break_start = $request->input('break_start');
         $workShift->break_end = $request->input('break_end');
         $workShift->end_hour = $request->input('end_hour');
-
         $workShift->save();
 
         return redirect('work-shifts')->with('success', 'Turno editado com sucesso');
@@ -133,6 +134,8 @@ class WorkShiftController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+
+    // Metodo Destroy- Serve para apagar um horario de trabalho
     public function destroy(Work_shift $work_shift)
     {
         //
@@ -149,6 +152,7 @@ class WorkShiftController extends Controller
 
     }
 
+    // Metodo Export- Serve para exportar todos os horario de trabalho
     public function export(){
 
         $work_shifts = Work_Shift::all();
@@ -170,44 +174,46 @@ class WorkShiftController extends Controller
         return Response::make('', 200, $headers);
     }
 
-    public function getUserWorkShift($userId){
-        $users=User::all();
-        $user_Shifts=User_Shift::all();
-
-        //Percorre a lista de users e encontra o user que está logado
-        foreach ($users as $user){
-            if($user->id == $userId){
-                $userFound = $user;
-            }
-        }
-
-        //Vai buscar o horário atual deste utilizador
-        $user_shift = User_Shift::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
-
-        return $user_shift;
-    }
-
+    // Metodo exportUserWorkShift- Serve para atualizar o horario do utilizador logado
     public function exportUserWorkShift($userId){
 
         $user_Shift = User_Shift::where('user_id', $userId)->orderBy('created_at', 'desc')->whereNull('end_date')->first();
+        $userShifts = User_Shift::all();
 
+        //Percorre os horarios de cada funcionario e vai buscar o horario atual do utilizador
+        if($userShifts) {
+            foreach ($userShifts as $shift) {
+                $datetime = Carbon::today()->toDateString();
+                $startDate = Carbon::parse($shift->start_date)->toDateString();
+                $endDate = Carbon::parse($shift->end_date)->toDateString();
+                if ($shift->user_id == $userId && $startDate >= $datetime &&  $endDate <= $datetime) {
+                    $user_Shift = $shift;
+                }
+            }
+        }
+
+
+        // Se nao encontrou mostra uma mensagem de erro
         if(!$user_Shift){
             return redirect()->back()->with('error', 'Este utilizador não tem um horário associado neste momento.');
         }
 
         $work_shift = Work_shift::find($user_Shift->work_shift_id);
 
+        // Controi o ficheiro csv
         $csvFileName = 'user-work-shift.csv';
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
         ];
 
+        // Coloca o cabeçalho na primeira linha do ficheiro
         $handle = fopen('php://output', 'w');
         fputcsv($handle, ['HoraEntrada','HoraInicioIntervalo', 'HoraFimIntervalo','HoraSaida']); // Add more headers as needed
 
         $weekDays = ['Segunda','Terça','Quarta','Quinta','Sábado','Domingo'];
 
+        // Imprime os dados do horário por cada dia da semana
         foreach ($weekDays as $day){
             fputcsv($handle, [$day,$work_shift->start_hour,$work_shift->break_start, $work_shift->break_end,$work_shift->end_hour]); // Add more fields as needed
         }
