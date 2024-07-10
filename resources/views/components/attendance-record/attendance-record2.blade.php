@@ -3,9 +3,11 @@
 @endphp
 <main class="table" id="users_table">
     <section class="table__header">
-        <div class="input-group">
-            <input type="search" placeholder="Pesquisar...">
-            <ion-icon name="search-outline"></ion-icon>
+        <div class="input-group-wrapper">
+            <div class="input-group">
+                <input type="search" placeholder="Pesquisar...">
+                <ion-icon name="search-outline"></ion-icon>
+            </div>
         </div>
         <div class="export__file">
             <label for="export-file" class="export__file-btn" title="Export File"></label>
@@ -14,7 +16,7 @@
                 <label>Exportar como &nbsp; &#10140;</label>
                 <label for="export-file" id="toPDF">PDF</label>
                 <label for="export-file" id="toJSON">JSON</label>
-                <label for="export-file" id="toCSV">CSV </label>
+                <label for="export-file" id="toCSV">CSV</label>
                 <label for="export-file" id="toEXCEL">EXCEL</label>
             </div>
         </div>
