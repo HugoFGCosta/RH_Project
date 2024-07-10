@@ -1,11 +1,13 @@
 <link rel="stylesheet" href="{{ asset('css/work-shifts.css') }}">
 <link rel="stylesheet" href="{{ asset('css/show-all.css') }}">
 
-
-<main class="table" id="users_table">
+<main class="table custom-height" id="users_table">
 
     <section class="table__header">
         <h1>Lista de horários</h1>
+        <div class="button-create">
+            <a href="{{ url('work-shifts/create') }}" type="button">Criar Turno</a>
+        </div>
         <div class="input-group">
             <input type="search" placeholder="Procurar...">
             <ion-icon name="search-outline"></ion-icon>
@@ -23,8 +25,6 @@
         </div>
     </section>
     <section class="table__body">
-        <a href="{{ url('work-shifts/create') }}" type="button"><button class="sub-menu indexCreateButton">Criar Turno</button></a>
-
         <table>
             <thead>
             <tr>
@@ -34,7 +34,7 @@
                 <th> Intervalo <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Dias da Semana <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Detalhe/Editar <span class="icon-arrow">&UpArrow;</span></th>
-                <th clasS="delete_cell"> Delete <span class="icon-arrow">&UpArrow;</span></th>
+                <th class="delete_cell"> Delete <span class="icon-arrow">&UpArrow;</span></th>
             </tr>
             </thead>
             <tbody>
@@ -45,7 +45,6 @@
                     <td>{{ $workShift->end_hour}}</td>
                     <td>{{ $workShift->break_start." - ".$workShift->break_end }}</td>
                     <td>Segunda|Terça|Quarta|Quinta|Sexta</td>
-
                     <td>
                         <a href="{{ url('work-shifts', $workShift->id) }}" class="btn-detail-edit">Detalhe/Editar</a>
                     </td>
@@ -62,5 +61,3 @@
         </table>
     </section>
 </main>
-
-
