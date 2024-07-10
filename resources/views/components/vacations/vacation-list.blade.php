@@ -1,10 +1,14 @@
 @php
     use Carbon\Carbon;
+    use Illuminate\Support\Facades\Auth;
 @endphp
 
 <main class="table" id="vacations_table">
     <section class="table__header">
         <a href="vacations/create"><button class="new__vacation">Marcar Férias</button></a>
+        @if($role == 3)
+            <a href="/vacation/show/{{Auth::user()->id}}">  <button class="filter">Filtrar</button></a>
+        @endif
         <h1>{{ 22 - $totaldias }} dias de férias por marcar</h1>
         <div class="input-group">
             <input type="search" placeholder="Pesquisar...">
@@ -32,11 +36,14 @@
                 <th> Processado por <span class="icon-arrow">&UpArrow;</span></th>
                 <th> De <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Até <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Editar <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Apagar <span class="icon-arrow">&UpArrow;</span></th>
+                @if($role == 3)
+                    <th> Editar <span class="icon-arrow">&UpArrow;</span></th>
+                    <th> Apagar <span class="icon-arrow">&UpArrow;</span></th>
+                @endif
             </tr>
             </thead>
             <tbody>
+
             @foreach($vacations as $vacation)
                 <tr>
                     <td>{{ $vacation->id }}</td>
@@ -55,20 +62,22 @@
                     <td>{{ $vacation->approvedBy ? $vacation->approvedBy->name : '' }}</td>
                     <td>{{ $vacation->date_start }}</td>
                     <td>{{ $vacation->date_end }}</td>
-                    <td>
-                        @auth
-                            <a href="{{ url('vacations/edit/' . $vacation->id) }}" type="button" class="btn-detail-edit">Editar</a>
-                        @endauth
-                    </td>
-                    <td>
-                        @auth
-                            <form action="{{ url('vacations/delete/' . $vacation->id) }}" method="POST" style="display:inline;" class="no-form">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="delete-button">Apagar</button>
-                            </form>
-                        @endauth
-                    </td>
+                    @if($role == 3)
+                        <td>
+                            @auth
+                                <a href="{{ url('vacations/edit/' . $vacation->id) }}" type="button" class="btn-detail-edit">Editar</a>
+                            @endauth
+                        </td>
+                        <td>
+                            @auth
+                                <form action="{{ url('vacations/delete/' . $vacation->id) }}" method="POST" style="display:inline;" class="no-form">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="delete-button">Apagar</button>
+                                </form>
+                            @endauth
+                        </td>
+                    @endif
                 </tr>
             @endforeach
             </tbody>
