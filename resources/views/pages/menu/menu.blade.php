@@ -23,11 +23,10 @@
             </div>
             <div class="right-column">
                 <div class="notifications">
-                    <h2>Notificações</h2>
                     <form action="{{ route('notifications.changeState') }}" method="POST">
                         @csrf
                         <div id="notification-list-container">
-                            <!-- A lista de notificações será carregada aquiii -->
+                            <!-- A lista de notificações será carregada aqui -->
                         </div>
                         <button type="submit" class="btn btn-primary">Marcar como lido</button>
                         <button type="button" id="mark-all" class="btn btn-secondary">Marcar todos</button>
@@ -80,18 +79,22 @@
 
                     let html = `
                         <div class="container mt-5">
-                            <h1>Notificações de hoje</h1>
-                            <table class="table-notifications">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">TIPO</th>
-                                        <th scope="col">DESCRIÇÃO</th>
-                                        <th scope="col">STATE</th>
-                                        <th scope="col">AÇÃO</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                            <h1>Notificações não lidas</h1>
+                            <div class="table-container">
+                                <table class="table-notifications">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Tipo</th>
+                                            <th scope="col">Estado</th>
+                                            <th scope="col">Lido/ Não Lido</th>
+                                            <th scope="col">Ação</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <div class="table-body-container">
+                                    <table class="table-notifications">
+                                        <tbody>
                     `;
 
                     notifications.forEach(notification => {
@@ -144,10 +147,12 @@
                     });
 
                     html += `
-                    </tbody>
-                </table>
-            </div>
-            `;
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    `;
 
                     notificationListContainer.append(html);
                 }

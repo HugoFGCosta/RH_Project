@@ -1,10 +1,22 @@
+.vacation-event {
+    background-color: green !important;
+    border-color: green !important;
+}
+
+.absence-event {
+    background-color: red !important;
+    border-color: red !important;
+}
+
 :root {
-    --blue: #005999;
     --white: #ffffff;
     --gray: #E9E9E9;
     --black: #222;
     --black2: #999;
-    --green: #097D56;
+    --blue: #005999;
+    --blue-dark: #06294f;
+    --secondary-color: #6C757D;
+    --secondary-color-dark: #5a6268;
 }
 
 .container-menu {
@@ -34,7 +46,7 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .button-In-Out {
@@ -74,9 +86,14 @@
 }
 
 .notifications {
-    text-align: left;
+    text-align: center; /* Alinha o conteúdo da div no centro */
     margin-top: 10px;
     margin-bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 
 .calendar {
@@ -130,7 +147,6 @@
     background-color: #f2dede;
     border-color: #ebccd1;
 }
-
 
 /*modal*/
 /* Modal CSS */
@@ -216,15 +232,90 @@
     background-color: darkred;
 }
 
+.table-container {
+    max-height: 500px; /* Ajuste a altura conforme necessário */
+    width: 95%;
+    max-width: 1200px;
+    overflow: hidden;
+    margin: 0 auto; /* Centraliza a tabela */
+    border-radius: 15px; /* Arredonda as bordas da tabela */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adiciona uma leve sombra */
+}
+
+.table-body-container {
+    max-height: 400px; /* Ajuste a altura conforme necessário */
+    overflow-y: scroll;
+    display: block;
+    width: 100%;
+}
+
+.table-notifications {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    border-radius: 15px; /* Arredonda as bordas da tabela */
+    overflow: hidden; /* Garante que as bordas arredondadas sejam aplicadas */
+}
+
+.table-notifications thead th {
+    position: sticky;
+    top: 0;
+    background: var(--blue);
+    color: var(--white);
+    z-index: 1;
+    text-align: left;
+    padding: 10px;
+}
+
+.table-notifications tbody td {
+    padding: 10px;
+    border-bottom: 1px solid var(--gray);
+}
+
+.table-notifications tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Efeito de hover sutil */
+}
+
+button#mark-all {
+    margin-top: 10px;
+}
+
+button.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    color: var(--white);
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    margin: 0 10px; /* Adiciona espaço entre os botões */
+}
+
+button.btn-primary {
+    background-color: var(--blue);
+}
+
+button.btn-primary:hover {
+    background-color: var(--blue-dark);
+    transform: scale(1.05);
+}
+
+button.btn-secondary {
+    background-color: var(--secondary-color);
+}
+
+button.btn-secondary:hover {
+    background-color: var(--secondary-color-dark);
+    transform: scale(1.05);
+}
+
 /* Dispositivos Móveis */
 @media (max-width: 768px) {
     .row {
         flex-direction: column-reverse;
     }
 
-    container-menu {
+    .container-menu {
         flex-direction: column;
     }
 }
-
-
