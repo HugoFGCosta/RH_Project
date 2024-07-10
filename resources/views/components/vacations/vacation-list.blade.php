@@ -1,9 +1,9 @@
 <main class="table" id="vacations_table">
     <section class="table__header">
         <a href="vacations/create"><button class="new__vacation">Marcar Férias</button></a>
-        {{--@if($role == 3)
+        @if($role == 3)
             <a href="/vacation/show/{{Auth::user()->id}}">  <button class="filter">Filtrar</button></a>
-        @endif--}}
+        @endif
         <h1>{{ 22 - $totaldias }} dias de férias por marcar</h1>
         <div class="input-group">
             <input type="search" placeholder="Pesquisar...">
@@ -31,8 +31,10 @@
                 <th> Processado por <span class="icon-arrow">&UpArrow;</span></th>
                 <th> De <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Até <span class="icon-arrow">&UpArrow;</span></th>
+                @if($role == 3)
                     <th> Editar <span class="icon-arrow">&UpArrow;</span></th>
                     <th> Apagar <span class="icon-arrow">&UpArrow;</span></th>
+                @endif
             </tr>
             </thead>
             <tbody>
@@ -55,6 +57,7 @@
                     <td>{{ $vacation->approvedBy ? $vacation->approvedBy->name : '' }}</td>
                     <td>{{ $vacation->date_start }}</td>
                     <td>{{ $vacation->date_end }}</td>
+                    @if($role == 3)
                         <td>
                             @auth
                                 <a href="{{ url('vacations/edit/' . $vacation->id) }}" type="button" class="btn-detail-edit">Editar</a>
@@ -69,6 +72,7 @@
                                 </form>
                             @endauth
                         </td>
+                    @endif
                 </tr>
             @endforeach
             </tbody>

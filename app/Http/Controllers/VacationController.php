@@ -119,10 +119,7 @@ class VacationController extends Controller
 
     public function show(Vacation $vacation)
     {
-        $totaldias = $this->difTotal(Auth::id());
-        $roleId = auth::id();
-        $vacation = Vacation::where('user_id', $roleId)->orderBy('id', 'asc')->get();
-        return view('pages.vacations.show', ['vacations' => $vacation])->with('totaldias', $totaldias)->with('role', $roleId);
+    //
     }
 
     public function edit(Vacation $vacation)
