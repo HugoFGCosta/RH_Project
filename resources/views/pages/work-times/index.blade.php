@@ -6,12 +6,13 @@
 
 @section('content')
     <div class="centralBox">
-        <h1>Períodos de Trabalho</h1>
 
         @component('components.alerts.alerts')
         @endcomponent
 
         <div class="table__header">
+            <h1>Períodos de Trabalho</h1>
+
             <div class="input-group">
                 <input type="search" placeholder="Pesquisar...">
             </div>

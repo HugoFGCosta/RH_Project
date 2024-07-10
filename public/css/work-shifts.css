@@ -1,95 +1,97 @@
-table{
+table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 0px;
 }
 
-th{
+.container main.table.custom-height {
+    height: 80vh;
+    z-index: 10;
+}
+thead th {
     background-color: #f2f2f2;
-    border: 1px solid #ddd;
-    padding: 8px;
+    padding: 16px 8px; /* Aumentar o padding para aumentar a altura */
     text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
-td{
+td {
     padding: 8px;
 }
 
-.id_cell{
+.id_cell {
     border-radius: 15px 0px 0px 0px;
     border: none;
 }
 
-.delete_cell{
+.delete_cell {
     border-radius: 0px 15px 0px 0px;
     border: none;
 }
 
-
-
-.buttonDiv{
+.buttonDiv {
     display: flex;
     justify-content: center;
     gap: 4px;
 }
 
-.exportButtonWorkShits{
+.exportButtonWorkShits {
     margin-top: 50px;
     margin-bottom: 50px;
 }
 
-.container form{
+.container form {
     padding: 0;
     margin: 0px;
 }
 
-/*EDIT FORM*/
+/* EDIT FORM */
 
-.start_hour_label{
+.start_hour_label {
     margin-right: 200px;
 }
 
-.break_start_label{
+.break_start_label {
     margin-right: 122px;
 }
 
-.break_end_label{
+.break_end_label {
     margin-right: 135px;
-
 }
 
-.end_hour_label{
+.end_hour_label {
     margin-right: 234px;
-
 }
 
-.inputHour{
+.inputHour {
     border: 2px solid #ddd;
     border-radius: 50px;
     padding: 6px;
     margin-top: 10px;
 }
 
-.editButton , .createButton{
+.editButton, .createButton {
     margin-top: 20px;
 }
 
-.buttonEditData{
+.buttonEditData {
     text-decoration: none;
 }
 
-/*CREATE FORM*/
+/* CREATE FORM */
 
-.indexCreateButton{
+.indexCreateButton {
     margin-top: 20px;
     margin-bottom: 20px;
 }
 
-.end_hour_label_create{
+.end_hour_label_create {
     margin-right: 218px;
 }
 
-.mensagemDiv{
+.mensagemDiv {
     padding: 30px;
     border: 5px #ff5a5a solid;
     background-color: #ff7b7b;
@@ -100,19 +102,19 @@ td{
     visibility: hidden;
 }
 
-.inputHour{
+.inputHour {
     margin-right: 20px;
 }
 
-.start_hour_label ,.break_start_label ,.break_end_label ,.end_hour_label,.end_hour_label_create{
+.start_hour_label, .break_start_label, .break_end_label, .end_hour_label, .end_hour_label_create {
     margin-left: 20px;
 }
 
-.addWorkShiftTitle{
+.addWorkShiftTitle {
     margin-bottom: 20px;
 }
 
-.sub-menu .indexCreateButton{
+.sub-menu .indexCreateButton {
     background: var(--green);
     padding: 15px 20px 15px 20px;
     border: transparent;
@@ -152,7 +154,6 @@ td{
     background-color: #097D56;
 }
 
-
 /* Ajustes responsivos */
 @media (max-width: 1200px) {
     .centralBox {
@@ -176,4 +177,69 @@ td{
     .centralBox {
         width: 95%;
     }
+}
+
+/* Cabeçalho da tabela */
+.table__header {
+    width: 100%;
+    height: auto;
+    background-color: #fff4;
+    padding: .8rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: .8rem;
+    border-top-right-radius: .8rem;
+}
+
+/* Body da tabela */
+.table__body {
+    width: 100%;
+    max-height: calc(100vh - 200px); /* Define a altura máxima da tabela */
+    background-color: #fffb;
+    margin: .8rem auto;
+    border-radius: .6rem;
+    overflow: auto;
+}
+
+/* Scroll */
+.table__body::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+}
+
+.table__body::-webkit-scrollbar-thumb {
+    border-radius: .5rem;
+    background-color: #0004;
+    visibility: hidden;
+}
+
+.table__body:hover::-webkit-scrollbar-thumb {
+    visibility: visible;
+}
+
+/* Botão Criar Turno */
+.button-create {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    transition: transform 0.5s ease;
+}
+
+.button-create:hover {
+    transform: scale(1.1);
+}
+
+.button-create a {
+    background: var(--green);
+    padding: 15px 20px;
+    border: transparent;
+    border-radius: 15px;
+    color: var(--white);
+    cursor: pointer;
+    transition: font-size 0.5s ease;
+    text-decoration: none;
+}
+
+.button-create a:hover {
+    font-size: medium;
 }
