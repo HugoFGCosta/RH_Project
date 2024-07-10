@@ -1,8 +1,3 @@
-@php
-    use Carbon\Carbon;
-    use Illuminate\Support\Facades\Auth;
-@endphp
-
 <main class="table" id="vacations_table">
     <section class="table__header">
         <a href="vacations/create"><button class="new__vacation">Marcar Férias</button></a>
