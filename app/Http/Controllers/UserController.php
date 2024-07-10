@@ -19,19 +19,17 @@ use Illuminate\Support\Facades\Schema;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Metodo Index - Lista todos os users.    NAO ESTA SENDO UTILIZADO
     public function index()
     {
+
         $this->checkAndExtendUserShifts();
         $users = User::orderBy('id', 'desc')->get();
         return view('pages.users.index', ['users' => $users]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
+    // Metodo Create - Cria um user com cargo, turno
     public function create()
     {
         $this->checkAndExtendUserShifts();
@@ -41,23 +39,21 @@ class UserController extends Controller
         return view('pages.users.create', ['users' => $users, 'work_shifts' => $work_shifts, 'roles' => $roles]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
         // Lógica de armazenamento anterior ou ajustada conforme necessário
     }
 
-    /**
-     * Display the specified resource.
-     */
 
+    // Metodo Show - Mostra todas as informaçoes do user logado. 
     public function show()
     {
         $this->checkAndExtendUserShifts();
         $user = auth()->user();
         $today = Carbon::today()->toDateString();
+
+        // Atribui ao $user_shift o qual turno está através da query comparando com o dia atual obtido na variavel $today
         $user_shift = User_Shift::where('user_id', $user->id)
             ->where(function ($query) use ($today) {
                 $query->whereNull('end_date')
@@ -72,13 +68,15 @@ class UserController extends Controller
     }
 
 
-
+    // Metodo showSpec - Mostra um user especifico da lista showAll com todas as informaçoes recebendo um $id por parametro. 
     public function showSpec($id)
     {
+
         $this->checkAndExtendUserShifts();
         $user = User::find($id);
         $today = Carbon::today()->toDateString();
-        $user_shifts = User_Shift::where('user_id', $user->id)->get();
+
+        // Atribui ao $user_shift o qual turno está através da query comparando com o dia atual obtido na variavel $today
         $user_shift = User_Shift::where('user_id', $user->id)
             ->where(function ($query) use ($today) {
                 $query->whereNull('end_date')
@@ -92,13 +90,15 @@ class UserController extends Controller
     }
 
 
-
-
+    // Metodo showAll - Lista todos os users. 
     public function showAll()
     {
+
         $this->checkAndExtendUserShifts();
         $today = Carbon::today()->toDateString();
         $users = User::all();
+
+        // Atribui a todos os users um turno através da query comparando com o dia atual obtido na variavel $today
         foreach ($users as $user) {
             $user_shifts = User_Shift::where('user_id', $user->id)
                 ->where(function ($query) use ($today) {
@@ -116,19 +116,17 @@ class UserController extends Controller
     }
 
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
+    // Metodo edit - Edita as informaçoes do user que está logado. 
     public function edit()
     {
+
         $this->checkAndExtendUserShifts();
         $work_shifts = Work_Shift::all();
         $roles = Role::all();
         $user = auth()->user();
         $today = Carbon::now();
         $user_shift = User_Shift::where('user_id', $user->id)
-            ->where(function($query) use ($today) {
+            ->where(function ($query) use ($today) {
                 $query->whereNull('end_date')
                     ->orWhere('end_date', '>=', $today);
             })
@@ -140,15 +138,18 @@ class UserController extends Controller
         return view('pages.users.edit', ['user' => $user, 'user_shift' => $user_shift, 'work_shifts' => $work_shifts, 'roles' => $roles]);
     }
 
+
+    // Metodo editSpec - Edita um user especifico do metodo showAll recebendo o $id como parametro. 
     public function editSpec($id)
     {
+
         $this->checkAndExtendUserShifts();
         $work_shifts = Work_Shift::all();
         $roles = Role::all();
         $user = User::find($id);
         $today = Carbon::now();
         $user_shift = User_Shift::where('user_id', $user->id)
-            ->where(function($query) use ($today) {
+            ->where(function ($query) use ($today) {
                 $query->whereNull('end_date')
                     ->orWhere('end_date', '>=', $today);
             })
@@ -160,11 +161,11 @@ class UserController extends Controller
         return view('pages.users.edit-spec', ['user' => $user, 'user_shift' => $user_shift, 'work_shifts' => $work_shifts, 'roles' => $roles]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
+    // Metodo update - Responsavel por verificar as novas informaçoes e validar para que atualize os dados. 
     public function update(Request $request)
     {
+
         $user = auth()->user();
         $user->name = $request->input('name');
         $user->email = $request->input('email');
@@ -197,8 +198,11 @@ class UserController extends Controller
         return redirect('/user/show');
     }
 
+
+    // Metodo updateSpec - Responsavel por verificar as novas informaçoes e validar para que atualize os dados para um user especifico. 
     public function updateSpec(Request $request, $id)
     {
+
         $user = User::find($id);
         if (!$user) {
             return redirect('/user/show')->with('error', 'Usuário não encontrado!');
@@ -235,11 +239,11 @@ class UserController extends Controller
     }
 
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    // Metodo destroy - Recebe por parametro o $id para que apague um user.
     public function destroy($id)
     {
+        // Validação - Caso haja apenas 1 admin nao é possivel apaga-lo. 
+
         $user = User::findOrFail($id);
         $id = $user->id;
         $verAdmin = false;
@@ -258,20 +262,20 @@ class UserController extends Controller
 
             // Se houver outro admin
             foreach ($users as $userCicle) {
-                if($userCicle-> role_id == 3 && $userCicle-> id != $id){
+                if ($userCicle->role_id == 3 && $userCicle->id != $id) {
                     $user->delete();
                     return redirect('/users/show-all')->with('success', 'Usuário apagado com sucesso!');
 
                 }
             }
 
-            if($ver == false){
+            if ($ver == false) {
                 return redirect('/users/show-all')->with('error', 'Não pode apagar o único administrador!');
             }
 
         }
 
-        if($verAdmin == false){
+        if ($verAdmin == false) {
             $user->delete();
             return redirect('/users/show-all')->with('success', 'Usuário apagado com sucesso!');
         }
@@ -279,17 +283,22 @@ class UserController extends Controller
 
     }
 
+    // Metodo Import - Serve para importar utilizadores para a base de dados
     public function import(Request $request)
     {
+
+        // Vai buscar o ficheiro inserido no formulário
         $file = $request->file('file');
         $users = User::all();
 
+        // Se o ficheiro não foi submetido mostra mensagem de erro
         if (!$file) {
             return redirect()->back()->with('error', 'Escolha um ficheiro antes de importar.');
         }
 
         $handle = fopen($file->getPathname(), 'r');
 
+        // Se por algum motivo houver erro ao abrir o ficheiro mostra mensagem de erro
         if (!$handle) {
             return redirect()->back()->with('error', 'Erro ao abrir o ficheiro.');
         }
@@ -361,6 +370,7 @@ class UserController extends Controller
         $numeroUsers = count($userData);
         $numeroUsersAtuais = count($users);
 
+        // Percorre os emails e verifica se existe algum email repetido
         for ($i = 0; $i < $numeroUsers; $i++) {
             for ($j = 0; $j < $numeroUsers; $j++) {
                 if ($userData[$i]['email'] == $userData[$j]['email'] && $i != $j) {
@@ -369,7 +379,7 @@ class UserController extends Controller
             }
         }
 
-        // Verifica se existem users com o mesmo nif
+        // Percorre os emails e verifica se existe algum nif repetido
         for ($i = 0; $i < $numeroUsers; $i++) {
             for ($j = 0; $j < $numeroUsers; $j++) {
                 if ($userData[$i]['nif'] == $userData[$j]['nif'] && $i != $j) {
@@ -414,6 +424,8 @@ class UserController extends Controller
         return redirect()->back()->with('success', 'Utilizadores importados com sucesso.');
     }
 
+
+    // Metodo Export- Serve para exportar as informaçóes relativamente aos utilizadores existentes
     public function export()
     {
         $work_shifts = Work_Shift::all();
@@ -441,7 +453,6 @@ class UserController extends Controller
         return Response::make('', 200, $headers);
     }
 
-    // Adicionar os métodos de WorkTimeController aqui
     public function manageWorkTimes()
     {
         $this->checkAndExtendUserShifts();
