@@ -47,7 +47,7 @@ Route::get('/dashboard-statistics', [App\Http\Controllers\ButtonController::clas
 Route::get('/view-absences', [App\Http\Controllers\ButtonController::class, 'viewAbsences']);
 Route::get('/manage-data', [App\Http\Controllers\ButtonController::class, 'manageData']);
 Route::get('/approve-absence', [App\Http\Controllers\ButtonController::class, 'approveAbsences'])->middleware('AdminOrManagerMiddleware'); // Aprovar faltas, ADMIN e Gestor
-Route::get('/vacation', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
+//Route::get('/vacation', [App\Http\Controllers\ButtonController::class, 'vacationPlans']);
 Route::get('/import-export-data', [App\Http\Controllers\ButtonController::class, 'importExportData'])->name('importExportData')->middleware('AdminMiddleware'); // APENAS ADMIN E GESTOR
 Route::get('/daily-tasks', [App\Http\Controllers\ButtonController::class, 'dailyTasks']);
 Route::get('/requests', [App\Http\Controllers\ButtonController::class, 'requests']);
