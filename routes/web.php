@@ -83,7 +83,6 @@ Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update'])-
 
 
 //rotas vacation   ->  IMPLEMENTADO MIDDLEWARE
-Route::get('/vacation/show/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
 Route::get('/vacation', [VacationController::class, 'index'])->name('vacations.index');
 Route::get('/vacations/create', [VacationController::class, 'create'])->name('vacations.create');
 Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
