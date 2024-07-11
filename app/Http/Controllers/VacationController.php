@@ -21,8 +21,15 @@ class VacationController extends Controller
 {
     public function difTotal($user)
     {
+        // Obtém o ano atual
+        $currentYear = date('Y');
 
-        $vacation_start = Vacation::where('user_id', $user)->pluck('date_start');
+        // Define as datas de início e fim
+        $starterDate = $currentYear . '-04-01';
+        $finalDate = ($currentYear + 1) . '-03-31';
+
+
+        $vacation_start = Vacation::where('user_id', $user)->WhereIn('vacation_approval_states_id',[3,1])->whereBetween('date_start',[$starterDate,$finalDate])->pluck('date_start');
         $vacation_end = Vacation::where('user_id', $user)->pluck('date_end');
         $total = 0;
         $totaldias = 0;
@@ -35,6 +42,7 @@ class VacationController extends Controller
             }, Carbon::parse($vacation_end[$i]));
             $totaldias = $totaldias + $diff_date;
         }
+        $totaldias += $total;
         return $totaldias;
     }
     public function difInput($start, $end, $total): bool|int
@@ -68,7 +76,7 @@ class VacationController extends Controller
         $roleId = auth()->user()->role_id;
         $totaldias = $this->difTotal(Auth::id());
         return view('pages.vacations.create')->with('totaldias', $totaldias)->with('role', $roleId);
-        ;
+
     }
 
     public function timeCollide($vacation_id, $user_id, $start, $end)
@@ -329,3 +337,4 @@ class VacationController extends Controller
         return Response::make('', 200, $headers);
     }
 }
+
