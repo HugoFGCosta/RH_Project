@@ -8,7 +8,7 @@
     <div class="container-dashboard">
         <div class="custom-row">
             <div class="row1">
-                <h1>HORAS DE TRABALHO EXTRAORDINÁRIAS</h1>
+                <h1>Horas de Trabalho Extraordinárias</h1>
                 <div class="filter-options">
                     <label for="filter">Escolher:</label>
                     <select id="filter" name="filter">
