@@ -63,8 +63,17 @@
                             @if($absence->absence_states_id == 3)
                                 <a href="{{ url('/justification/'. $justification->id.'/manage') }}" class="btn-detail-edit">Aprovar/Rejeitar</a>
                                 @break;
+                            @elseif($absence->absence_states_id == 1)
+                                Aprovado
+                                @break;
+«                           @elseif($absence->absence_states_id == 2)
+                                Rejeitado
+                                @break;
+                            @elseif($absence->absence_states_id == 4)
+                                Injustificado
+                                @break;
                             @else
-                                <a href="#" class="btn-detail-edit">Validado</a>
+                                Injustificado Permanentemente
                                 @break;
                             @endif
 
