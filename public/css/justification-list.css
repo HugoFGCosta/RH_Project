@@ -103,7 +103,7 @@ table {
 /* células  */
 table, th, td {
     border-collapse: collapse;
-    padding: 1rem;
+    padding: 0rem;
     text-align: left;
 }
 
