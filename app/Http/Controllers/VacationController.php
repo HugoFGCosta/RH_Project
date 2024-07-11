@@ -21,8 +21,15 @@ class VacationController extends Controller
 {
     public function difTotal($user)
     {
+        // Obtém o ano atual
+        $currentYear = date('Y');
 
-        $vacation_start = Vacation::where('user_id', $user)->pluck('date_start');
+        // Define as datas de início e fim
+        $starterDate = $currentYear . '-04-01';
+        $finalDate = ($currentYear + 1) . '-03-31';
+
+
+        $vacation_start = Vacation::where('user_id', $user)->WhereIn('vacation_approval_states_id',[3,1])->whereBetween('date_start',[$starterDate,$finalDate])->pluck('date_start');
         $vacation_end = Vacation::where('user_id', $user)->pluck('date_end');
         $total = 0;
         $totaldias = 0;
@@ -35,6 +42,7 @@ class VacationController extends Controller
             }, Carbon::parse($vacation_end[$i]));
             $totaldias = $totaldias + $diff_date;
         }
+        $totaldias += $total;
         return $totaldias;
     }
     public function difInput($start, $end, $total): bool|int
@@ -68,7 +76,7 @@ class VacationController extends Controller
         $roleId = auth()->user()->role_id;
         $totaldias = $this->difTotal(Auth::id());
         return view('pages.vacations.create')->with('totaldias', $totaldias)->with('role', $roleId);
-        ;
+
     }
 
     public function timeCollide($vacation_id, $user_id, $start, $end)
@@ -97,10 +105,25 @@ class VacationController extends Controller
             'date_end.after' => 'A data de fim deve ser uma data após amanhã.',
             'date_end.after:date_start' => 'A data de fim deve ser após a data de inicio.',
         ];
-        $validatedData = $request->validate([
-            'date_start' => 'required|date|after:today|before:date_end',
-            'date_end' => 'required|date|after:tomorrow|after:date_start',
-        ], $messages);
+        // Validações manuais
+        if (!$request->has('date_start')) {
+            return redirect(url('/vacations/create'))->with('error', $messages['date_start.required']);
+        }
+        if (!$request->has('date_end')) {
+            return redirect(url('/vacations/create'))->with('error', $messages['date_end.required']);
+        }
+        if (strtotime($request->date_start) < strtotime('today')) {
+            return redirect(url('/vacations/create'))->with('error', $messages['date_start.after']);
+        }
+        if (!(strtotime($request->date_start) < strtotime($request->date_end))) {
+            return redirect(url('/vacations/create'))->with('error', $messages['date_start.before']);
+        }
+        if (!strtotime($request->date_end) > strtotime('tomorrow')) {
+            return redirect(url('/vacations/create'))->with('error', $messages['date_end.after']);
+        }
+        if (!(strtotime($request->date_end) > strtotime($request->date_start))) {
+            return redirect(url('/vacations/create'))->with('error', $messages['date_end.after.date_start']);
+        }
         if ($this->difInput($request->date_start, $request->date_end, $this->difTotal(Auth::id())) != null && $this->timeCollide(0, auth::id(), $request->date_start, $request->date_end)) {
 
             $vacation = new Vacation();
@@ -110,9 +133,9 @@ class VacationController extends Controller
             $vacation->date_start = $request->date_start;
             $vacation->date_end = $request->date_end;
             $vacation->save();
-            return redirect(url('/vacation'))->with('status', 'Criado com sucesso!');
+            return redirect(url('/vacation'))->with('success', 'Criado com sucesso!');
         } else
-            return redirect(url('/vacations/create'))->with('status', 'O Utilizador já marcou ferias neste(s) dia(s)!!');
+            return redirect(url('/vacations/create'))->with('error', 'O Utilizador já marcou ferias neste(s) dia(s)!!');
 
     }
 
@@ -150,10 +173,25 @@ class VacationController extends Controller
             'date_end.after' => 'O dia de fim deve ser uma data após amanhã.',
             'date_end.after:date_start' => 'O dia de fim deve ser após o dia de inicio.',
         ];
-        $validatedData = $request->validate([
-            'date_start' => 'required|date|after:today|before:date_end',
-            'date_end' => 'required|date|after:tomorrow|after:date_start',
-        ], $messages);
+        // Validações manuais
+        if (!$request->has('date_start')) {
+            return redirect(url('/vacations/edit/'.$vacation->id))->with('error', $messages['date_start.required']);
+        }
+        if (!$request->has('date_end')) {
+            return redirect(url('/vacations/edit/'.$vacation->id))->with('error', $messages['date_end.required']);
+        }
+        if (strtotime($request->date_start) < strtotime('today')) {
+            return redirect(url('/vacations/edit/'.$vacation->id))->with('error', $messages['date_start.after']);
+        }
+        if (!(strtotime($request->date_start) < strtotime($request->date_end))) {
+            return redirect(url('/vacations/edit/'.$vacation->id))->with('error', $messages['date_start.before']);
+        }
+        if (!strtotime($request->date_end) > strtotime('tomorrow')) {
+            return redirect(url('/vacations/edit/'.$vacation->id))->with('error', $messages['date_end.after']);
+        }
+        if (!(strtotime($request->date_end) > strtotime($request->date_start))) {
+            return redirect(url('/vacations/edit/'.$vacation->id))->with('error', $messages['date_end.after.date_start']);
+        }
 
         $roleId = auth()->user()->role_id;
         if ($this->timeCollide($vacation->id, $vacation->user_id, $request->date_start, $request->date_end)) {
@@ -182,9 +220,9 @@ class VacationController extends Controller
             // Enviar evento para Pusher após a atualização ser bem-sucedida
             event(new NotificationEvent('Vacation details updated successfully!', $notification->id));
 
-            return redirect(url('/vacation'))->with('status', 'Atualizado com sucesso!');
+            return redirect(url('/vacation'))->with('success', 'Atualizado com sucesso!');
         } else
-            return redirect('/vacation')->with('status', 'O Utilizador já marcou ferias neste(s) dia(s)!');
+            return redirect('/vacation')->with('error', 'O Utilizador já marcou ferias neste(s) dia(s)!');
     }
 
 
@@ -192,7 +230,7 @@ class VacationController extends Controller
     {
         $vacation = vacation::find($vacation->id);
         $vacation->delete();
-        return redirect('vacation')->with('status', 'Eliminado com sucesso!');
+        return redirect('/vacation')->with('error', 'Eliminado com sucesso!');
 
     }
 
@@ -299,3 +337,4 @@ class VacationController extends Controller
         return Response::make('', 200, $headers);
     }
 }
+
