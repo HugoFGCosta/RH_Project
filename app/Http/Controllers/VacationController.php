@@ -21,8 +21,15 @@ class VacationController extends Controller
 {
     public function difTotal($user)
     {
+        // Obtém o ano atual
+        $currentYear = date('Y');
 
-        $vacation_start = Vacation::where('user_id', $user)->pluck('date_start');
+        // Define as datas de início e fim
+        $starterDate = $currentYear . '-04-01';
+        $finalDate = ($currentYear + 1) . '-03-31';
+
+
+        $vacation_start = Vacation::where('user_id', $user)->WhereIn('vacation_approval_states_id',[3,1])->whereBetween('date_start',[$starterDate,$finalDate])->pluck('date_start');
         $vacation_end = Vacation::where('user_id', $user)->pluck('date_end');
         $total = 0;
         $totaldias = 0;
@@ -35,6 +42,7 @@ class VacationController extends Controller
             }, Carbon::parse($vacation_end[$i]));
             $totaldias = $totaldias + $diff_date;
         }
+        $totaldias += $total;
         return $totaldias;
     }
     public function difInput($start, $end, $total): bool|int
@@ -68,7 +76,7 @@ class VacationController extends Controller
         $roleId = auth()->user()->role_id;
         $totaldias = $this->difTotal(Auth::id());
         return view('pages.vacations.create')->with('totaldias', $totaldias)->with('role', $roleId);
-        ;
+
     }
 
     public function timeCollide($vacation_id, $user_id, $start, $end)
@@ -98,8 +106,8 @@ class VacationController extends Controller
             'date_end.after:date_start' => 'A data de fim deve ser após a data de inicio.',
         ];
         $validatedData = $request->validate([
-            'date_start' => 'required|date|after:today|before:date_end',
-            'date_end' => 'required|date|after:tomorrow|after:date_start',
+            'date_start' => 'required|date|after:today',
+            'date_end' => 'required|date|after_or_equal:date_start',
         ], $messages);
         if ($this->difInput($request->date_start, $request->date_end, $this->difTotal(Auth::id())) != null && $this->timeCollide(0, auth::id(), $request->date_start, $request->date_end)) {
 
@@ -151,8 +159,8 @@ class VacationController extends Controller
             'date_end.after:date_start' => 'O dia de fim deve ser após o dia de inicio.',
         ];
         $validatedData = $request->validate([
-            'date_start' => 'required|date|after:today|before:date_end',
-            'date_end' => 'required|date|after:tomorrow|after:date_start',
+            'date_start' => 'required|date|after:today',
+            'date_end' => 'required|date|after_or_equal:date_start',
         ], $messages);
 
         $roleId = auth()->user()->role_id;
@@ -299,3 +307,4 @@ class VacationController extends Controller
         return Response::make('', 200, $headers);
     }
 }
+
