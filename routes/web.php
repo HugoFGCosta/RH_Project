@@ -97,7 +97,7 @@ Route::post('/vacations', function () {
  */
 
 
-Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
+//Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
 Route::get('/vacations/edit/{vacation}', [VacationController::class, 'edit'])->name('vacations.edit')->middleware('AdminMiddleware'); // Apenas ADMIN aprovar ferias
 Route::put('/vacations/{vacation}', [VacationController::class, 'update'])->name('vacations.update')->middleware('AdminMiddleware'); // Apenas ADMIN aprovar ferias
 Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destroy'])->name('vacations.destroy')->middleware('AdminMiddleware'); // Apenas ADMIN aprovar ferias
