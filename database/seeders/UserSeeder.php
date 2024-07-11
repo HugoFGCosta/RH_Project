@@ -17,13 +17,18 @@ class UserSeeder extends Seeder
     public function run(): void
     {
 
-        User::factory()->count(5)->create()->each(function ($user) {
-            User_Shift::create([
-                'user_id' => $user->id,
-                'work_shift_id' => Work_Shift::all()->random()->id,
-                'start_date' => '2021-01-01 00:00:00',
-                'end_date' => null,
-            ]);
-        });
+        if (User::count() == 1) {
+
+            User::factory()->count(5)->create()->each(function ($user) {
+                User_Shift::create([
+                    'user_id' => $user->id,
+                    'work_shift_id' => Work_Shift::all()->random()->id,
+                    'start_date' => '2021-01-01 00:00:00',
+                    'end_date' => null,
+                ]);
+            });
+
+        }
+
     }
 }
