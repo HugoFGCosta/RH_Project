@@ -18,7 +18,7 @@ class UserFactory extends Factory
      * @return array<string, mixed>
      */
 
-    /** Usuários para testes */
+    /** Utilizadores para testes */
 
     public function definition(): array
     {

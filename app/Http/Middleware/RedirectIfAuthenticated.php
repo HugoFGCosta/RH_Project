@@ -48,12 +48,12 @@ class RedirectIfAuthenticated
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
-            // Se já existir pelo menos um usuário, redirecione para a página inicial
+            // Se já existir pelo menos um utilizador, redirecione para a página inicial
             if (User::count() > 0) {
                 return redirect('/home');
             }
 
-            // Se não houver usuários, permita o acesso à rota 'admin-register'
+            // Se não houver utilizadores, permita o acesso à rota 'admin-register'
             if ($request->route()->getName() == 'admin-register') {
                 return $next($request);
             }

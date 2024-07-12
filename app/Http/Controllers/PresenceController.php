@@ -75,7 +75,7 @@ class PresenceController extends Controller
         $today = Carbon::today()->toDateString();
 
 
-        // Buscar o turno de trabalho mais recente para o usuário
+        // Buscar o turno de trabalho mais recente para o utilizador
         $userShift = User_Shift::where('user_id', $user->id)
             ->where(function ($query) use ($today) {
                 $query->whereNull('end_date')
@@ -105,7 +105,7 @@ class PresenceController extends Controller
         }
 
 
-        // Verificar se o usuário tem uma falta no primeiro turno
+        // Verificar se o utilizador tem uma falta no primeiro turno
         $absenceFirstShift = Absence::where('user_id', $user->id)
             ->where('absence_types_id', 1)
             ->whereDate('absence_start_date', Carbon::today())

@@ -63,7 +63,7 @@ class UserShiftController extends Controller
     {
         // Verifique se o turno de trabalho existe no request
         if ($request->has('work_shift_id')) {
-            // Busque o último UserShift do usuário
+            // Busque o último UserShift do utilizador
             $last_user_shift = User_Shift::where('user_id', $user_shift->user_id)->latest()->first();
 
             // Se existir um último UserShift, finalize-o

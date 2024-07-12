@@ -212,7 +212,7 @@ class VacationController extends Controller
 
             // Criar uma nova notificação
             $notification = new Notification();
-            $notification->user_id = $vacation->user_id; // Aqui você pode ajustar para o ID do usuário apropriado
+            $notification->user_id = $vacation->user_id; // Aqui você pode ajustar para o ID do utilizador apropriado
             $notification->vacation_id = $vacation->id;
             $notification->state = false; // não lido
             $notification->save();
