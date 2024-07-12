@@ -44,7 +44,7 @@
         <div class="input-data">
             @if (Auth::user()->role->role == 'Administrator')
                 <select name="role" id="role" class="form-control" required>
-                    <option value="" disabled {{ !isset($user->role->role) ? 'selected' : '' }}>Tipo de Usuário
+                    <option value="" disabled {{ !isset($user->role->role) ? 'selected' : '' }}>Tipo de Utilizador
                     </option>
                     <option value="Administrator"
                         {{ isset($user->role->role) && $user->role->role == 'Administrator' ? 'selected' : '' }}>
@@ -60,11 +60,11 @@
                     </option>
                 </select>
                 <div class="underline"></div>
-                <label for="role">Tipo de Usuário</label>
+                <label for="role">Tipo de Utilizador</label>
             @else
                 <input type="hidden" name="role" value="{{ $user->role->role }}">
                 <input type="text" class="readonly-input" value="{{ $user->role->role }}" readonly>
-                <label for="role">Tipo de Usuário</label>
+                <label for="role">Tipo de Utilizador</label>
                 <div class="underline"></div>
             @endif
         </div>

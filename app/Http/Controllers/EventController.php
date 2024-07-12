@@ -144,6 +144,7 @@ class EventController extends Controller
                 $event->save();
 
                 return response()->json($event);
+
                 break;
 
             case 'update':
