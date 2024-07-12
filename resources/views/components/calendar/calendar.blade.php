@@ -71,6 +71,7 @@
             locale: 'pt-br',
             editable: true,
             events: function(start, end, timezone, callback) {
+                console.log('Fetching events from:', start.format(), 'to', end.format());
                 $.ajax({
                     url: SITEURL + "/fullcalender",
                     type: 'GET',
@@ -82,6 +83,7 @@
                         console.log('Eventos carregados', data);
                         var events = [];
                         $(data).each(function() {
+                            console.log('Evento:', this);
                             var eventIdPrefix = '';
                             if (this.is_vacation) {
                                 eventIdPrefix = 'vacation-';
@@ -97,7 +99,7 @@
                                 title: this.title,
                                 start: this.start,
                                 end: moment(this.end).add(1, 'days').format('YYYY-MM-DD'),
-                                allDay: this.allDay,
+                                allDay: true,
                                 className: this.is_vacation ? 'vacation-event' : (this.is_absence ? 'absence-event' : ''),
                                 durationEditable: false,
                                 editable: !(this.is_vacation || this.is_absence),
@@ -121,11 +123,7 @@
             },
             displayEventTime: false,
             eventRender: function(event, element) {
-                if (event.allDay === 'true') {
-                    event.allDay = true;
-                } else {
-                    event.allDay = false;
-                }
+                console.log('Rendering event:', event);
 
                 // Adiciona classes específicas para eventos de férias e faltas
                 if (event.className.includes('vacation-event')) {
@@ -136,7 +134,8 @@
             },
             selectable: true,
             selectHelper: true,
-            select: function(start, end, allDay) {
+            select: function(start, end) {
+                console.log('Event selected from:', start.format(), 'to', end.format());
                 $('#startDate').val(moment(start).format('YYYY-MM-DD'));
                 $('#endDate').val(moment(end).subtract(1, 'days').format('YYYY-MM-DD'));
                 $('#eventTitle').val('');
@@ -146,6 +145,7 @@
                     var title = $('#eventTitle').val();
                     var startDate = $('#startDate').val();
                     var endDate = $('#endDate').val();
+                    console.log('Saving event:', title, startDate, endDate);
 
                     if (title) {
                         $.ajax({
@@ -158,30 +158,43 @@
                             },
                             type: "POST",
                             success: function(data) {
-                                displayMessage("Evento criado com sucesso");
+                                if (data.message) {
+                                    alert(data.message);
+                                } else {
+                                    displayMessage("Evento criado com sucesso");
+                                    console.log('Event created:', data);
 
-                                calendar.fullCalendar('renderEvent', {
-                                    id: 'event-' + data.id,
-                                    title: title,
-                                    start: startDate,
-                                    end: moment(endDate).add(1, 'days').format('YYYY-MM-DD'),
-                                    allDay: allDay
-                                }, true);
+                                    calendar.fullCalendar('renderEvent', {
+                                        id: 'event-' + data.id,
+                                        title: title,
+                                        start: startDate,
+                                        end: moment(endDate).add(1, 'days').format('YYYY-MM-DD'),
+                                        allDay: true
+                                    }, true);
 
-                                calendar.fullCalendar('unselect');
-                                $('#eventModal').css('display', 'none');
+                                    calendar.fullCalendar('unselect');
+                                    $('#eventModal').css('display', 'none');
+
+                                    // Refresh the calendar
+                                    calendar.fullCalendar('refetchEvents');
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Erro ao salvar evento:', xhr.responseText);
                             }
                         });
                     }
                 });
             },
             eventDrop: function(event, delta, revertFunc) {
+                console.log('Event dropped:', event);
                 if (event.className.includes('vacation-event') || event.className.includes('absence-event')) {
                     revertFunc(); // Reverter se for um evento de férias ou ausência
                     return; // Não permitir edição para eventos de férias ou faltas
                 }
                 var start = event.start.format("YYYY-MM-DD");
                 var end = (event.end) ? event.end.format("YYYY-MM-DD") : start;
+                console.log('Updating event:', event.title, start, end);
 
                 $.ajax({
                     url: SITEURL + '/fullcalenderAjax',
@@ -195,13 +208,16 @@
                     type: "POST",
                     success: function(response) {
                         displayMessage("Evento atualizado com sucesso");
+                        console.log('Event updated:', response);
                     },
                     error: function() {
+                        console.error('Erro ao atualizar evento');
                         revertFunc(); // Reverter a posição se houver erro
                     }
                 });
             },
             eventClick: function(event) {
+                console.log('Event clicked:', event);
                 if (event.className.includes('vacation-event') || event.className.includes('absence-event')) {
                     return; // Não permitir abrir o modal para eventos de férias ou faltas
                 }
@@ -215,6 +231,7 @@
                     var title = $('#eventTitle').val();
                     var startDate = $('#startDate').val();
                     var endDate = $('#endDate').val();
+                    console.log('Saving updated event:', title, startDate, endDate);
 
                     if (title) {
                         $.ajax({
@@ -229,13 +246,18 @@
                             type: "POST",
                             success: function(response) {
                                 displayMessage("Evento atualizado com sucesso");
+                                console.log('Event updated:', response);
                                 currentEvent.title = title;
                                 currentEvent.start = startDate;
                                 currentEvent.end = moment(endDate).format('YYYY-MM-DD');
+                                currentEvent.allDay = true;
                                 calendar.fullCalendar('updateEvent', currentEvent);
 
                                 $('#eventModal').css('display', 'none');
                                 calendar.fullCalendar('refetchEvents');
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Erro ao atualizar evento:', xhr.responseText);
                             }
                         });
                     }
@@ -255,6 +277,10 @@
                                 calendar.fullCalendar('removeEvents', currentEvent.id);
                                 displayMessage("Evento excluído com sucesso");
                                 $('#eventModal').css('display', 'none');
+                                console.log('Event deleted:', response);
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Erro ao excluir evento:', xhr.responseText);
                             }
                         });
                     }
