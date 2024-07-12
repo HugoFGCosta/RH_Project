@@ -57,7 +57,7 @@
                     {{ 'Das ' . Carbon::parse($user_shift->work_shift->start_hour)->format('H:i') . ' às ' . Carbon::parse($user_shift->work_shift->end_hour)->format('H:i') }}
                 </p>
             @else
-                <p>O usuário não tem um turno de trabalho atribuído.</p>
+                <p>O utilizador não tem um turno de trabalho atribuído.</p>
             @endif
             <div class="showform-underline"></div>
         </div>

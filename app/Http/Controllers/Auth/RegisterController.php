@@ -79,7 +79,7 @@ class RegisterController extends Controller
 
 
 
-        // Criação do usuário
+        // Criação do utilizador
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
@@ -91,7 +91,7 @@ class RegisterController extends Controller
             'birth_date' => $data['birth_date']
         ]);
 
-        // Criação do turno do usuário
+        // Criação do turno do utilizador
         $user_shift = new User_Shift();
         $user_shift->work_shift_id = $data['work_shift_id'];
         $user_shift->user_id = $user->id;
