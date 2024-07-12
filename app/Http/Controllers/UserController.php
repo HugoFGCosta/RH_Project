@@ -46,7 +46,7 @@ class UserController extends Controller
     }
 
 
-    // Metodo Show - Mostra todas as informaçoes do user logado. 
+    // Metodo Show - Mostra todas as informaçoes do user logado.
     public function show()
     {
         $this->checkAndExtendUserShifts();
@@ -68,7 +68,7 @@ class UserController extends Controller
     }
 
 
-    // Metodo showSpec - Mostra um user especifico da lista showAll com todas as informaçoes recebendo um $id por parametro. 
+    // Metodo showSpec - Mostra um user especifico da lista showAll com todas as informaçoes recebendo um $id por parametro.
     public function showSpec($id)
     {
 
@@ -90,7 +90,7 @@ class UserController extends Controller
     }
 
 
-    // Metodo showAll - Lista todos os users. 
+    // Metodo showAll - Lista todos os users.
     public function showAll()
     {
 
@@ -116,7 +116,7 @@ class UserController extends Controller
     }
 
 
-    // Metodo edit - Edita as informaçoes do user que está logado. 
+    // Metodo edit - Edita as informaçoes do user que está logado.
     public function edit()
     {
 
@@ -139,7 +139,7 @@ class UserController extends Controller
     }
 
 
-    // Metodo editSpec - Edita um user especifico do metodo showAll recebendo o $id como parametro. 
+    // Metodo editSpec - Edita um user especifico do metodo showAll recebendo o $id como parametro.
     public function editSpec($id)
     {
 
@@ -162,7 +162,7 @@ class UserController extends Controller
     }
 
 
-    // Metodo update - Responsavel por verificar as novas informaçoes e validar para que atualize os dados. 
+    // Metodo update - Responsavel por verificar as novas informaçoes e validar para que atualize os dados.
     public function update(Request $request)
     {
 
@@ -199,13 +199,13 @@ class UserController extends Controller
     }
 
 
-    // Metodo updateSpec - Responsavel por verificar as novas informaçoes e validar para que atualize os dados para um user especifico. 
+    // Metodo updateSpec - Responsavel por verificar as novas informaçoes e validar para que atualize os dados para um user especifico.
     public function updateSpec(Request $request, $id)
     {
 
         $user = User::find($id);
         if (!$user) {
-            return redirect('/user/show')->with('error', 'Usuário não encontrado!');
+            return redirect('/user/show')->with('error', 'Utilizador não encontrado!');
         }
 
         $user->name = $request->input('name');
@@ -235,14 +235,14 @@ class UserController extends Controller
             'end_date' => null,
         ]);
 
-        return redirect('/users/show-all')->with('success', 'Especificações do usuário atualizadas com sucesso!');
+        return redirect('/users/show-all')->with('success', 'Especificações do utilizador atualizadas com sucesso!');
     }
 
 
     // Metodo destroy - Recebe por parametro o $id para que apague um user.
     public function destroy($id)
     {
-        // Validação - Caso haja apenas 1 admin nao é possivel apaga-lo. 
+        // Validação - Caso haja apenas 1 admin nao é possivel apaga-lo.
 
         $user = User::findOrFail($id);
         $id = $user->id;
@@ -264,7 +264,7 @@ class UserController extends Controller
             foreach ($users as $userCicle) {
                 if ($userCicle->role_id == 3 && $userCicle->id != $id) {
                     $user->delete();
-                    return redirect('/users/show-all')->with('success', 'Usuário apagado com sucesso!');
+                    return redirect('/users/show-all')->with('success', 'Utilizador apagado com sucesso!');
 
                 }
             }
@@ -277,7 +277,7 @@ class UserController extends Controller
 
         if ($verAdmin == false) {
             $user->delete();
-            return redirect('/users/show-all')->with('success', 'Usuário apagado com sucesso!');
+            return redirect('/users/show-all')->with('success', 'Utilizador apagado com sucesso!');
         }
 
 
@@ -411,7 +411,7 @@ class UserController extends Controller
                     'password' => $data['password'],
                 ]);
 
-                // Criação do turno do usuário
+                // Criação do turno do utilizador
                 $user_shift = new User_Shift();
                 $user_shift->work_shift_id = $data['work_shift_id'];
                 $user_shift->user_id = $user->id;
@@ -456,7 +456,7 @@ class UserController extends Controller
     public function manageWorkTimes()
     {
         $this->checkAndExtendUserShifts();
-        // Obtém todos os usuários com seus turnos de trabalho
+        // Obtém todos os utilizadores com seus turnos de trabalho
         $users = User::with('user_shifts.work_shift')->get();
         $workShifts = Work_Shift::all();
         return view('pages.work-times.index', compact('users', 'workShifts'));
@@ -490,7 +490,7 @@ class UserController extends Controller
         $startDateTime = Carbon::parse($validated['start_date'])->startOfDay();
         $endDateTime = isset($validated['end_date']) ? Carbon::parse($validated['end_date'])->endOfDay() : null;
 
-        // Cria um novo turno de trabalho para o usuário
+        // Cria um novo turno de trabalho para o utilizador
         $newShift = User_Shift::create([
             'user_id' => $validated['user_id'],
             'work_shift_id' => $validated['work_shift_id'],

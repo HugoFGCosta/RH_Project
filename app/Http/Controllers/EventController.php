@@ -153,7 +153,7 @@ class EventController extends Controller
 
                     return response()->json($event);
                 } else {
-                    return response()->json(['message' => 'Já existe um evento para este usuário nesta data.']);
+                    return response()->json(['message' => 'Já existe um evento para este utilizador nesta data.']);
                 }
                 break;
 
