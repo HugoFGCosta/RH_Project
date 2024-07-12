@@ -31,10 +31,9 @@
                 <th> Nome <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Data Falta<span class="icon-arrow">&UpArrow;</span></th>
                 <th> Motivo <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Duração <span class="icon-arrow">&UpArrow;</span></th>
+                <th> Duração(H:M) <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Estado <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Data Justificação <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Observações<span class="icon-arrow">&UpArrow;</span></th>
                 <th> Justificar <span class="icon-arrow">&UpArrow;</span></th>
             </tr>
             </thead>
@@ -43,7 +42,13 @@
                 <tr>
                     <td class="idCell">{{$absence->id}}</td>
                     <td class="nameCell">{{$absence->user->name}}</td>
-                    <td class="dateAbsenceCell">{{$absence->absence_start_date."-". $absence->absence_end_date}}</td>
+                    <td class="dateAbsenceCell">
+                        @if(\Carbon\Carbon::parse($absence->absence_start_date)->format('Y-m-d') == \Carbon\Carbon::parse($absence->absence_end_date)->format('Y-m-d'))
+                            {{ \Carbon\Carbon::parse($absence->absence_start_date)->format('Y-m-d')}}
+                        @else
+                            {{ \Carbon\Carbon::parse($absence->absence_start_date)->format('Y-m-d') . " - " . \Carbon\Carbon::parse($absence->absence_end_date)->format('Y-m-d') }}
+                        @endif
+                    </td>
                     <td class="motiveCell">
                         @if ($absence->justification)
                             {{ $absence->justification->motive }}
@@ -62,7 +67,7 @@
 
                         @endphp
 
-                        {{$duration . " H:M"}}
+                        {{$duration}}
                     </td>
                     <td class="stateCell">
                         @foreach($absences_states as $absences_state)
@@ -82,13 +87,6 @@
                             -----
                         @endif
                     </td>
-                    <td class="observationCell">
-                        @if ($absence->justification)
-                            {{ $absence->justification->observation }}
-                        @else
-                            -----
-                        @endif
-                    </td>
                     <td class="buttonCell">
                         @foreach($absences_states as $absences_state)
                             @if($absence->absence_states_id == $absences_state->id)
@@ -101,7 +99,7 @@
                                 @elseif ($absences_state->description == "Injustificado Permanentemente")
                                     Injustificado Permanentemente
                                 @else
-                                    <a class="btn-detail-edit">Por Justificar</a>
+                                    Por Justificar
                                 @endif
                             @endif
                         @endforeach

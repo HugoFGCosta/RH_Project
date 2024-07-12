@@ -7,6 +7,11 @@
     }
 }
 
+h1 {
+    padding-top: 30px;
+    padding-bottom: 20px;
+
+}
 /* Tabela principal */
 main.table {
     max-width: 3600px;
@@ -17,7 +22,6 @@ main.table {
     overflow: hidden;
     border-radius: .8rem; /* Adiciona bordas arredondadas ao container principal */
 }
-
 /* Cabeçalho da tabela */
 .table__header {
     width: 100%;
@@ -31,13 +35,36 @@ main.table {
     border-top-right-radius: .8rem;
 }
 
+.table__header .input-group-filter {
+    height: 2.5rem;
+    background-color: #fff5;
+    padding: 0 1rem;
+    border-radius: 2rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    transition: .2s;
+    box-shadow: 0 .1rem .4rem #0002;
+    color: var(--blue);
+}
+
+.input-group-filter select, .filter-options input {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    transition: border-color 0.3s;
+}
+
+.input-group-filter select:focus, .filter-options input:focus {
+    border-color: #005999;
+    outline: none;
+}
 /* Wrapper para centralizar o input group */
 .input-group-wrapper {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     flex-grow: 1;
 }
-
 /* Grupo de busca */
 .table__header .input-group {
     width: 45%;
@@ -46,19 +73,17 @@ main.table {
     padding: 0 1rem;
     border-radius: 2rem;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     transition: .2s;
     box-shadow: 0 .1rem .4rem #0002;
 }
-
 /* Efeito de foco na busca */
 .table__header .input-group:hover {
     width: 55%;
     box-shadow: 0 .2rem .6rem #0004;
     border: 1px solid #0002;
 }
-
 /* Entrada de busca */
 .table__header .input-group input {
     width: 100%;
@@ -67,7 +92,6 @@ main.table {
     border: none;
     outline: none;
 }
-
 /* body tabela */
 .table__body {
     width: 95%;
@@ -77,7 +101,6 @@ main.table {
     border-radius: .6rem;
     overflow: auto;
 }
-
 /* scroll */
 .table__body::-webkit-scrollbar {
     width: 0.5rem;
@@ -337,6 +360,10 @@ thead th.asc span.icon-arrow {
     color: red;
 }
 
+/*Estilo para 'Sem registo' ser destacado */
+.red-text {
+    color: red;
+}
 .green-check {
     color: var(--green);
 }

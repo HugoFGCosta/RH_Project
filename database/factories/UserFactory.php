@@ -25,7 +25,7 @@ class UserFactory extends Factory
         $faker = \Faker\Factory::create();
         return [
             'name' => $faker->name(),
-            'role_id' => $faker->numberBetween(1, 3),
+            'role_id' => 1,
             'email' => $faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => Hash::make('admin1234'),
