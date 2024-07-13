@@ -79,7 +79,6 @@
                         end: end.format()
                     },
                     success: function(data) {
-                        console.log('Eventos carregados', data);
                         var events = [];
                         $(data).each(function() {
                             var eventIdPrefix = '';
@@ -97,7 +96,7 @@
                                 title: this.title,
                                 start: this.start,
                                 end: moment(this.end).add(1, 'days').format('YYYY-MM-DD'),
-                                allDay: this.allDay,
+                                allDay: true,
                                 className: this.is_vacation ? 'vacation-event' : (this.is_absence ? 'absence-event' : ''),
                                 durationEditable: false,
                                 editable: !(this.is_vacation || this.is_absence),
@@ -121,13 +120,6 @@
             },
             displayEventTime: false,
             eventRender: function(event, element) {
-                if (event.allDay === 'true') {
-                    event.allDay = true;
-                } else {
-                    event.allDay = false;
-                }
-
-                // Adiciona classes específicas para eventos de férias e faltas
                 if (event.className.includes('vacation-event')) {
                     element.addClass('vacation-event');
                 } else if (event.className.includes('absence-event')) {
@@ -136,7 +128,7 @@
             },
             selectable: true,
             selectHelper: true,
-            select: function(start, end, allDay) {
+            select: function(start, end) {
                 $('#startDate').val(moment(start).format('YYYY-MM-DD'));
                 $('#endDate').val(moment(end).subtract(1, 'days').format('YYYY-MM-DD'));
                 $('#eventTitle').val('');
@@ -158,18 +150,19 @@
                             },
                             type: "POST",
                             success: function(data) {
-                                displayMessage("Evento criado com sucesso");
+                                if (data.message) {
+                                    alert(data.message);
+                                } else {
+                                    displayMessage("Evento criado com sucesso");
 
-                                calendar.fullCalendar('renderEvent', {
-                                    id: 'event-' + data.id,
-                                    title: title,
-                                    start: startDate,
-                                    end: moment(endDate).add(1, 'days').format('YYYY-MM-DD'),
-                                    allDay: allDay
-                                }, true);
+                                    calendar.fullCalendar('refetchEvents');
 
-                                calendar.fullCalendar('unselect');
-                                $('#eventModal').css('display', 'none');
+                                    $('#eventModal').css('display', 'none');
+                                    calendar.fullCalendar('unselect');
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Erro ao salvar evento:', xhr.responseText);
                             }
                         });
                     }
@@ -177,8 +170,8 @@
             },
             eventDrop: function(event, delta, revertFunc) {
                 if (event.className.includes('vacation-event') || event.className.includes('absence-event')) {
-                    revertFunc(); // Reverter se for um evento de férias ou ausência
-                    return; // Não permitir edição para eventos de férias ou faltas
+                    revertFunc();
+                    return;
                 }
                 var start = event.start.format("YYYY-MM-DD");
                 var end = (event.end) ? event.end.format("YYYY-MM-DD") : start;
@@ -197,13 +190,14 @@
                         displayMessage("Evento atualizado com sucesso");
                     },
                     error: function() {
-                        revertFunc(); // Reverter a posição se houver erro
+                        console.error('Erro ao atualizar evento');
+                        revertFunc();
                     }
                 });
             },
             eventClick: function(event) {
                 if (event.className.includes('vacation-event') || event.className.includes('absence-event')) {
-                    return; // Não permitir abrir o modal para eventos de férias ou faltas
+                    return;
                 }
                 currentEvent = event;
                 $('#eventTitle').val(event.title);
@@ -229,13 +223,11 @@
                             type: "POST",
                             success: function(response) {
                                 displayMessage("Evento atualizado com sucesso");
-                                currentEvent.title = title;
-                                currentEvent.start = startDate;
-                                currentEvent.end = moment(endDate).format('YYYY-MM-DD');
-                                calendar.fullCalendar('updateEvent', currentEvent);
-
-                                $('#eventModal').css('display', 'none');
                                 calendar.fullCalendar('refetchEvents');
+                                $('#eventModal').css('display', 'none');
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Erro ao atualizar evento:', xhr.responseText);
                             }
                         });
                     }
@@ -255,6 +247,9 @@
                                 calendar.fullCalendar('removeEvents', currentEvent.id);
                                 displayMessage("Evento excluído com sucesso");
                                 $('#eventModal').css('display', 'none');
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Erro ao excluir evento:', xhr.responseText);
                             }
                         });
                     }
