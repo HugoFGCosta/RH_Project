@@ -4,7 +4,6 @@
 <main class="table custom-height" id="users_table">
 
     <section class="table__header">
-        <h1>Lista de horários</h1>
         <div class="button-create">
             <a href="{{ url('work-shifts/create') }}" type="button">Criar Turno</a>
         </div>
@@ -49,7 +48,8 @@
                         <a href="{{ url('work-shifts', $workShift->id) }}" class="btn-detail-edit">Detalhe/Editar</a>
                     </td>
                     <td>
-                        <form action="{{ url('work-shifts', $workShift->id) }}" method="POST" style="display:inline;" class="no-form">
+                        <form action="{{ url('work-shifts', $workShift->id) }}" method="POST" style="display:inline;"
+                              class="no-form">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="delete-button">Apagar</button>

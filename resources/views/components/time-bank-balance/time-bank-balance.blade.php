@@ -2,7 +2,6 @@
 
 <div class="divGeral">
     <h1 class="titleBalance">Consultar Saldo</h1>
-
     <form class="teste" action="/time-bank-balance">
         @csrf
         <div class="row">

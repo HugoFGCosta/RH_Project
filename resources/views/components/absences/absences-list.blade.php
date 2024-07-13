@@ -5,7 +5,6 @@
 <main class="table" id="users_table">
 
     <section class="table__header">
-        <h1>Lista de faltas (Gestão)</h1>
         <div class="input-group">
             <input type="search" placeholder="Pesquisar...">
             <ion-icon name="search-outline"></ion-icon>
