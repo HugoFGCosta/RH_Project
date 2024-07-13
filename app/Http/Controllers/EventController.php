@@ -80,8 +80,6 @@ class EventController extends Controller
         return view('fullcalender');
     }
 
-
-
     /**
      * Show the form for creating a new resource.
      */
@@ -136,25 +134,17 @@ class EventController extends Controller
 
         switch ($request->type) {
             case 'add':
-                $eventExists = Event::where('user_id', $userId)
-                    ->whereDate('start', $request->start)
-                    ->whereDate('end', $request->end)
-                    ->exists();
+                $event = new Event([
+                    'user_id' => $userId,
+                    'title' => $request->title,
+                    'start' => $request->start,
+                    'end' => $request->end,
+                ]);
 
-                if (!$eventExists) {
-                    $event = new Event([
-                        'user_id' => $userId,
-                        'title' => $request->title,
-                        'start' => $request->start,
-                        'end' => $request->end,
-                    ]);
+                $event->save();
 
-                    $event->save();
+                return response()->json($event);
 
-                    return response()->json($event);
-                } else {
-                    return response()->json(['message' => 'Já existe um evento para este utilizador nesta data.']);
-                }
                 break;
 
             case 'update':
