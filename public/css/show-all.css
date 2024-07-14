@@ -6,6 +6,24 @@
         width: auto !important;
     }
 }
+/* Alinhar headers */
+.vacations-left {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.vacations-left h1 {
+    flex: 1;
+    text-align: left;
+}
+
+.vacations-left h3 {
+    flex: 2;
+    text-align: center;
+    margin-right: 20rem;
+    color: red;
+}
 
 /* Tabela principal */
 main.table {
@@ -108,6 +126,7 @@ thead th {
     text-transform: capitalize;
     color: #fff;
     font-weight: 400;
+    z-index: 2;
 }
 
 /* Linhas pares do corpo */
@@ -309,6 +328,21 @@ thead th.asc span.icon-arrow {
 }
 
 .new__vacation:hover {
+    font-size: medium;
+}
+
+.filter {
+    background: rgba(134, 95, 95, 0.89);
+    padding: 15px 20px 15px 20px;
+    border: transparent;
+    border-radius: 15px;
+    margin: 15px 0 0 15px;
+    color: var(--white);
+    cursor: pointer;
+    transition: font-size 0.5s ease;
+}
+
+.filter:hover {
     font-size: medium;
 }
 

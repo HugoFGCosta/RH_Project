@@ -8,7 +8,6 @@
 @endsection
 
 @section('content')
-    <h1>Lista de Férias</h1>
     @component('components.vacations.vacation-list', ['vacations' => $vacations, 'role' => $role, 'totaldias' => $totaldias])
     @endcomponent
 @endsection
