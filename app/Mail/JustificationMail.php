@@ -22,17 +22,18 @@ class JustificationMail extends Mailable
      */
     public function __construct($message, $subject)
     {
-        //
         $this->mailMessage = $message;
         $this->subject = $subject;
     }
 
-    public function build() //Tranforma a mensagem em HTML para adicionar paragrafos
+    public function build()
     {
-        return $this->view('emails.justification')
+        return $this->view('emails.justification_email')
             ->subject($this->subject)
-            ->with(['message' => $this->mailMessage])
-            ->html($this->mailMessage); // Configura o email para ser enviado como HTML
+            ->with([
+                'message' => $this->mailMessage,
+                'subject' => $this->subject
+            ]);
     }
 
     /**
@@ -51,8 +52,8 @@ class JustificationMail extends Mailable
      */
     public function content(): Content
     {
-        return new Content( //Não é preciso passar as variáveis $message e $subject. Elas são passadas no construtor
-            view: 'pages.mail.justification-approved',
+        return new Content(
+            view: 'emails.justification_email',
         );
     }
 
