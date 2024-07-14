@@ -4,7 +4,6 @@
 <p class="messageError" id="messageError"></p>
 
 <form id="abcenseForm" action="/justification/create">
-    @csrf
 
     <main class="table" id="users_table">
         <section class="table__header">

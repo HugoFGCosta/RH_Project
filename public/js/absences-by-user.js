@@ -4,25 +4,6 @@ let submitButton = document.getElementsByClassName('submitButton')[0];
 let messageError = document.getElementById('messageError');
 
 // Adiciona um evento de clique ao botão de envio
-submitButton.addEventListener('click', function(event) {
-    let ver = false;
-    // Previne o comportamento padrão do botão de envio
-    event.preventDefault();
-
-    // Percorre todos os checkboxes e verifica se algum está marcado
-    checkboxes.forEach(function(checkbox) {
-        if (checkbox.checked === true) {
-            ver = true;
-        }
-    });
-
-    if (ver === true) {
-        // Submete o formulário
-        form.submit();
-    } else {
-        messageError.innerHTML = "Por favor selecione alguma falta antes de clicar em Justificar";
-    }
-});
 
 let modified = false; // Variável para rastrear se as células foram modificadas
 
