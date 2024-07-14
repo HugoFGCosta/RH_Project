@@ -5,14 +5,11 @@
 @endsection
 
 @section('content')
+    <h1>Períodos de Trabalho</h1>
     <div class="centralBox">
-
         @component('components.alerts.alerts')
         @endcomponent
-
         <div class="table__header">
-            <h1>Períodos de Trabalho</h1>
-
             <div class="input-group">
                 <input type="search" placeholder="Pesquisar...">
             </div>
@@ -54,7 +51,11 @@
                             </td>
                             <td>{{ $userShift->start_date }}</td>
                             <td>{{ $userShift->end_date ?? 'Indefinido' }}</td>
-                            <td><button class="btn btn-primary openModal" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}">Adicionar Turno</button></td>
+                            <td>
+                                <button class="btn btn-primary openModal" data-user-id="{{ $user->id }}"
+                                        data-user-name="{{ $user->name }}">Adicionar Turno
+                                </button>
+                            </td>
                         </tr>
                     @endforeach
                 @endforeach

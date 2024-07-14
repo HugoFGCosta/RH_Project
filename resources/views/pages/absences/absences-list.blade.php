@@ -15,6 +15,7 @@
     @endif
 
     <div class="container pt-5">
+        <h1>Lista de faltas (Gestão)</h1>
 
         @component('components.absences.absences-list', ['absences' => $absences, 'absences_states' => $absences_states, 'absences_types' => $absences_types,'justifications'=>$justifications])
         @endcomponent
