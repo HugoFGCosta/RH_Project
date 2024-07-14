@@ -1,3 +1,37 @@
+/* Estilo para campos readonly */
+.readonly-input {
+    display: block;
+    width: 100%;
+    height: 40px;
+    border: none;
+    font-size: 17px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.12);
+    outline: none;
+    background-color: #f9f9f9;
+    color: #666;
+    padding: 0 5px;
+    box-sizing: border-box;
+}
+
+.readonly-input + .underline {
+    display: none;
+}
+
+/* Ajuste de label para campos readonly */
+.readonly-input + label {
+    position: absolute;
+    bottom: 10px;
+    font-size: 16px;
+    color: #666;
+    transform: translateY(-20px);
+}
+
+/* Ajuste para garantir espaçamento adequado */
+.readonly-input-container {
+    position: relative;
+    margin-bottom: 20px;
+}
+
 .container > form {
     display: flex;
     flex-direction: column;
@@ -43,10 +77,12 @@ form .form-row .input-data.full-width {
     color: transparent;
     transition: color 0.3s;
 }
+
 .input-data input[type="date"]:focus::-webkit-datetime-edit,
 .input-data input[type="date"]:valid::-webkit-datetime-edit {
     color: initial;
 }
+
 .input-data label {
     position: absolute;
     pointer-events: none;
@@ -149,6 +185,7 @@ form .form-row .input-data.full-width {
     color: red;
     border: 2px solid red;
 }
+
 .btn-detail-edit {
     display: inline-block;
     background-color: var(--green);
@@ -173,9 +210,11 @@ form .form-row .input-data.full-width {
         display: block;
         margin: 20px 0;
     }
+
     form .form-row .input-data {
         margin: 35px 0 !important;
     }
+
     .btn.showform-btn {
         width: 100%;
         height: 50px;
