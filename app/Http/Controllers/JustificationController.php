@@ -51,6 +51,11 @@ class JustificationController extends Controller
     {
         //
         $selectedAbsences = $request->input('selected_absences'); // Isso retorna um array de IDs selecionados
+
+        if(!$selectedAbsences){
+            return redirect('/users/' . Auth::user()->id . '/absences')->with('error', 'Selecione pelo menos uma ausência');
+        }
+
         $absences = Absence::all();
         $states = [];
         $durations = [];
@@ -98,13 +103,35 @@ class JustificationController extends Controller
     public function store(Request $request)
     {
         // Validação do request
-        $this->validate($request,[
-            'motive' => 'required',
-            'justification_date' => 'required',
-            'observation' => 'required',
-            'file' => 'required|file|mimes:png,jpg,jpeg,pdf,docx|max:2048', // Adicione a validação do ficheiro
-            'selected_absences' => 'required|array' // Adicione a validação para faltas selecionadas
-        ], $this->messages());
+        if (empty($request->motive)) {
+            return redirect()->back()->with('error', 'O motivo é obrigatório.');
+        }
+
+        if (empty($request->justification_date)) {
+            return redirect()->back()->with('error', 'A data de justificação é obrigatória.');
+        }
+
+        if (empty($request->observation)) {
+            return redirect()->back()->with('error', 'A observação é obrigatória.');
+        }
+
+        if (!$request->hasFile('file')) {
+            return redirect()->back()->with('error', 'O arquivo é obrigatório.');
+        }
+
+        $ficheiro = $request->file('file');
+
+        if (!in_array($ficheiro->getClientOriginalExtension(), ['jpeg', 'jpg', 'png', 'pdf', 'docx'])) {
+            return redirect()->back()->with('error', 'O arquivo deve ser do tipo: jpeg, jpg, png, pdf, docx.');
+        }
+
+        if ($ficheiro->getSize() > 2048 * 1024) {
+            return redirect()->back()->with('error', 'O arquivo não pode ser maior que 2MB.');
+        }
+
+        if (empty($request->selected_absences) || !is_array($request->selected_absences)) {
+            return redirect()->back()->with('error', 'As faltas selecionadas são obrigatórias.');
+        }
 
 
         $paath = "";
@@ -196,16 +223,6 @@ class JustificationController extends Controller
 
         // Redirecionar com uma mensagem de sucesso
         return redirect('/users/' . Auth::user()->id . '/absences')->with('success', 'Registo efetuado com sucesso');
-    }
-
-    // Metodo messages- serve para guardar as possiveis mensagens de erro
-    public function messages()
-    {
-        return [
-            'file.max' => 'O arquivo não pode ser maior que 1.5MB.',
-            'file.required' => 'O arquivo é obrigatório.',
-            'file.mimes' => 'O arquivo deve ser do tipo: jpeg, jpg, png, pdf, docx.',
-        ];
     }
 
     /**

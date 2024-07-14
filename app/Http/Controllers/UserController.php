@@ -465,41 +465,61 @@ class UserController extends Controller
     public function storeWorkTime(Request $request)
     {
         $this->checkAndExtendUserShifts();
-        // Valida os dados enviados pelo formulário
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'work_shift_id' => 'required|exists:work_shifts,id',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-        ]);
+
+        // Manual validation
+        $user_id = $request->input('user_id');
+        $work_shift_id = $request->input('work_shift_id');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+
+        if (!$user_id || !User::find($user_id)) {
+            return redirect()->back()->with('error', 'O user_id deve existir na tabela de utilizadores.');
+        }
+
+        if (!$work_shift_id || !Work_Shift::find($work_shift_id)) {
+            return redirect()->back()->with('error', 'Work_shift_id é obrigatório deve existir na tabela de turnos de trabalho.');
+        }
+
+        if (!$start_date || !strtotime($start_date)) {
+            return redirect()->back()->with('error', 'A data de início é obrigatória e deve ser uma data válida.');
+        }
+
+        if ($end_date && strtotime($end_date) === false) {
+            return redirect()->back()->with('error', 'A data de fim é obrigatória e deve ser uma data válida.');
+        }
+
+        if ($end_date && strtotime($start_date) > strtotime($end_date)) {
+            return redirect()->back()->with('error', 'A data de início não pode ser após que a data de fim.');
+        }
 
         // Fechar o horário de trabalho anterior
-        $previousShift = User_Shift::where('user_id', $validated['user_id'])
+        $previousShift = User_Shift::where('user_id', $user_id)
             ->whereNull('end_date')
-            ->orWhere('end_date', '>', $validated['start_date'])
+            ->orWhere('end_date', '>', $start_date)
             ->orderBy('start_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->first();
 
         if ($previousShift) {
-            $previousShift->end_date = Carbon::parse($validated['start_date'])->subSecond()->format('Y-m-d 23:59:59');
+            $previousShift->end_date = Carbon::parse($start_date)->subSecond()->format('Y-m-d 23:59:59');
             $previousShift->save();
         }
 
         // Adiciona hora padrão ao start_date e end_date
-        $startDateTime = Carbon::parse($validated['start_date'])->startOfDay();
-        $endDateTime = isset($validated['end_date']) ? Carbon::parse($validated['end_date'])->endOfDay() : null;
+        $startDateTime = Carbon::parse($start_date)->startOfDay();
+        $endDateTime = $end_date ? Carbon::parse($end_date)->endOfDay() : null;
 
         // Cria um novo turno de trabalho para o utilizador
         $newShift = User_Shift::create([
-            'user_id' => $validated['user_id'],
-            'work_shift_id' => $validated['work_shift_id'],
+            'user_id' => $user_id,
+            'work_shift_id' => $work_shift_id,
             'start_date' => $startDateTime,
             'end_date' => $endDateTime,
         ]);
 
         return redirect()->route('work-times.index')->with('success', 'Work time added successfully.');
     }
+
 
 
 

@@ -4,11 +4,34 @@
     <link rel="stylesheet" href="{{ asset('/css/work-times.css') }}">
 @endsection
 
+
 @section('content')
+
+    @if (session('success') || session('error'))
+        <div id="modal-container" class="modal-container">
+            <div class="modal">
+                <span class="close-btn" id="close-btn">&times;</span>
+                <div class="modal-content">
+                    @if (session('success'))
+                        <div class="alert success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert error">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
+
     <h1>Períodos de Trabalho</h1>
     <div class="centralBox">
-        @component('components.alerts.alerts')
-        @endcomponent
+
         <div class="table__header">
             <div class="input-group">
                 <input type="search" placeholder="Pesquisar...">
@@ -65,8 +88,8 @@
     </div>
 
     <!-- Modal -->
-    <div id="workTimeModal" class="modal">
-        <div class="modal-content">
+    <div id="workTimeModal" class="modal-work-times">
+        <div class="modal-content-work-times">
             <span class="close">&times;</span>
             <h1>Adicionar Turno de Trabalho para <span id="modal_user_name"></span></h1>
             <form action="{{ route('work-times.store') }}" method="POST">
