@@ -6,7 +6,7 @@
     @endcomponent
 
     <div class="container pt-5">
-
+        <h1>Lista de horários</h1>
         @component('components.work-shifts.work-shift-list', ['workShifts' => $workShifts])
         @endcomponent
 
