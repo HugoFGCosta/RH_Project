@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\JustificationSubmitted;
 use Illuminate\Http\Request;
 use App\Mail\JustificationMail;
 use Illuminate\Support\Facades\Mail;
@@ -52,7 +53,7 @@ class EmailController extends Controller
 
         $subject = 'Justificação submetida por colaborador';
 
-        Mail::to($toEmail)->send(new JustificationMail($message, $subject));
+        Mail::to($toEmail)->send(new JustificationSubmitted($message, $subject));
     }
 }
 
