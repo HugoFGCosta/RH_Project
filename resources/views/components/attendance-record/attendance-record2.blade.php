@@ -16,7 +16,7 @@
                 <ion-icon name="search-outline"></ion-icon>
             </div>
             <!-- Month Filter -->
-            <div class="input-group-filter">
+            <div class="input-group-filter no-export">
                 <select id="monthFilter">
                     <option value="">Selecionar Mês</option>
                     @foreach($months as $month => $value)
@@ -25,7 +25,7 @@
                 </select>
             </div>
             <!-- Year Filter -->
-            <div class="input-group-filter">
+            <div class="input-group-filter no-export">
                 <select id="yearFilter">
                     <option value="">Selecionar Ano</option>
                     @foreach($years as $year)
@@ -34,6 +34,7 @@
                 </select>
             </div>
         </div>
+
         <div class="export__file">
             <label for="export-file" class="export__file-btn" title="Export File"></label>
             <input type="checkbox" id="export-file">
