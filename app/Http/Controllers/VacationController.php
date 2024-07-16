@@ -137,35 +137,32 @@ class VacationController extends Controller
     public function store(StoreVacationRequest $request)
     {
         $messages = [
-            'date_start.required' => 'A data de inicio é obrigatória.',
-            'date_start.after' => 'A data de inicio deve ser uma data após hoje.',
-            'date_start.before' => 'A data de inicio deve ser antes da data de fim.',
-            'date_end.required' => 'A data de fim é obrigatória.',
-            'date_end.after' => 'A data de fim deve ser uma data após amanhã.',
-            'date_end.after:date_start' => 'A data de fim deve ser após a data de inicio.',
+            'date_start.required' => 'O dia de inicio é obrigatório.',
+            'date_start.after' => 'O dia de inicio deve ser uma data após hoje.',
+            'date_start.before' => 'O dia de inicio deve ser antes do dia de fim.',
+            'date_end.required' => 'O dia de fim é obrigatório.',
+            'date_end.after' => 'O dia de fim deve ser uma data após amanhã.',
+            'date_end.after:date_start' => 'O dia de fim deve ser após o dia de inicio.',
         ];
-        // Validações manuais
+
+// Validações manuais
         if (!$request->has('date_start')) {
             return redirect(url('/vacations/create'))->with('error', $messages['date_start.required']);
         }
         if (!$request->has('date_end')) {
             return redirect(url('/vacations/create'))->with('error', $messages['date_end.required']);
         }
-        if (strtotime($request->date_start) < strtotime('today')) {
+        if (strtotime($request->date_start) <= strtotime('today')) {
             return redirect(url('/vacations/create'))->with('error', $messages['date_start.after']);
         }
-        if (!(strtotime($request->date_start) < strtotime($request->date_end))) {
-            return redirect(url('/vacations/create'))->with('error', $messages['date_start.before']);
+        if (strtotime($request->date_end) < strtotime($request->date_start)) {
+            return redirect(url('/vacations/create'))->with('error', $messages['date_end.after:date_start']);
         }
-        if (!strtotime($request->date_end) > strtotime('tomorrow')) {
-            return redirect(url('/vacations/create'))->with('error', $messages['date_end.after']);
-        }
-        if (!(strtotime($request->date_end) > strtotime($request->date_start))) {
-            return redirect(url('/vacations/create'))->with('error', $messages['date_end.after.date_start']);
-        }
+        // Verificar outras regras de negócio
         if ($this->difInput($request->date_start, $request->date_end, $this->difTotal(Auth::id())) != null &&
             $this->timeCollide(0, auth::id(), $request->date_start, $request->date_end) &&
-            $this->must_date($request->date_start, $request->date_end,0)){
+            $this->must_date($request->date_start, $request->date_end, 0)) {
+
             $vacation = new Vacation();
             $vacation->user_id = Auth::id();
             $vacation->vacation_approval_states_id = 3;
@@ -173,14 +170,14 @@ class VacationController extends Controller
             $vacation->date_start = $request->date_start;
             $vacation->date_end = $request->date_end;
             $vacation->save();
-            return redirect(url('/vacation'))->with('success', 'Criado com sucesso!');
-        } else
-            return redirect(url('/vacations/create'))->with('error', 'Houve um erro durante a marcação de ferias verifique se já tem 10 dias seguidos marcados ou se o dias pedidos ja estão marcados!');
 
+            return redirect(url('/vacation'))->with('success', 'Criado com sucesso!');
+        } else {
+            return redirect(url('/vacations/create'))->with('error', 'Houve um erro durante a marcação de férias, verifique se já tem 10 dias seguidos marcados ou se os dias pedidos já estão marcados!');
+        }
     }
 
-
-    public function show(Vacation $vacation)
+    public function show()
     {
         $totaldias = $this->difTotal(Auth::id());
         $roleId = auth::id();
