@@ -63,7 +63,7 @@ main.table {
 /* Envolver os filtros em um contêiner flex */
 .input-group-wrapper {
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     flex-grow: 1;
     gap: 1rem;
 }
