@@ -1,14 +1,39 @@
+@php
+    use Carbon\Carbon;
+    // Generate arrays for months and years
+    $months = [
+        'Janeiro' => '01', 'Fevereiro' => '02', 'Março' => '03', 'Abril' => '04',
+        'Maio' => '05', 'Junho' => '06', 'Julho' => '07', 'Agosto' => '08',
+        'Setembro' => '09', 'Outubro' => '10', 'Novembro' => '11', 'Dezembro' => '12'
+    ];
+    $years = range(Carbon::now()->year, Carbon::now()->year - 10);
+@endphp
 <link rel="stylesheet" href="{{ asset('css/work-shifts.css') }}">
 <link rel="stylesheet" href="{{ asset('css/show-all.css') }}">
 <link rel="stylesheet" href="{{ asset('css/justification-list.css') }}">
-
-
 <main class="table" id="users_table">
-
-    <section class="table__header">
+    <section class="table__header input-group-wrapper">
         <div class="input-group">
             <input type="search" placeholder="Procurar...">
             <ion-icon name="search-outline"></ion-icon>
+        </div>
+        <!-- Month Filter -->
+        <div class="input-group-filter no-export">
+            <select id="monthFilter">
+                <option value="">Selecionar Mês</option>
+                @foreach(['Janeiro' => '01', 'Fevereiro' => '02', 'Março' => '03', 'Abril' => '04', 'Maio' => '05', 'Junho' => '06', 'Julho' => '07', 'Agosto' => '08', 'Setembro' => '09', 'Outubro' => '10', 'Novembro' => '11', 'Dezembro' => '12'] as $month => $value)
+                    <option value="{{ $month }}">{{ $month }}</option>
+                @endforeach
+            </select>
+        </div>
+        <!-- Year Filter -->
+        <div class="input-group-filter no-export">
+            <select id="yearFilter">
+                <option value="">Selecionar Ano</option>
+                @foreach(range(date('Y'), date('Y') - 10) as $year)
+                    <option value="{{ $year }}">{{ $year }}</option>
+                @endforeach
+            </select>
         </div>
         <div class="export__file">
             <label for="export-file" class="export__file-btn" title="Export File"></label>
@@ -17,13 +42,12 @@
                 <label>Exportar como &nbsp; &#10140;</label>
                 <label for="export-file" id="toPDF">PDF</label>
                 <label for="export-file" id="toJSON">JSON</label>
-                <label for="export-file" id="toCSV">CSV </label>
+                <label for="export-file" id="toCSV">CSV</label>
                 <label for="export-file" id="toEXCEL">EXCEL</label>
             </div>
         </div>
     </section>
     <section class="table__body">
-
         <table>
             <thead>
             <tr>
@@ -77,19 +101,12 @@
                                 Injustificado Permanentemente
                                 @break;
                             @endif
-
                         @endforeach
-
                     </td>
-
-
                 </tr>
             @endforeach
             </tbody>
         </table>
-
     </section>
 </main>
-
-
 

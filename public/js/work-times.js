@@ -3,19 +3,35 @@ document.addEventListener('DOMContentLoaded', function () {
         table_rows = document.querySelectorAll('tbody tr'),
         table_headings = document.querySelectorAll('thead th');
 
-    // Evento de input para a busca na tabela
-    search.addEventListener('input', searchTable);
+    const monthFilter = document.getElementById('monthFilter');
+    const yearFilter = document.getElementById('yearFilter');
+    const presenceTableBody = document.querySelector('#work_times_table tbody');
 
-    function searchTable() {
-        table_rows.forEach((row, i) => {
-            let table_data = row.textContent.toLowerCase(),
-                search_data = search.value.toLowerCase();
+    const months = {
+        'Janeiro': '01', 'Fevereiro': '02', 'Março': '03', 'Abril': '04',
+        'Maio': '05', 'Junho': '06', 'Julho': '07', 'Agosto': '08',
+        'Setembro': '09', 'Outubro': '10', 'Novembro': '11', 'Dezembro': '12'
+    };
 
-            // Esconde a linha se os dados não correspondem à busca
-            row.classList.toggle('hide', table_data.indexOf(search_data) < 0);
+    function filterTable() {
+        const selectedMonth = monthFilter.value;
+        const selectedYear = yearFilter.value;
+
+        Array.from(presenceTableBody.querySelectorAll('tr')).forEach((row, i) => {
+            const date = row.getAttribute('data-date');
+            if (!date) {
+                row.classList.add('hide');
+                row.style.display = 'none';
+                return;
+            }
+            const [year, month, day] = date.split('-');
+
+            const match = (selectedMonth === '' || months[selectedMonth] === month) &&
+                (selectedYear === '' || selectedYear === year);
+
+            row.classList.toggle('hide', !match);
             row.style.setProperty('--delay', i / 25 + 's');
 
-            // depois de esconder a linha remove-a
             setTimeout(() => {
                 if (row.classList.contains('hide')) {
                     row.style.display = 'none';
@@ -25,7 +41,34 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 1000);
         });
 
-        // Altera a cor de fundo das linhas visíveis
+        document.querySelectorAll('tbody tr:not(.hide)').forEach((visible_row, i) => {
+            visible_row.style.backgroundColor = (i % 2 === 0) ? 'transparent' : '#0000000b';
+        });
+    }
+
+    monthFilter.addEventListener('change', filterTable);
+    yearFilter.addEventListener('change', filterTable);
+
+    // Evento de input para a busca na tabela
+    search.addEventListener('input', searchTable);
+
+    function searchTable() {
+        table_rows.forEach((row, i) => {
+            let table_data = row.textContent.toLowerCase(),
+                search_data = search.value.toLowerCase();
+
+            row.classList.toggle('hide', table_data.indexOf(search_data) < 0);
+            row.style.setProperty('--delay', i / 25 + 's');
+
+            setTimeout(() => {
+                if (row.classList.contains('hide')) {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = 'table-row';
+                }
+            }, 1000);
+        });
+
         document.querySelectorAll('tbody tr:not(.hide)').forEach((visible_row, i) => {
             visible_row.style.backgroundColor = (i % 2 === 0) ? 'transparent' : '#0000000b';
         });
@@ -35,17 +78,14 @@ document.addEventListener('DOMContentLoaded', function () {
     table_headings.forEach((head, i) => {
         let sort_asc = true;
         head.onclick = () => {
-            // Remove a classe 'active' de todos os cabeçalhos e adiciona ao clicado
             table_headings.forEach(head => head.classList.remove('active'));
             head.classList.add('active');
 
-            // Remove a classe 'active' de todas as células e adiciona às da coluna clicada
             document.querySelectorAll('td').forEach(td => td.classList.remove('active'));
             table_rows.forEach(row => {
                 row.querySelectorAll('td')[i].classList.add('active');
             });
 
-            // Alterna a classe 'asc' para determinar a ordem de classificação
             head.classList.toggle('asc', sort_asc);
             sort_asc = !head.classList.contains('asc');
 
@@ -53,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     });
 
-    // Função para ordenar a tabela
     function sortTable(column, sort_asc) {
         [...table_rows].sort((a, b) => {
             let first_row = a.querySelectorAll('td')[column].textContent.toLowerCase(),

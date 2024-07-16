@@ -60,6 +60,50 @@ document.addEventListener('DOMContentLoaded', function () {
         table_rows = document.querySelectorAll('tbody tr'),
         table_headings = document.querySelectorAll('thead th');
 
+    const monthFilter = document.getElementById('monthFilter');
+    const yearFilter = document.getElementById('yearFilter');
+    const presenceTableBody = document.querySelector('#users_table tbody');
+
+    const months = {
+        'Janeiro': '01', 'Fevereiro': '02', 'Março': '03', 'Abril': '04',
+        'Maio': '05', 'Junho': '06', 'Julho': '07', 'Agosto': '08',
+        'Setembro': '09', 'Outubro': '10', 'Novembro': '11', 'Dezembro': '12'
+    };
+
+    function filterTable() {
+        const selectedMonth = monthFilter.value;
+        const selectedYear = yearFilter.value;
+
+        Array.from(presenceTableBody.querySelectorAll('tr')).forEach((row, i) => {
+            const date = row.querySelector('.justificationDateCell').textContent;
+            if (!date) {
+                return;
+            }
+            const [year, month] = date.split('-');
+
+            const match = (selectedMonth === '' || months[selectedMonth] === month) &&
+                (selectedYear === '' || selectedYear === year);
+
+            row.classList.toggle('hide', !match);
+            row.style.setProperty('--delay', i / 25 + 's');
+
+            setTimeout(() => {
+                if (row.classList.contains('hide')) {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = 'table-row';
+                }
+            }, 1000);
+        });
+
+        document.querySelectorAll('tbody tr:not(.hide)').forEach((visible_row, i) => {
+            visible_row.style.backgroundColor = (i % 2 === 0) ? 'transparent' : '#0000000b';
+        });
+    }
+
+    monthFilter.addEventListener('change', filterTable);
+    yearFilter.addEventListener('change', filterTable);
+
     // Evento de input para a busca na tabela
     search.addEventListener('input', searchTable);
 
@@ -130,6 +174,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Função para remover elementos com a classe "no-export"
+    function removeNoExportElements(table) {
+        const noExportElements = table.querySelectorAll('.no-export');
+        noExportElements.forEach(el => el.remove());
+    }
+
     // Converte a tabela HTML para PDF
     const pdf_btn = document.querySelector('#toPDF');
     const users_table = document.querySelector('#users_table');
@@ -138,7 +188,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // Clonar a tabela original
         const table_clone = users_table.cloneNode(true);
 
-        // Remover as setas dos cabeçalhos e a última coluna da tabela clonada (delete)
+        // Remover os elementos "no-export" e a última coluna da tabela clonada
+        removeNoExportElements(table_clone);
         removeArrowsFromHeaders(table_clone);
         const rows = table_clone.querySelectorAll('tr');
         rows.forEach(row => {
@@ -228,14 +279,17 @@ document.addEventListener('DOMContentLoaded', function () {
         toPDF(users_table);
     };
 
-    // Converte a tabela HTML para JSON
+// Converte a tabela HTML para JSON
     const json_btn = document.querySelector('#toJSON');
 
     const toJSON = function (table) {
+        const table_clone = table.cloneNode(true);
+        removeNoExportElements(table_clone);
+
         let table_data = [],
             t_head = [],
-            t_headings = table.querySelectorAll('th'),
-            t_rows = table.querySelectorAll('tbody tr');
+            t_headings = table_clone.querySelectorAll('th'),
+            t_rows = table_clone.querySelectorAll('tbody tr');
 
         // Captura todos os cabeçalhos da tabela e remove as setas
         t_headings.forEach((t_heading, index) => {
@@ -267,12 +321,15 @@ document.addEventListener('DOMContentLoaded', function () {
         downloadFile(json, 'json', 'user_data.json');
     };
 
-    // Converte a tabela HTML para CSV
+// Converte a tabela HTML para CSV
     const csv_btn = document.querySelector('#toCSV');
 
     const toCSV = function (table) {
-        const t_heads = table.querySelectorAll('th'),
-            tbody_rows = table.querySelectorAll('tbody tr');
+        const table_clone = table.cloneNode(true);
+        removeNoExportElements(table_clone);
+
+        const t_heads = table_clone.querySelectorAll('th'),
+            tbody_rows = table_clone.querySelectorAll('tbody tr');
 
         // Captura os cabeçalhos da tabela e formata para CSV, excluindo a última coluna e removendo setas
         const headings = [...t_heads].slice(0, -1).map(head => head.childNodes[0].nodeValue.trim().toLowerCase()).join(',');
@@ -295,11 +352,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const excel_btn = document.querySelector('#toEXCEL');
 
     const toExcel = function (table) {
+        const table_clone = table.cloneNode(true);
+        removeNoExportElements(table_clone);
+
         const workbook = XLSX.utils.book_new();
         const worksheet_data = [];
 
-        const t_heads = table.querySelectorAll('th');
-        const tbody_rows = table.querySelectorAll('tbody tr');
+        const t_heads = table_clone.querySelectorAll('th');
+        const tbody_rows = table_clone.querySelectorAll('tbody tr');
 
         // Captura os cabeçalhos da tabela e adiciona ao excel, removendo a última coluna
         const headers = [...t_heads].slice(0, -1).map(head => head.childNodes[0].nodeValue.trim());
@@ -333,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'csv': 'text/csv',
             'excel': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         };
-        const blob = new Blob([data], { type: mime_types[fileType] + ';charset=utf-8;' });
+        const blob = new Blob([data], {type: mime_types[fileType] + ';charset=utf-8;'});
         const url = URL.createObjectURL(blob);
         a.href = url;
         document.body.appendChild(a);
@@ -341,7 +401,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     };
-
 
 
     // Fecha o modal se clicar fora dele
