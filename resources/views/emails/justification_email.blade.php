@@ -7,7 +7,6 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
         }
         .container {
             margin: 20px auto;
@@ -18,30 +17,38 @@
             background-color: #f9f9f9;
         }
         .header {
-            background-color: #0044cc;
+            background-color: #00008B;
             color: #ffffff;
             padding: 10px;
+            font-size: 20px;
             text-align: center;
             border-radius: 10px 10px 0 0;
         }
         .content {
+            font-size: 14px;
+            color: #333;
+            text-align: left;
             padding: 20px;
         }
         .footer {
-            margin-top: 20px;
-            text-align: center;
             font-size: 0.9em;
-            color: #777777;
+            color: #777;
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
+
+<header>
+</header>
+
 <div class="container">
     <div class="header">
         <h2>{{ $subject }}</h2>
     </div>
     <div class="content">
-       {{$mailMessage}}
+        {!! $mailMessage !!}
     </div>
     <div class="footer">
         <p>Hospital Tâmega e Sousa</p>
