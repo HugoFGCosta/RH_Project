@@ -13,6 +13,7 @@ class Absence extends Model
 
     protected $fillable = [
         'user_id',
+        'justification_id',
         'absence_states_id',
         'absence_types_id',
         'approved_by',

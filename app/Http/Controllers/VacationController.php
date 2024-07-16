@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\NotificationEvent;
 use App\Models\Notification;
+use App\Models\User_Shift;
 use App\Models\Vacation;
 use App\Http\Requests\StoreVacationRequest;
 use App\Http\Requests\UpdateVacationRequest;
@@ -258,7 +259,7 @@ class VacationController extends Controller
         while (($line = fgets($handle)) !== false) {
             $data = str_getcsv($line);
 
-            if (count($data) != 5) {
+            if (count($data) != 7) {
                 return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de férias.');
             }
 
@@ -269,7 +270,36 @@ class VacationController extends Controller
 
             // Valida se os campos date_start e date_end são datas válidas
             if (strtotime($data[3]) === false || strtotime($data[4]) === false) {
-                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem as data no formato AAAA-MM-DD.');
+                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem as data no formato AAAA-MM-DD HH:MM.');
+            }
+
+            //Verifica se existe um horario para o utilizador na altura das férias
+            $usersShifts = User_Shift::all();
+            $startDate = strtotime($data[3]);
+            $endDate = strtotime($data[4]);
+
+            $verStart = false;
+            $verEnd = false;
+
+            foreach ($usersShifts as $usersShift){
+
+                if(date("Y-m-d H:i:s", $startDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $startDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                    $verStart = true;
+                }
+                elseif (date("Y-m-d H:i:s", $startDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+                    $verStart = true;
+                }
+                if(date("Y-m-d H:i:s", $endDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $endDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                    $verEnd = true;
+                }
+                elseif (date("Y-m-d H:i:s", $endDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+                    $verEnd = true;
+                }
+            }
+
+            //Caso nao exista um horario para o utilizador na altura das férias, é mostrada uma mensagem de erro
+            if($verStart == false || $verEnd == false){
+                return redirect()->back()->with('error', 'Certifique-se que os utilizadores têm um horário na altura de todas as férias.');
             }
         }
 
@@ -279,11 +309,6 @@ class VacationController extends Controller
         // Desativa as verificações de chave estrangeira
         Schema::disableForeignKeyConstraints();
 
-        // Trunca as tabelas
-        DB::table('vacations')->truncate();
-
-        // Reabilita as verificações de chave estrangeira
-        Schema::enableForeignKeyConstraints();
 
         // Abre novamente o arquivo para importar os dados
         $handle = fopen($file->getPathname(), 'r');
@@ -307,6 +332,9 @@ class VacationController extends Controller
         }
 
         fclose($handle);
+
+        // Reabilita as verificações de chave estrangeira
+        Schema::enableForeignKeyConstraints();
 
         // Retorna para a página anterior com uma mensagem de sucesso
         return redirect()->back()->with('success', 'Férias importadas com sucesso.');

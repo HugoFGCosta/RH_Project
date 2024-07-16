@@ -100,6 +100,8 @@ class AbsenceController extends Controller
     }
 
     /*Metodo import- serve para importar faltas para a base de dados*/
+    /*Metodo import- serve para importar faltas para a base de dados*/
+    /*Metodo import- serve para importar faltas para a base de dados*/
     public function import(Request $request)
     {
         $file = $request->file('file');
@@ -122,12 +124,6 @@ class AbsenceController extends Controller
         // Desativa as verificações de chave estrangeira
         Schema::disableForeignKeyConstraints();
 
-        // Trunca a tabela de faltas
-        DB::table('absences')->truncate();
-
-        // Reabilita as verificações de chave estrangeira
-        Schema::enableForeignKeyConstraints();
-
         $errors = [];
 
         // Percorre o ficheiro e insere os dados na base de dados
@@ -135,45 +131,84 @@ class AbsenceController extends Controller
 
             $data = str_getcsv($line);
 
+
             // Verifica se há exatamente 5 campos
-            if (count($data) != 8) {
+            if (count($data) != 9) {
                 return redirect()->back()->with('error', 'Certifique-se que este ficheiro contém informações de faltas.');
             }
 
             // Verifica se os IDs são numéricos e depois converte para inteiros
-            if (!is_numeric($data[0]) || !is_numeric($data[1]) || !is_numeric($data[2])) {
+            if (!is_numeric($data[0]) || !is_numeric($data[2]) || !is_numeric($data[3])) {
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador, estado de falta e aprovador são números válidos.');
             }
 
 
             // Verifica se o campo absence_date é uma data válida
-            if (strtotime($data[4]) === false||strtotime($data[5]) === false) {
+            if (strtotime($data[5]) === false||strtotime($data[6]) === false) {
                 return redirect()->back()->with('error', 'As datas fornecidas não são válidas.');
             }
 
-            // Verifica se o ID de estado de aprovação de falta está entre 1 e 3
-            if ($data[1] < 1 || $data[1] > 4){
+            // Verifica se o ID de estado de aprovação de falta está entre 1 e 4
+            if ($data[2] < 1 || $data[2] > 4){
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de estado são números válidos.');
             }
 
+            // Verifica se o ID de tipo de aprovação de falta está entre 1 e 3
+            if ($data[3] < 1 || $data[3] > 3){
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de tipo são números válidos.');
+            }
+
+
+            //Verifica se existe um horario para o utilizador na altura da falta
+            $usersShifts = User_Shift::all();
+            $startDate = strtotime($data[5]);
+            $endDate = strtotime($data[5]);
+
+            $verStart = false;
+            $verEnd = false;
+
+            foreach ($usersShifts as $usersShift){
+
+             if(date("Y-m-d H:i:s", $startDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $startDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                 $verStart = true;
+             }
+             elseif (date("Y-m-d H:i:s", $startDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+                 $verStart = true;
+             }
+             if(date("Y-m-d H:i:s", $endDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $endDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                 $verEnd = true;
+             }
+             elseif (date("Y-m-d H:i:s", $endDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+                 $verEnd = true;
+             }
+            }
+
+            //Caso nao exista um horario para o utilizador na altura da falta, é mostrada uma mensagem de erro
+            if($verStart == false || $verEnd == false){
+                return redirect()->back()->with('error', 'Certifique-se que os utilizadores têm um horário na altura de todas as faltas.');
+            }
+
+
             $absenceData = [
                 'user_id' => $data[0],
-                'absence_states_id' => $data[1],
-                'absence_types_id' => $data[2],
-                'absence_start_date' => $data[4],
-                'absence_end_date' => $data[5],
+                'justification_id' => $data[1], // Verifica se justification_id está vazio
+                'absence_states_id' => $data[2],
+                'absence_types_id' => $data[3],
+                'absence_start_date' => $data[5],
+                'absence_end_date' => $data[6],
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
-
-            $absenceData['approved_by'] = !empty($data[3]) ? $data[3] : null;
+            $absenceData['approved_by'] = !empty($data[4]) ? $data[4] : null;
 
             Absence::create($absenceData);
-
 
         }
 
         fclose($handle);
+
+        // Reabilita as verificações de chave estrangeira
+        Schema::enableForeignKeyConstraints();
 
         // Se houver erros, redireciona de volta com as mensagens de erro
         if (!empty($errors)) {
@@ -197,11 +232,11 @@ class AbsenceController extends Controller
 
         //Escreve os cabeçalhos no ficheiro
         $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['Id_Utilizador','Id_Estado_Falta','Id_Tipo_Falta', 'Aprovado_Por','Data_Comeco_Falta','Data_Fim_Falta','Criado_A','Atualizado_A']);
+        fputcsv($handle, ['Id_Utilizador','Id_Justificacao','Id_Estado_Falta','Id_Tipo_Falta', 'Aprovado_Por','Data_Comeco_Falta','Data_Fim_Falta','Criado_A','Atualizado_A']);
 
         //Para cada falta insere uma linha no ficheiro
         foreach ($absences as $absence) {
-            fputcsv($handle, [$absence->user_id,$absence->absence_states_id,$absence->absence_types_id, $absence->approved_by,$absence->absence_start_date,$absence->absence_end_date, $absence->created_at, $absence->updated_at]); // Add more fields as needed
+            fputcsv($handle, [$absence->user_id,$absence->justification_id,$absence->absence_states_id,$absence->absence_types_id, $absence->approved_by,$absence->absence_start_date,$absence->absence_end_date, $absence->created_at, $absence->updated_at]); // Add more fields as needed
         }
 
         // Fecha o ficheiro
