@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const toPDF = function (users_table) {
         const table_clone = users_table.cloneNode(true);
+        table_clone.querySelectorAll('.no-export').forEach(element => element.remove());
 
         const t_headings = table_clone.querySelectorAll('th');
         t_headings.forEach(th => {
@@ -112,73 +113,73 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         const styles = `
-        <style>
-            @media print {
-                body {
-                    margin: 0;
-                    font-family: Arial, sans-serif;
-                    font-size: 12px;
-                    color: #000;
-                }
-
-                .table__header .input-group,
-                .table__header .export__file {
-                    display: none !important;
-                }
-
-                .table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin: 0;
-                    padding: 0;
-                    table-layout: fixed;
-                }
-
-                table, th, td {
-                    border: 1px solid #000;
-                    padding: 8px;
-                    text-align: left;
-                    word-wrap: break-word;
-                }
-
-                thead th {
-                    background-color: #f2f2f2;
-                    color: #000;
-                    font-weight: bold;
-                }
-
-                tbody tr {
-                    background-color: #fff;
-                }
-
-                tbody tr:nth-child(even) {
-                    background-color: #f9f9f9;
-                }
-
-                tbody tr:hover {
-                    background-color: #f1f1f1 !important;
-                }
-
-                tbody tr td {
-                    vertical-align: top;
-                }
+    <style>
+        @media print {
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+                color: #000;
             }
-        </style>`;
+
+            .table__header .input-group,
+            .table__header .export__file {
+                display: none !important;
+            }
+
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 0;
+                padding: 0;
+                table-layout: fixed;
+            }
+
+            table, th, td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: left;
+                word-wrap: break-word;
+            }
+
+            thead th {
+                background-color: #f2f2f2;
+                color: #000;
+                font-weight: bold;
+            }
+
+            tbody tr {
+                background-color: #fff;
+            }
+
+            tbody tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+
+            tbody tr:hover {
+                background-color: #f1f1f1 !important;
+            }
+
+            tbody tr td {
+                vertical-align: top;
+            }
+        }
+    </style>`;
 
         const html_code = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Table PDF</title>
-            <link rel="stylesheet" type="text/css" href="style.css">
-            ${styles}
-        </head>
-        <body>
-            <main class="table" id="users_table">${table_clone.innerHTML}</main>
-        </body>
-        </html>`;
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Table PDF</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        ${styles}
+    </head>
+    <body>
+        <main class="table" id="users_table">${table_clone.innerHTML}</main>
+    </body>
+    </html>`;
 
         const new_window = window.open();
         new_window.document.write(html_code);
@@ -193,14 +194,18 @@ document.addEventListener('DOMContentLoaded', function () {
         toPDF(users_table);
     };
 
+
     // Convert table to JSON
     const json_btn = document.querySelector('#toJSON');
 
     const toJSON = function (table) {
+        const table_clone = table.cloneNode(true);
+        table_clone.querySelectorAll('.no-export').forEach(element => element.remove());
+
         let table_data = [],
             t_head = [],
-            t_headings = table.querySelectorAll('th'),
-            t_rows = table.querySelectorAll('tbody tr');
+            t_headings = table_clone.querySelectorAll('th'),
+            t_rows = table_clone.querySelectorAll('tbody tr');
 
         t_headings.forEach((t_heading, index) => {
             let actual_head = t_heading.childNodes[0].nodeValue.trim().toLowerCase();
@@ -215,24 +220,16 @@ document.addEventListener('DOMContentLoaded', function () {
             t_head.push(unique_head);
         });
 
-        console.log('Cabeçalhos processados:', t_head);
-
         t_rows.forEach(row => {
             const row_object = {},
                 t_cells = row.querySelectorAll('td');
-
-            console.log('Células da linha:', t_cells);
 
             t_cells.forEach((t_cell, cell_index) => {
                 row_object[t_head[cell_index]] = t_cell.textContent.trim();
             });
 
-            console.log('Objeto da linha:', row_object);
-
             table_data.push(row_object);
         });
-
-        console.log('Dados da tabela:', table_data);
 
         return JSON.stringify(table_data, null, 4);
     };
@@ -242,12 +239,16 @@ document.addEventListener('DOMContentLoaded', function () {
         downloadFile(json, 'json', 'user_data.json');
     };
 
+
     // Convert table to CSV
     const csv_btn = document.querySelector('#toCSV');
 
     const toCSV = function (table) {
-        const t_heads = table.querySelectorAll('th'),
-            tbody_rows = table.querySelectorAll('tbody tr');
+        const table_clone = table.cloneNode(true);
+        table_clone.querySelectorAll('.no-export').forEach(element => element.remove());
+
+        const t_heads = table_clone.querySelectorAll('th'),
+            tbody_rows = table_clone.querySelectorAll('tbody tr');
 
         const headings = [...t_heads].map(head => head.childNodes[0].nodeValue.trim().toLowerCase()).join(',');
 
@@ -264,15 +265,19 @@ document.addEventListener('DOMContentLoaded', function () {
         downloadFile(csv, 'csv', 'user_data.csv');
     };
 
+
     // Convert table to EXCEL using SheetJS
     const excel_btn = document.querySelector('#toEXCEL');
 
     const toExcel = function (table) {
+        const table_clone = table.cloneNode(true);
+        table_clone.querySelectorAll('.no-export').forEach(element => element.remove());
+
         const workbook = XLSX.utils.book_new();
         const worksheet_data = [];
 
-        const t_heads = table.querySelectorAll('th');
-        const tbody_rows = table.querySelectorAll('tbody tr');
+        const t_heads = table_clone.querySelectorAll('th');
+        const tbody_rows = table_clone.querySelectorAll('tbody tr');
 
         const headers = [...t_heads].map(head => head.childNodes[0].nodeValue.trim());
         worksheet_data.push(headers);
@@ -292,6 +297,7 @@ document.addEventListener('DOMContentLoaded', function () {
     excel_btn.onclick = () => {
         toExcel(users_table);
     };
+
 
     const downloadFile = function (data, fileType, fileName) {
         const a = document.createElement('a');

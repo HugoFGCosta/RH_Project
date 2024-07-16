@@ -3,10 +3,17 @@
 @section('styles')
     <link rel="stylesheet" href="{{ asset('/css/work-times.css') }}">
 @endsection
-
-
+@php
+    use Carbon\Carbon;
+    // Generate arrays for months and years
+    $months = [
+        'Janeiro' => '01', 'Fevereiro' => '02', 'Março' => '03', 'Abril' => '04',
+        'Maio' => '05', 'Junho' => '06', 'Julho' => '07', 'Agosto' => '08',
+        'Setembro' => '09', 'Outubro' => '10', 'Novembro' => '11', 'Dezembro' => '12'
+    ];
+    $years = range(Carbon::now()->year, Carbon::now()->year - 10);
+@endphp
 @section('content')
-
     @if (session('success') || session('error'))
         <div id="modal-container" class="modal-container">
             <div class="modal">
@@ -28,13 +35,30 @@
         </div>
     @endif
 
-
     <h1>Períodos de Trabalho</h1>
     <div class="centralBox">
 
-        <div class="table__header">
+        <div class="table__header input-group-wrapper">
             <div class="input-group">
-                <input type="search" placeholder="Pesquisar...">
+                <input type="search" id="searchInput" placeholder="Pesquisar...">
+            </div>
+            <!-- Month Filter -->
+            <div class="input-group-filter no-export">
+                <select id="monthFilter">
+                    <option value="">Selecionar Mês</option>
+                    @foreach($months as $month => $value)
+                        <option value="{{ $month }}">{{ $month }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <!-- Year Filter -->
+            <div class="input-group-filter no-export">
+                <select id="yearFilter">
+                    <option value="">Selecionar Ano</option>
+                    @foreach($years as $year)
+                        <option value="{{ $year }}">{{ $year }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="export__file">
                 <label for="export-file" class="export__file-btn" title="Export File"></label>
@@ -63,7 +87,7 @@
                 <tbody>
                 @foreach ($users as $user)
                     @foreach ($user->user_shifts as $userShift)
-                        <tr>
+                        <tr data-date="{{ $userShift->start_date }}">
                             <td>{{ $user->name }}</td>
                             <td>
                                 @if($userShift->work_shift)
