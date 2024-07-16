@@ -5,6 +5,9 @@
         <div class="row">
             <div class="col-6">
                 <h1>Registo de Utilizador</h1>
+                @component('components.alerts.alerts')
+                @endcomponent
+
                 @component('components.users.user-form-create', [
                     'users' => $users,
                     'work_shifts' => $work_shifts,
