@@ -1,21 +1,13 @@
+/* Estilos da célula esquerda */
 .leftCell {
     border-radius: 10px 0px 0px 0px;
     border: none;
 }
 
+/* Estilos da célula direita */
 .rightCell {
     border-radius: 0px 10px 0px 0px;
     border: none;
-}
-
-
-/* Estilos de impressão */
-@media print {
-    .table, .table__body {
-        overflow: visible;
-        height: auto !important;
-        width: auto !important;
-    }
 }
 
 /* Tabela principal */
@@ -70,7 +62,7 @@ main.table {
     outline: none;
 }
 
-/* body tabela */
+/* Corpo da tabela */
 .table__body {
     width: 95%;
     max-height: calc(89% - 1.6rem);
@@ -80,7 +72,7 @@ main.table {
     overflow: auto;
 }
 
-/* scroll */
+/* Scroll da tabela */
 .table__body::-webkit-scrollbar {
     width: 0.5rem;
     height: 0.5rem;
@@ -96,8 +88,7 @@ main.table {
     visibility: visible;
 }
 
-
-/* células  */
+/* Estilos de tabela, cabeçalho e células */
 table, th, td {
     border-collapse: collapse;
     padding: 1rem;
@@ -105,7 +96,7 @@ table, th, td {
     vertical-align: middle;
 }
 
-/* cabeçalhos */
+/* Estilos do cabeçalho da tabela */
 thead th {
     position: sticky;
     top: 0;
@@ -119,24 +110,24 @@ thead th {
     vertical-align: middle;
 }
 
-/*linhas pares do corpo */
+/* Estilos das linhas pares do corpo da tabela */
 tbody tr:nth-child(even) {
     background-color: #0000000b;
 }
 
-/* linhas do corpo */
+/* Estilos das linhas do corpo da tabela */
 tbody tr {
     --delay: .1s;
     transition: .5s ease-in-out var(--delay), background-color 0s;
 }
 
-/* linhas ocultas */
+/* Estilos das linhas ocultas */
 tbody tr.hide {
     opacity: 0;
     transform: translateX(100%);
 }
 
-/* hover nas linhas */
+/* Hover nas linhas do corpo da tabela */
 tbody tr:hover {
     background-color: rgba(237, 203, 203, 0.75) !important;
 }
@@ -146,31 +137,18 @@ tbody tr td {
     vertical-align: middle;
 }
 
-/* células e conteúdo das linhas */
+/* Estilos das células e conteúdo das linhas */
 tbody tr td,
 tbody tr td p,
 tbody tr td img {
     transition: .2s ease-in-out;
 }
 
-/*células ocultas */
+/* Estilos das células ocultas */
 tbody tr.hide td,
 tbody tr.hide td p {
     padding: 0;
     transition: .2s ease-in-out .5s;
-}
-
-/* telas menores */
-@media (max-width: 1000px) {
-    td:not(:first-of-type) {
-        min-width: 12.1rem;
-    }
-
-    /* Efeito de foco na busca */
-    .table__header .input-group:hover {
-        width: 100%;
-        box-shadow: 0 .1rem .4rem #0002;
-    }
 }
 
 /* Estilos das setas de ordenação */
@@ -185,22 +163,21 @@ thead th span.icon-arrow {
     transition: .2s ease-in-out;
 }
 
-/* hover nos cabeçalhos */
+/* Hover nos cabeçalhos */
 thead th:hover {
     cursor: pointer;
 }
 
-/* rotação da seta */
+/* Rotação da seta de ordenação */
 thead th.asc span.icon-arrow {
     transform: rotate(180deg);
 }
 
-/* Exportação de arquivos */
+/* Estilos do botão de exportação */
 .export__file {
     position: relative;
 }
 
-/* Botão de exportação */
 .export__file .export__file-btn {
     display: inline-block;
     width: 3rem;
@@ -213,7 +190,6 @@ thead th.asc span.icon-arrow {
     margin-right: 1rem;
 }
 
-/* Efeito de hover no botão de exportação */
 .export__file .export__file-btn:hover {
     transform: scale(1.15);
     cursor: pointer;
@@ -223,7 +199,7 @@ thead th.asc span.icon-arrow {
 
 /* Estilos do input de exportação */
 .export__file input {
-    display: none; /* Oculta o input */
+    display: none;
 }
 
 /* Opções de exportação */
@@ -239,18 +215,16 @@ thead th.asc span.icon-arrow {
     transform-origin: top right;
     box-shadow: 0 .2rem .5rem #0004;
     transition: opacity .2s, transform .2s, pointer-events .2s;
-    pointer-events: none; /* Desativa a interatividade por padrão */
+    pointer-events: none;
 }
 
-/* opções de exportação quando o input está selecionado */
 .export__file input:checked + .export__file-options {
     opacity: 1;
     transform: scale(1);
     z-index: 100;
-    pointer-events: auto; /* Ativa a interatividade quando visível */
+    pointer-events: auto;
 }
 
-/* opções de exportação */
 .export__file .export__file-options label {
     display: block;
     width: 100%;
@@ -262,119 +236,26 @@ thead th.asc span.icon-arrow {
     transition: .2s ease-in-out;
 }
 
-/*primeira opção de exportação */
 .export__file .export__file-options label:first-of-type {
     padding: 1rem 0;
     background-color: #86e49d !important;
 }
 
-/* hover nas opções de exportação */
 .export__file .export__file-options label:hover {
     transform: scale(1.05);
     background-color: #fff;
     cursor: pointer;
 }
 
-/* Estilos responsivos para telas menores */
-@media (max-width: 1000px) {
-    .export__file-btn {
-        margin-top: -65px;
-        position: absolute;
-        right: 0;
-    }
-    .table__header {
-        flex-direction: row;
-        align-items: flex-start;
-    }
-
-    .table__header h1 {
-        margin-bottom: 0.5rem;
-    }
-
-    .table__header .input-group {
-        width: 100%;
-        margin-bottom: 0.5rem;
-    }
-
-    .table__header .export__file {
-        align-self: flex-end;
-    }
-
-    table, th, td {
-        display: block;
-        width: 100%;
-    }
-
-    thead {
-        display: none;
-    }
-
-    tbody tr {
-        display: flex;
-        flex-wrap: wrap;
-        margin-bottom: 1rem;
-        border: 1px solid #ddd;
-        border-radius: .5rem;
-        padding: 1rem;
-    }
-
-    tbody tr td {
-        display: flex;
-        flex-basis: 50%;
-        box-sizing: border-box;
-        padding: 0.5rem;
-    }
-
-    tbody tr td::before {
-        content: attr(data-label);
-        flex-basis: 40%;
-        text-align: left;
-        font-weight: bold;
-        padding-right: 0.5rem;
-    }
-
-    .leftCell,
-    .rightCell {
-        text-align: right;
-    }
-}
-
-/* Estilos responsivos para telas entre 750px e 1000px */
-@media (max-width: 1000px) {
-    tbody tr {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-    }
-
-    tbody tr td {
-        flex-basis: calc(50% - 1rem); /* Duas células por linha */
-    }
-}
-
-/* Estilos responsivos para telas entre 750px e 1000px */
-@media (max-width: 596px) {
-    .listTitle{
-        font-size: 16px;
-    }
-}
-
-/* Estilo base para as células */
+/* Estilos das células base */
 .idCell, .absenceStartCell, .absenceEndCell, .absenceTypeCell, .absenceStateCell, .justificationStateCell {
-    padding: 0.5rem; /* Ajustar conforme necessário */
-    vertical-align: middle; /* Alinhar ao meio */
-    text-align: center; /* Alinhar ao centro */
+    padding: 0.5rem;
+    vertical-align: middle;
+    text-align: center;
 }
 
-/* Ajuste de largura para uma melhor visualização em telas menores */
-@media (max-width: 1000px) {
-    .idCell, .absenceStartCell, .absenceEndCell, .absenceTypeCell, .absenceStateCell, .justificationStateCell  {
-        display: block; /* Torna as células em blocos */
-        width: 100%; /* Ocupa 100% da largura */
-    }
-}
-
-.submitButton{
+/* Estilos do botão de submit */
+.submitButton {
     background: var(--green);
     padding: 15px 20px 15px 20px;
     border: transparent;
@@ -385,19 +266,114 @@ thead th.asc span.icon-arrow {
     transition: font-size 0.5s ease;
 }
 
-
-.submitButton:hover{
+.submitButton:hover {
     font-size: medium;
 }
 
+/* Estilos do formulário */
 .container form {
     padding: 0px;
     min-width: 100%;
     margin-top: 0px;
 }
 
-.messageError{
+/* Estilos da mensagem de erro */
+.messageError {
     color: orangered;
     font-size: 18px;
     margin-left: 20px;
+}
+
+/* Estilos de impressão */
+@media print {
+    .table, .table__body {
+        overflow: visible;
+        height: auto !important;
+        width: auto !important;
+    }
+}
+
+/* Estilos responsivos para telas menores */
+@media (max-width: 1000px) {
+    td:not(:first-of-type) {
+        min-width: 12.1rem;
+    }
+
+    .table__header .input-group:hover {
+        width: 100%;
+        box-shadow: 0 .1rem .4rem #0002;
+    }
+
+    .export__file-btn {
+        margin-top: -65px;
+        position: absolute;
+        right: 0;
+    }
+    .table__header {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+    .table__header h1 {
+        margin-bottom: 0.5rem;
+    }
+    .table__header .input-group {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    .table__header .export__file {
+        align-self: flex-end;
+    }
+    table, th, td {
+        display: block;
+        width: 100%;
+    }
+    thead {
+        display: none;
+    }
+    tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: .5rem;
+        padding: 1rem;
+    }
+    tbody tr td {
+        display: flex;
+        flex-basis: 50%;
+        box-sizing: border-box;
+        padding: 0.5rem;
+    }
+    tbody tr td::before {
+        content: attr(data-label);
+        flex-basis: 40%;
+        text-align: left;
+        font-weight: bold;
+        padding-right: 0.5rem;
+    }
+    .leftCell,
+    .rightCell {
+        text-align: right;
+    }
+    .idCell, .absenceStartCell, .absenceEndCell, .absenceTypeCell, .absenceStateCell, .justificationStateCell  {
+        display: block;
+        width: 100%;
+    }
+}
+
+@media (max-width: 596px) {
+    .listTitle {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 750px) {
+    tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    tbody tr td {
+        flex-basis: calc(50% - 1rem);
+    }
 }
