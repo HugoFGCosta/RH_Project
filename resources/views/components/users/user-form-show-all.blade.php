@@ -3,7 +3,6 @@
 @endphp
 <main class="table" id="users_table">
     <section class="table__header">
-        <h1>Lista de Usuários</h1>
         <div class="input-group">
             <input type="search" placeholder="Pesquisar...">
             <ion-icon name="search-outline"></ion-icon>
@@ -42,7 +41,7 @@
                         @if ($user->shift)
                             {{ 'Das ' . Carbon::parse($user->shift->work_shift->start_hour)->format('H:i') . ' às ' . Carbon::parse($user->shift->work_shift->end_hour)->format('H:i') }}
                         @else
-                            O usuário não tem um turno de trabalho atribuído.
+                            O utilizador não tem um turno de trabalho atribuído.
                         @endif
                     </td>
                     <td>

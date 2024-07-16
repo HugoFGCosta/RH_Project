@@ -46,7 +46,7 @@ class UserController extends Controller
     }
 
 
-    // Metodo Show - Mostra todas as informaçoes do user logado. 
+    // Metodo Show - Mostra todas as informaçoes do user logado.
     public function show()
     {
         $this->checkAndExtendUserShifts();
@@ -68,7 +68,7 @@ class UserController extends Controller
     }
 
 
-    // Metodo showSpec - Mostra um user especifico da lista showAll com todas as informaçoes recebendo um $id por parametro. 
+    // Metodo showSpec - Mostra um user especifico da lista showAll com todas as informaçoes recebendo um $id por parametro.
     public function showSpec($id)
     {
 
@@ -90,7 +90,7 @@ class UserController extends Controller
     }
 
 
-    // Metodo showAll - Lista todos os users. 
+    // Metodo showAll - Lista todos os users.
     public function showAll()
     {
 
@@ -116,7 +116,7 @@ class UserController extends Controller
     }
 
 
-    // Metodo edit - Edita as informaçoes do user que está logado. 
+    // Metodo edit - Edita as informaçoes do user que está logado.
     public function edit()
     {
 
@@ -139,7 +139,7 @@ class UserController extends Controller
     }
 
 
-    // Metodo editSpec - Edita um user especifico do metodo showAll recebendo o $id como parametro. 
+    // Metodo editSpec - Edita um user especifico do metodo showAll recebendo o $id como parametro.
     public function editSpec($id)
     {
 
@@ -162,7 +162,7 @@ class UserController extends Controller
     }
 
 
-    // Metodo update - Responsavel por verificar as novas informaçoes e validar para que atualize os dados. 
+    // Metodo update - Responsavel por verificar as novas informaçoes e validar para que atualize os dados.
     public function update(Request $request)
     {
 
@@ -199,13 +199,13 @@ class UserController extends Controller
     }
 
 
-    // Metodo updateSpec - Responsavel por verificar as novas informaçoes e validar para que atualize os dados para um user especifico. 
+    // Metodo updateSpec - Responsavel por verificar as novas informaçoes e validar para que atualize os dados para um user especifico.
     public function updateSpec(Request $request, $id)
     {
 
         $user = User::find($id);
         if (!$user) {
-            return redirect('/user/show')->with('error', 'Usuário não encontrado!');
+            return redirect('/user/show')->with('error', 'Utilizador não encontrado!');
         }
 
         $user->name = $request->input('name');
@@ -235,14 +235,14 @@ class UserController extends Controller
             'end_date' => null,
         ]);
 
-        return redirect('/users/show-all')->with('success', 'Especificações do usuário atualizadas com sucesso!');
+        return redirect('/users/show-all')->with('success', 'Especificações do utilizador atualizadas com sucesso!');
     }
 
 
     // Metodo destroy - Recebe por parametro o $id para que apague um user.
     public function destroy($id)
     {
-        // Validação - Caso haja apenas 1 admin nao é possivel apaga-lo. 
+        // Validação - Caso haja apenas 1 admin nao é possivel apaga-lo.
 
         $user = User::findOrFail($id);
         $id = $user->id;
@@ -264,7 +264,7 @@ class UserController extends Controller
             foreach ($users as $userCicle) {
                 if ($userCicle->role_id == 3 && $userCicle->id != $id) {
                     $user->delete();
-                    return redirect('/users/show-all')->with('success', 'Usuário apagado com sucesso!');
+                    return redirect('/users/show-all')->with('success', 'Utilizador apagado com sucesso!');
 
                 }
             }
@@ -277,7 +277,7 @@ class UserController extends Controller
 
         if ($verAdmin == false) {
             $user->delete();
-            return redirect('/users/show-all')->with('success', 'Usuário apagado com sucesso!');
+            return redirect('/users/show-all')->with('success', 'Utilizador apagado com sucesso!');
         }
 
 
@@ -411,7 +411,7 @@ class UserController extends Controller
                     'password' => $data['password'],
                 ]);
 
-                // Criação do turno do usuário
+                // Criação do turno do utilizador
                 $user_shift = new User_Shift();
                 $user_shift->work_shift_id = $data['work_shift_id'];
                 $user_shift->user_id = $user->id;
@@ -456,7 +456,7 @@ class UserController extends Controller
     public function manageWorkTimes()
     {
         $this->checkAndExtendUserShifts();
-        // Obtém todos os usuários com seus turnos de trabalho
+        // Obtém todos os utilizadores com seus turnos de trabalho
         $users = User::with('user_shifts.work_shift')->get();
         $workShifts = Work_Shift::all();
         return view('pages.work-times.index', compact('users', 'workShifts'));
@@ -465,41 +465,61 @@ class UserController extends Controller
     public function storeWorkTime(Request $request)
     {
         $this->checkAndExtendUserShifts();
-        // Valida os dados enviados pelo formulário
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'work_shift_id' => 'required|exists:work_shifts,id',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-        ]);
+
+        // Manual validation
+        $user_id = $request->input('user_id');
+        $work_shift_id = $request->input('work_shift_id');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+
+        if (!$user_id || !User::find($user_id)) {
+            return redirect()->back()->with('error', 'O user_id deve existir na tabela de utilizadores.');
+        }
+
+        if (!$work_shift_id || !Work_Shift::find($work_shift_id)) {
+            return redirect()->back()->with('error', 'Work_shift_id é obrigatório deve existir na tabela de turnos de trabalho.');
+        }
+
+        if (!$start_date || !strtotime($start_date)) {
+            return redirect()->back()->with('error', 'A data de início é obrigatória e deve ser uma data válida.');
+        }
+
+        if ($end_date && strtotime($end_date) === false) {
+            return redirect()->back()->with('error', 'A data de fim é obrigatória e deve ser uma data válida.');
+        }
+
+        if ($end_date && strtotime($start_date) > strtotime($end_date)) {
+            return redirect()->back()->with('error', 'A data de início não pode ser após que a data de fim.');
+        }
 
         // Fechar o horário de trabalho anterior
-        $previousShift = User_Shift::where('user_id', $validated['user_id'])
+        $previousShift = User_Shift::where('user_id', $user_id)
             ->whereNull('end_date')
-            ->orWhere('end_date', '>', $validated['start_date'])
+            ->orWhere('end_date', '>', $start_date)
             ->orderBy('start_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->first();
 
         if ($previousShift) {
-            $previousShift->end_date = Carbon::parse($validated['start_date'])->subSecond()->format('Y-m-d 23:59:59');
+            $previousShift->end_date = Carbon::parse($start_date)->subSecond()->format('Y-m-d 23:59:59');
             $previousShift->save();
         }
 
         // Adiciona hora padrão ao start_date e end_date
-        $startDateTime = Carbon::parse($validated['start_date'])->startOfDay();
-        $endDateTime = isset($validated['end_date']) ? Carbon::parse($validated['end_date'])->endOfDay() : null;
+        $startDateTime = Carbon::parse($start_date)->startOfDay();
+        $endDateTime = $end_date ? Carbon::parse($end_date)->endOfDay() : null;
 
-        // Cria um novo turno de trabalho para o usuário
+        // Cria um novo turno de trabalho para o utilizador
         $newShift = User_Shift::create([
-            'user_id' => $validated['user_id'],
-            'work_shift_id' => $validated['work_shift_id'],
+            'user_id' => $user_id,
+            'work_shift_id' => $work_shift_id,
             'start_date' => $startDateTime,
             'end_date' => $endDateTime,
         ]);
 
         return redirect()->route('work-times.index')->with('success', 'Work time added successfully.');
     }
+
 
 
 

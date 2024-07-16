@@ -104,14 +104,13 @@
                     <span id="file-name" class="file-name">Nenhum ficheiro selecionado</span>
                 </div>
                 @error('file')
-                <span class="invalid-feedback" role="alert">
-        <strong>{{ $message }}</strong>
-    </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                 @enderror
             </div>
 
-
-            <button type="submit" class="btn btn-primary createButton justificationCreateButton section">Submit</button>
+            <button type="submit" class="btn btn-primary createButton justificationCreateButton section">Submeter</button>
 
         </form>
     </div>

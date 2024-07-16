@@ -4,7 +4,6 @@
 <p class="messageError" id="messageError"></p>
 
 <form id="abcenseForm" action="/justification/create">
-    @csrf
 
     <main class="table" id="users_table">
         <section class="table__header">
@@ -44,11 +43,13 @@
                         <td class="absenceStartCell">{{ $absence->absence_start_date }}</td>
                         <td class="absenceEndCell">{{ $absence->absence_end_date }}</td>
                         <td class="absenceTypeCell">
-                            @foreach($absences_types as $absences_type)
-                                @if($absence->absence_types_id == $absences_type->id)
-                                    {{ $absences_type->description }}
-                                @endif
-                            @endforeach
+                            @if($absence->absence_types_id == 1)
+                                Primeiro Turno
+                            @elseif($absence->absence_types_id == 2)
+                                Segundo Turno
+                            @else
+                                Total
+                            @endif
                         </td>
                         <td class="absenceStateCell">
                             @foreach($absences_states as $absences_state)

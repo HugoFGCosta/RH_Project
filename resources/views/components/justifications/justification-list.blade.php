@@ -6,7 +6,6 @@
 <main class="table" id="users_table">
 
     <section class="table__header">
-        <h1>Lista de justificações</h1>
         <div class="input-group">
             <input type="search" placeholder="Procurar...">
             <ion-icon name="search-outline"></ion-icon>
@@ -61,10 +60,21 @@
                     <td>
                         @foreach($justification->absences as $absence)
                             @if($absence->absence_states_id == 3)
-                                <a href="{{ url('/justification/'. $justification->id.'/manage') }}" class="btn-detail-edit">Aprovar/Rejeitar</a>
+                                <a href="{{ url('/justification/'. $justification->id.'/manage') }}"
+                                   class="btn-detail-edit">Aprovar/Rejeitar</a>
+                                @break;
+                            @elseif($absence->absence_states_id == 1)
+                                Aprovado
+                                @break;
+                                «
+                            @elseif($absence->absence_states_id == 2)
+                                Rejeitado
+                                @break;
+                            @elseif($absence->absence_states_id == 4)
+                                Injustificado
                                 @break;
                             @else
-                                <a href="#" class="btn-detail-edit">Validado</a>
+                                Injustificado Permanentemente
                                 @break;
                             @endif
 

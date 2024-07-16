@@ -83,13 +83,13 @@ Route::put('/work-shifts/{work_shift}', [WorkShiftController::class, 'update'])-
 
 
 //rotas vacation   ->  IMPLEMENTADO MIDDLEWARE
-
+Route::get('/vacation/show/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
 Route::get('/vacation', [VacationController::class, 'index'])->name('vacations.index');
 Route::get('/vacations/create', [VacationController::class, 'create'])->name('vacations.create');
 Route::post('/vacations', [VacationController::class, 'store'])->name('vacations.store');
 
 
-/* 
+/*
 Route::post('/vacations', function () {
     $states = request()->states;
     event(new VacationEvent($states));
@@ -97,7 +97,7 @@ Route::post('/vacations', function () {
  */
 
 
-Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
+//Route::get('/vacations/{vacation}', [VacationController::class, 'show'])->name('vacations.show');
 Route::get('/vacations/edit/{vacation}', [VacationController::class, 'edit'])->name('vacations.edit')->middleware('AdminMiddleware'); // Apenas ADMIN aprovar ferias
 Route::put('/vacations/{vacation}', [VacationController::class, 'update'])->name('vacations.update')->middleware('AdminMiddleware'); // Apenas ADMIN aprovar ferias
 Route::delete('/vacations/delete/{vacation}', [VacationController::class, 'destroy'])->name('vacations.destroy')->middleware('AdminMiddleware'); // Apenas ADMIN aprovar ferias
@@ -183,7 +183,7 @@ Route::post('/dashboard-statistics/filter', [DashboardController::class, 'filter
 
 /* ROTAS NOTIFICAÇOES */
 
-/* 
+/*
 Route::get('/notifications', [NotificationController::class, 'show'])->name('notifications.index');
 Route::post('/notifications/change-state', [NotificationController::class, 'changeState'])->name('notifications.changeState');
 Route::get('/notifications/show', [NotificationController::class, 'showNotifications'])->name('notifications.show');

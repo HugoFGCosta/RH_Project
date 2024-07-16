@@ -5,12 +5,12 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Address;
 
-class JustificationMail extends Mailable
+class JustificationSubmitted extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -22,13 +22,14 @@ class JustificationMail extends Mailable
      */
     public function __construct($message, $subject)
     {
+        //
         $this->mailMessage = $message;
         $this->subject = $subject;
     }
 
     public function build()
     {
-        return $this->view('emails.justification_email')
+        return $this->view('emails.justification_submitted')
             ->subject($this->subject)
             ->with([
                 'message' => $this->mailMessage,
@@ -47,13 +48,14 @@ class JustificationMail extends Mailable
         );
     }
 
+
     /**
      * Get the message content definition.
      */
     public function content(): Content
     {
         return new Content(
-            view: 'emails.justification_email',
+            view: 'emails.justification_submitted',
         );
     }
 

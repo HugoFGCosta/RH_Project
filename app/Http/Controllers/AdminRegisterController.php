@@ -31,7 +31,7 @@ class AdminRegisterController extends Controller
 
         // se nao existir registro o primeiro pode ser feito estar logado como admin
         if (User::count() > 0 && (!Auth::user() || !Auth::user()->isAdmin())) {
-            abort(403, 'Apenas administradores podem criar novos usuários.');
+            abort(403, 'Apenas administradores podem criar novos utilizadores.');
         }
 
 
@@ -48,7 +48,7 @@ class AdminRegisterController extends Controller
             'work_shift_id' => 'required',
         ])->validate();
 
-        // Criação do usuário
+        // Criação do utilizador
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -60,7 +60,7 @@ class AdminRegisterController extends Controller
             'birth_date' => $request->birth_date
         ]);
 
-        // Criação do turno do usuário
+        // Criação do turno do utilizador
         $user_shift = new User_Shift();
         $user_shift->work_shift_id = $request->work_shift_id;
         $user_shift->user_id = $user->id;
@@ -73,9 +73,9 @@ class AdminRegisterController extends Controller
 
     public function create(Request $request)
     {
-        // Se não existir nenhum registro, permita a criação do primeiro usuário
+        // Se não existir nenhum registro, permita a criação do primeiro utilizador
         if (User::count() == 0) {
-            // Validação dos dados para o primeiro usuário
+            // Validação dos dados para o primeiro utilizador
             Validator::make($request->all(), [
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email',
@@ -88,7 +88,7 @@ class AdminRegisterController extends Controller
                 'work_shift_id' => 'required',
             ])->validate();
 
-            // Criação do primeiro usuário
+            // Criação do primeiro utilizador
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -98,11 +98,11 @@ class AdminRegisterController extends Controller
                 'nif' => $request->nif,
                 'tel' => $request->tel,
                 'birth_date' => $request->birth_date,
-                // Defina o usuário como administrador
+                // Defina o utilizador como administrador
                 'is_admin' => true,
             ]);
 
-            // Criação do turno do usuário
+            // Criação do turno do utilizador
             $user_shift = new User_Shift();
             $user_shift->work_shift_id = $request->work_shift_id;
             $user_shift->user_id = $user->id;
@@ -112,9 +112,9 @@ class AdminRegisterController extends Controller
             return redirect('/menu');
         }
 
-        // Se já existir pelo menos um usuário, verifique se o usuário atual é um administrador
+        // Se já existir pelo menos um utilizador, verifique se o utilizador atual é um administrador
         if (Auth::check() && Auth::user()->isAdmin()) {
-            // Validação dos dados para um administrador criar um novo usuário
+            // Validação dos dados para um administrador criar um novo utilizador
             Validator::make($request->all(), [
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email',
@@ -127,7 +127,7 @@ class AdminRegisterController extends Controller
                 'work_shift_id' => 'required',
             ])->validate();
 
-            // Criação de um novo usuário por um administrador
+            // Criação de um novo utilizador por um administrador
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -139,7 +139,7 @@ class AdminRegisterController extends Controller
                 'birth_date' => $request->birth_date,
             ]);
 
-            // Criação do turno do usuário
+            // Criação do turno do utilizador
             $user_shift = new User_Shift();
             $user_shift->work_shift_id = $request->work_shift_id;
             $user_shift->user_id = $user->id;
@@ -150,7 +150,7 @@ class AdminRegisterController extends Controller
         }
 
         // Se não for um administrador, aborte com um erro 403
-        abort(403, 'Apenas administradores podem criar novos usuários.');
+        abort(403, 'Apenas administradores podem criar novos utilizadores.');
     }
 
 

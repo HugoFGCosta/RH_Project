@@ -1,4 +1,3 @@
-/* public/css/alerts.css */
 .modal-container {
     position: fixed;
     top: 0;
@@ -16,11 +15,10 @@
     background: white;
     border-radius: 8px;
     position: relative;
-    width: 80%;
+    width: 50%;
     height: 200px;
-    max-width: 900px;
-    opacity: 0; /* Inicie com o modal invisível */
-    animation: fadeIn 0.1s forwards; /* Aplique a animação de fade in */
+    opacity: 0;
+    animation: fadeIn 0.1s forwards;
 }
 
 @keyframes fadeIn {

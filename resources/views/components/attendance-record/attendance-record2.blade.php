@@ -1,12 +1,37 @@
 @php
     use Carbon\Carbon;
+    // Generate arrays for months and years
+    $months = [
+        'Janeiro' => '01', 'Fevereiro' => '02', 'Março' => '03', 'Abril' => '04',
+        'Maio' => '05', 'Junho' => '06', 'Julho' => '07', 'Agosto' => '08',
+        'Setembro' => '09', 'Outubro' => '10', 'Novembro' => '11', 'Dezembro' => '12'
+    ];
+    $years = range(Carbon::now()->year, Carbon::now()->year - 10);
 @endphp
 <main class="table" id="users_table">
     <section class="table__header">
         <div class="input-group-wrapper">
             <div class="input-group">
-                <input type="search" placeholder="Pesquisar...">
+                <input type="search" id="searchInput" placeholder="Pesquisar...">
                 <ion-icon name="search-outline"></ion-icon>
+            </div>
+            <!-- Month Filter -->
+            <div class="input-group-filter">
+                <select id="monthFilter">
+                    <option value="">Selecionar Mês</option>
+                    @foreach($months as $month => $value)
+                        <option value="{{ $month }}">{{ $month }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <!-- Year Filter -->
+            <div class="input-group-filter">
+                <select id="yearFilter">
+                    <option value="">Selecionar Ano</option>
+                    @foreach($years as $year)
+                        <option value="{{ $year }}">{{ $year }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
         <div class="export__file">
@@ -33,7 +58,7 @@
                 <th>Saída<span class="icon-arrow">&UpArrow;</span></th>
             </tr>
             </thead>
-            <tbody>
+            <tbody id="presenceTableBody">
             @foreach($presences as $presence)
                 @php
                     $currentShift = $user_shifts->filter(function($shift) use ($presence) {
@@ -41,7 +66,7 @@
                                (is_null($shift->end_date) || Carbon::parse($shift->end_date)->gte(Carbon::parse($presence->created_at)));
                     })->first();
                 @endphp
-                <tr>
+                <tr data-date="{{ $presence->created_at->format('Y-m-d') }}">
                     <td>{{ $presence->created_at->format('d/m/Y') }}</td>
                     <td class="center-text">
                         @if ($currentShift)

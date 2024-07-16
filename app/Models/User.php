@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -50,17 +51,17 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        return $this->role_id == 3; // Verifica se o usuário é um administrador
+        return $this->role_id == 3; // Verifica se o utilizador é um administrador
     }
 
     public function isManager()
     {
-        return $this->role_id == 2; // Verifica se o usuário é um gestor
+        return $this->role_id == 2; // Verifica se o utilizador é um gestor
     }
 
     public function isWorker()
     {
-        return $this->role_id == 1; // Verifica se o usuário é um trabalhador
+        return $this->role_id == 1; // Verifica se o utilizador é um trabalhador
     }
 
     public function presences()
@@ -87,5 +88,10 @@ class User extends Authenticatable
     public function event()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }
