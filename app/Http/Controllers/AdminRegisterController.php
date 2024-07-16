@@ -33,7 +33,7 @@ class AdminRegisterController extends Controller
         $messages = [
             'name.required' => 'O nome é obrigatório.',
             'email.required' => 'O e-mail é obrigatório.',
-            'email.unique' => 'Este e-mail já está registado.',
+            'email.unique' => 'Este e-mail já se encontra registado.',
             'password.min' => 'A senha deve conter pelo menos 8 caracteres.',
             'password.regex' => 'A senha deve conter pelo menos 1 letra maiuscula, 1 número e caracter especial.',
             'role_id.required' => 'O cargo é obrigatório.',
