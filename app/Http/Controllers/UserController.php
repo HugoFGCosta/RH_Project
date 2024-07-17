@@ -310,7 +310,9 @@ class UserController extends Controller
 
         // Faz as validações antes de inserir
         while (($line = fgets($handle)) !== false) {
+
             $data = str_getcsv($line);
+
             if (count($data) != 9) {
                 return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de utilizadores.');
             }
@@ -340,16 +342,18 @@ class UserController extends Controller
                 return redirect()->back()->with('error', 'Certifique-se que os telefones são válidos.');
             }
 
-            // Verifica se o role_id está entre 1 e 3
-            if ($data[0] < 1 || $data[0] > 3) {
-                return redirect()->back()->with('error', 'Certifique-se que os IDs de função estão entre 1 e 3.');
-            }
-
             // Verifica se o work_shift_id existe
             $work_shift = Work_Shift::find($data[8]);
 
             if (!$work_shift) {
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de turno existem.');
+            }
+
+            // Verifica se o role_id existe
+            $role= Role::find($data[0]);
+
+            if (!$role) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de role existem (entre 1 e 3).');
             }
 
             // Armazenar os dados válidos no array

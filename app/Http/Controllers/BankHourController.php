@@ -81,6 +81,18 @@ class BankHourController extends Controller
                 $durationFirstShift = 0;
                 $durationSecondShift = 0;
                 $workedTime = 0;
+                $verUserShiftFoundPresences = false;
+
+                // Ignora presenças em que o utilizador entrou mas ainda não saiu
+                // Se entrou no primeiro turno mas nao saiu
+                if($presence->first_start != null && $presence->first_end == null && $presence->second_start == null && $presence->second_end == null){
+                    continue;
+                }
+                // Se entrou no segundo turno mas nao saiu
+                else if($presence->first_start == null && $presence->first_end == null && $presence->second_start != null && $presence->second_end == null){
+                    continue;
+                }
+
 
                 //Se apareceu de manha vai buscar o horario pela hora de entrada de manha
                 if($presence->first_start!=null){
@@ -102,14 +114,20 @@ class BankHourController extends Controller
                     if($userShift -> user_id == $user_id_logged){
                         if($arrivalTime >= $userShift->start_date && $arrivalTime <= $userShift->end_date  && $userShift->user_id == $user_id_logged){
                             $userShiftsId = $userShift->work_shift_id;
+                            $verUserShiftFoundPresences = true;
                             break;
                         }
                         else if($arrivalTime >= $userShift->start_date && $userShift->end_date == null &&  $userShift->user_id == $user_id_logged){
                             $userShiftsId = $userShift->work_shift_id;
+                            $verUserShiftFoundPresences = true;
                             break;
                         }
                     }
 
+                }
+
+                if($verUserShiftFoundPresences == false){
+                    continue;
                 }
 
                 /*Calcula minutos que devia ter trabalhado*/
@@ -244,19 +262,27 @@ class BankHourController extends Controller
                 $startHour = Carbon::parse($absence->absence_start_date);
                 $endHour = Carbon::parse($absence->absence_end_date);
                 $diff = $startHour->diffInMinutes($endHour);
+                $verUserShiftFound = false;
 
                 /*Pesquisa qual o horario que o utilizador tinha no dia da presenca*/
                 foreach ($userShifts as $userShift){
                     if($userShift -> user_id == $user_id_logged){
                         if($startHour >= $userShift->start_date && $startHour <= $userShift->end_date  && $userShift->user_id == $user_id_logged){
                             $userShiftsId = $userShift->work_shift_id;
+                            $verUserShiftFound = true;
                             break;
                         }
                         else if($startHour >= $userShift->start_date && $userShift->end_date == null &&  $userShift->user_id == $user_id_logged){
+                            $verUserShiftFound = true;
                             $userShiftsId = $userShift->work_shift_id;
                             break;
                         }
                     }
+                }
+
+                // Verifica se o utilizador tem um horário atribuído na altura da falta (isto evita que o programa calcule faltas de utilizadores que não têm horário atribuído na altura da falta)
+                if($verUserShiftFound == false){
+                    continue;
                 }
 
                 if($absence->absence_types_id == 3){
@@ -328,9 +354,9 @@ class BankHourController extends Controller
             "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro");
 
 
-        if($month == "Todos"){
+        if($month == "Todos" || $month == null){
 
-            $month == 'Todos';
+            $month = 'Todos';
 
         }
         else if($month != 0){
