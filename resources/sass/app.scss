@@ -66,6 +66,14 @@ input:-webkit-autofill:focus {
     flex-direction: column;
 }
 
+.recoverPassword-form{
+    display: flex;
+    height: 100% !important;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
 .login-form {
     position: absolute;
     transform: translateX(0px);
@@ -101,6 +109,7 @@ p {
     margin-right: 20px;
     padding-right: 40px;
 }
+
 
 .input-container label {
     position: absolute;
@@ -196,7 +205,7 @@ input#checked {
     left: 0;
     top: 0%;
     height: 100%;
-    width: 00%;
+    width: 0%;
     background: linear-gradient(45deg, rgba(0, 89, 153), 60%, #0e9fd8);
     transition: 0.5s ease;
     z-index: -1;
