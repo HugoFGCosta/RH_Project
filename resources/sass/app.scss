@@ -40,6 +40,9 @@ body {
     border-radius: 0px;
 }
 
+.form-container{
+
+}
 
 //overwrites the style when user prefills input, with and without focus
 //https://stackoverflow.com/questions/61083813/how-to-avoid-internal-autofill-selected-style-to-be-applied
@@ -61,6 +64,14 @@ input:-webkit-autofill:focus {
 
 .Form {
     display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.recoverPassword-form{
+    display: flex;
+    height: 100% !important;
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -97,9 +108,7 @@ p {
 .input-container {
     position: relative;
     margin-bottom: 25px;
-    width: 120%;
-    margin-right: 20px;
-    padding-right: 40px;
+    width: 100%;
 }
 
 .input-container label {
@@ -119,6 +128,7 @@ p {
     padding: 8px 0 5px 0;
     font-size: 16px;
     color: #fff;
+    padding-right: 40px; /* Adicione padding à direita para o ícone */
 }
 
 .input-container input:focus {
@@ -139,9 +149,19 @@ p {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    right: 50px;
+    right: -20px;
+    z-index: 2;
 }
 
+.input-container .invalid-feedback {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    font-size: 12px;
+    color: #f00;
+    margin-top: 5px;
+    width: 100%;
+}
 
 input::placeholder {
     font-size: 13px;
@@ -171,7 +191,7 @@ input#checked {
 }
 
 .btn {
-    width: 100%;
+    width: 90%;
     height: 40px;
     margin-top: 20px;
     border-radius: 50px;
@@ -196,7 +216,7 @@ input#checked {
     left: 0;
     top: 0%;
     height: 100%;
-    width: 00%;
+    width: 0%;
     background: linear-gradient(45deg, rgba(0, 89, 153), 60%, #0e9fd8);
     transition: 0.5s ease;
     z-index: -1;
@@ -271,6 +291,8 @@ p {
     text-decoration: none;
     font-size: 14px;
 }
+
+
 
 
 @media (max-width: 575.98px) {

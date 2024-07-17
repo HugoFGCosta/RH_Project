@@ -4,7 +4,7 @@
 </div>
 <main class="table" id="vacations_table">
     <section class="table__header">
-        <a href="vacations/create">
+        <a href={{ url('vacations/create') }}>
             <button class="new__vacation">Marcar Férias</button>
         </a>
         @if($role == 3)

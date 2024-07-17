@@ -15,8 +15,7 @@
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss'])
-    <script src="{{ asset('js/login.js') }}" defer></script>
-    <script src="{{ asset('js/recover.js') }}" defer></script>
+    @yield('scripts')
 </head>
     <body>
         <div id="app">
