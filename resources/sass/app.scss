@@ -22,7 +22,7 @@ body {
 
 .container {
     height: 600px;
-    width: 450px;
+    width: 550px;
     background: linear-gradient(to bottom,
         rgba(0, 89, 153, 0.7),
         rgb(0, 89, 153, 0.9),
@@ -40,6 +40,9 @@ body {
     border-radius: 0px;
 }
 
+.form-container{
+
+}
 
 //overwrites the style when user prefills input, with and without focus
 //https://stackoverflow.com/questions/61083813/how-to-avoid-internal-autofill-selected-style-to-be-applied
@@ -105,10 +108,11 @@ p {
 .input-container {
     position: relative;
     margin-bottom: 25px;
-    width: 120%;
+    width: 100%;
     margin-right: 20px;
     padding-right: 40px;
 }
+
 
 
 .input-container label {
@@ -180,7 +184,7 @@ input#checked {
 }
 
 .btn {
-    width: 100%;
+    width: 90%;
     height: 40px;
     margin-top: 20px;
     border-radius: 50px;

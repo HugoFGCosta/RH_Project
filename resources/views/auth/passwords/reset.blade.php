@@ -6,7 +6,7 @@
             {{--                    <div class="card-header">{{ __('Reset Password') }}</div> --}}
             <img src="{{ asset('images/hospital.svg') }}" alt="" style="width: 100%; height: auto;" class="p-2 mt-5">
             <h4 class="mt-5 mb-4">Recuperar Palavra-Passe</h4>
-            <form method="POST" action="{{ route('password.update') }}">
+            <form method="POST" action="{{ route('password.update') }}" class="form-container">
                 @csrf
 
                 <input type="hidden" name="token" value="{{ $token }}">
@@ -22,9 +22,6 @@
                         </span>
                     @enderror
                 </div>
-
-
-
 
                 <div class="input-container mt-5">
                     <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
@@ -47,7 +44,7 @@
                 </div>
 
 
-                <button type="submit" class="btn">
+                <button type="submit" class="btn btn-submit">
                     {{ __('Confirmar') }}
                 </button>
             </form>
