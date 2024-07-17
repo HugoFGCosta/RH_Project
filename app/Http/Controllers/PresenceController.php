@@ -6,6 +6,7 @@ use App\Models\Absence;
 use App\Models\Presence;
 use App\Http\Requests\StorePresenceRequest;
 use App\Http\Requests\UpdatePresenceRequest;
+use App\Models\User;
 use App\Models\User_Shift;
 use App\Models\Work_Shift;
 use Carbon\Carbon;
@@ -290,13 +291,68 @@ class PresenceController extends Controller
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador são números válidos.');
             }
 
-
             if (!is_numeric($data[5]) || !is_numeric($data[6])) {
                 return redirect()->back()->with('error', 'Certifique-se que os campos de horas extra e efetivas são válidos.');
             }
 
             if (!strtotime($data[1]) || !strtotime($data[2]) || !strtotime($data[3]) || !strtotime($data[4])) {
                 return redirect()->back()->with('error', 'Certifique-se que as datas estão no formato correto.');
+            }
+
+            //Verifica se o user_id existe
+            $user = User::find($data[0]);
+
+            if (!$user) {
+                return redirect()->back()->with('error', 'Certifique se todos os Ids de utilizador correspondem a um utilizador existente.');
+            }
+
+            //Verifica se existe um horario para o utilizador na altura da presença
+            $usersShifts = User_Shift::all();
+            $firstStartDate = strtotime($data[1]);
+            $firstEndDate = strtotime($data[2]);
+            $secondStartDate = strtotime($data[3]);
+            $secondEndDate = strtotime($data[4]);
+
+            $verFirstStart = false;
+            $verFirstEnd = false;
+            $verSecondStart = false;
+            $verSecondEnd = false;
+
+            foreach ($usersShifts as $usersShift){
+
+                if(date("Y-m-d H:i:s", $firstStartDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $firstStartDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                    $verFirstStart = true;
+                }
+                elseif(date("Y-m-d H:i:s", $firstStartDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+                    $verFirstStart = true;
+                }
+
+                if(date("Y-m-d H:i:s", $firstEndDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $firstEndDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                    $verFirstEnd = true;
+                }
+                elseif(date("Y-m-d H:i:s", $firstEndDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+                    $verFirstEnd = true;
+                }
+
+                if(date("Y-m-d H:i:s", $secondStartDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $secondStartDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                    $verSecondStart = true;
+                }
+                elseif(date("Y-m-d H:i:s", $secondStartDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+                    $verSecondStart = true;
+                }
+
+                if(date("Y-m-d H:i:s", $secondEndDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $secondEndDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                    $verSecondEnd = true;
+                }
+                elseif(date("Y-m-d H:i:s", $secondEndDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+                    $verSecondEnd = true;
+                }
+
+            }
+
+            //Caso nao exista um horario para o utilizador na altura da presaença, é mostrada uma mensagem de erro
+            if($verFirstStart == false || $verFirstEnd == false ||  $verSecondStart == false || $verSecondEnd == false){
+                return redirect()->back()->with('error', 'Certifique-se que os utilizadores têm um horário na altura de todas as presenças.');
             }
 
         }
@@ -310,9 +366,6 @@ class PresenceController extends Controller
 
         // Desativa as verificações de chave estrangeira
         Schema::disableForeignKeyConstraints();
-
-        // Trunca a tabela
-        DB::table('presences')->truncate();
 
         // Reabilita as verificações de chave estrangeira
         Schema::enableForeignKeyConstraints();
