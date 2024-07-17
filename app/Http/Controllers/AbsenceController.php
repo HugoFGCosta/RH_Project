@@ -148,14 +148,11 @@ class AbsenceController extends Controller
                 return redirect()->back()->with('error', 'As datas fornecidas não são válidas.');
             }
 
-            // Verifica se o ID de estado de aprovação de falta está entre 1 e 4
-            if ($data[2] < 1 || $data[2] > 4){
-                return redirect()->back()->with('error', 'Certifique-se que os IDs de estado são números válidos.');
-            }
+            // Verifica se o utilizador existe
+            $user = User::find($data[0]);
 
-            // Verifica se o ID de tipo de aprovação de falta está entre 1 e 3
-            if ($data[3] < 1 || $data[3] > 3){
-                return redirect()->back()->with('error', 'Certifique-se que os IDs de tipo são números válidos.');
+            if (!$user) {
+                return redirect()->back()->with('error', 'Certifique se todos os Ids de utilizador correspondem a um utilizador existente.');
             }
 
 
@@ -188,10 +185,55 @@ class AbsenceController extends Controller
                 return redirect()->back()->with('error', 'Certifique-se que os utilizadores têm um horário na altura de todas as faltas.');
             }
 
+            // Verifica se a justificação existe
+            if (!empty($data[1])) {
+                $justification = Justification::find($data[1]);
+
+                if (!$justification) {
+                    return redirect()->back()->with('error', 'Certifique-se que todos os IDs de justificação correspondem a uma justificação existente.');
+                }
+            }
+
+            // Verifica se o aprovador existe
+            if (!empty($data[4])) {
+                $approver = User::find($data[4]);
+
+                if (!$approver) {
+                    return redirect()->back()->with('error', 'Certifique-se que todos os IDs de aprovador correspondem a um utilizador existente.');
+                }
+            }
+
+            // Verifica se a data de início é anterior à data de fim
+            if (strtotime($data[5]) > strtotime($data[6])) {
+                return redirect()->back()->with('error', 'Certifique-se que a data de início é anterior à data de fim.');
+            }
+
+            // Verifica se a data de início é anterior à data atual
+            if (strtotime($data[5]) > strtotime(now())) {
+                return redirect()->back()->with('error', 'Certifique-se que a data de início é anterior à data atual.');
+            }
+
+            // Verifica se a data de fim é anterior à data atual
+            if (strtotime($data[6]) > strtotime(now())) {
+                return redirect()->back()->with('error', 'Certifique-se que a data de fim é anterior à data atual.');
+            }
+
+            // Verifica se o absence_states_id existe
+            $absence_state = Absence_State::find($data[2]);
+
+            if (!$absence_state) {
+                return redirect()->back()->with('error', 'Certifique-se que todos os IDs de estado de falta correspondem a um estado de falta existente.');
+            }
+
+            // Verifica se o absence_types_id existe
+            $absence_type = AbsenceType::find($data[3]);
+
+            if (!$absence_type) {
+                return redirect()->back()->with('error', 'Certifique-se que todos os IDs de tipo de falta correspondem a um tipo de falta existente.');
+            }
 
             $absenceData = [
                 'user_id' => $data[0],
-                'justification_id' => $data[1], // Verifica se justification_id está vazio
                 'absence_states_id' => $data[2],
                 'absence_types_id' => $data[3],
                 'absence_start_date' => $data[5],
@@ -199,6 +241,7 @@ class AbsenceController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
+            $absenceData['justification_id'] = !empty($data[1]) ? $data[1] : null;
             $absenceData['approved_by'] = !empty($data[4]) ? $data[4] : null;
 
             Absence::create($absenceData);

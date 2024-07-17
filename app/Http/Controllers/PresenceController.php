@@ -6,6 +6,7 @@ use App\Models\Absence;
 use App\Models\Presence;
 use App\Http\Requests\StorePresenceRequest;
 use App\Http\Requests\UpdatePresenceRequest;
+use App\Models\User;
 use App\Models\User_Shift;
 use App\Models\Work_Shift;
 use Carbon\Carbon;
@@ -296,6 +297,13 @@ class PresenceController extends Controller
 
             if (!strtotime($data[1]) || !strtotime($data[2]) || !strtotime($data[3]) || !strtotime($data[4])) {
                 return redirect()->back()->with('error', 'Certifique-se que as datas estão no formato correto.');
+            }
+
+            //Verifica se o user_id existe
+            $user = User::find($data[0]);
+
+            if (!$user) {
+                return redirect()->back()->with('error', 'Certifique se todos os Ids de utilizador correspondem a um utilizador existente.');
             }
 
             //Verifica se existe um horario para o utilizador na altura da presença
