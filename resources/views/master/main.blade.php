@@ -86,9 +86,10 @@
                                 <span id="notification-bell" style="display: none;">
                                     <ion-icon name="notifications-outline" size="large"></ion-icon>
                                 </span>
-                                <a href="/user/show">{{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }}
-                                    ({{ $role }})</a>
-                            </a>
+                                <a href="/user/show">
+                                    {{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }}
+                                    <span class="user-role">({{ $role }})</span>
+                                </a>
                         </li>
                     @endif
                 </div>
