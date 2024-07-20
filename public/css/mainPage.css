@@ -322,6 +322,13 @@ h1 {
     padding: 0 10px;
 }
 
+#notification-bell {
+    padding-right: 10px;
+    height: 30px;
+    width: 30px;
+    color: red;
+}
+
 .user-role {
     font-size: 0.8em;
     margin-left: 5px;
@@ -505,4 +512,14 @@ footer {
     font-weight: 1000;
     color: var(--white);
     margin: 10px 0 0 10px;
+}
+
+
+/*show-all*/
+#users-list-title {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font-size: 1.5rem;
+    color: var(--blue);
+    font-weight: 1000;
 }

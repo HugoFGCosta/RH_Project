@@ -258,7 +258,7 @@ class VacationController extends Controller
     {
         $vacation = vacation::find($vacation->id);
         $vacation->delete();
-        return redirect('/vacation')->with('error', 'Eliminado com sucesso!');
+        return redirect('/vacation')->with('success', 'Eliminado com sucesso!');
 
     }
 
