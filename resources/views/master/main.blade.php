@@ -77,7 +77,7 @@
                             } elseif ($roleId == 2) {
                                 $role = 'Gestor';
                             } else {
-                                $role = 'Utilizador';
+                                $role = 'Funcionário';
                             }
                         @endphp
 

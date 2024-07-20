@@ -4,9 +4,13 @@
 </div>
 <main class="table" id="vacations_table">
     <section class="table__header">
-        <a href={{ url('vacations/create') }}>
-            <button class="new__vacation">Marcar Férias</button>
-        </a>
+        @if (22 - $totaldias > 0)
+            <a href={{ url('vacations/create') }}>
+                <button class="new__vacation">Marcar Férias</button>
+            </a>
+        @else
+            <button class="new__vacation" disabled>Marcar Férias</button>
+        @endif
         @if($role == 3)
             <a href="/vacation/show/{{Auth::user()->id}}">
                 <button class="filter">Filtrar Próprias</button>
@@ -17,7 +21,7 @@
             <ion-icon name="search-outline"></ion-icon>
         </div>
         <div class="export__file">
-            <label for="export-file" class="export__file-btn" title="Export File"></label>
+            <label for="export-file" class="export__file-btn" title="Exportar Ficheiro"></label>
             <input type="checkbox" id="export-file">
             <div class="export__file-options">
                 <label>Exportar como &nbsp; &#10140;</label>
@@ -45,7 +49,6 @@
             </tr>
             </thead>
             <tbody>
-
             @foreach($vacations as $vacation)
                 <tr>
                     <td>{{ $vacation->id }}</td>

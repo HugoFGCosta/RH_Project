@@ -1,6 +1,7 @@
 @php
     use Carbon\Carbon;
 @endphp
+
 <main class="table" id="users_table">
     <section class="table__header">
         <div class="input-group">
@@ -36,7 +37,19 @@
                 <tr>
                     <td>{{ $user->id }}</td>
                     <td>{{ $user->name }}</td>
-                    <td>{{ $user->role->role }}</td>
+                    <td>
+                        @php
+                            $roleId = $user->role_id;
+                            if ($roleId == 3) {
+                                $role = 'Administrador';
+                            } elseif ($roleId == 2) {
+                                $role = 'Gestor';
+                            } else {
+                                $role = 'Funcionário';
+                            }
+                        @endphp
+                        {{ $role }}
+                    </td>
                     <td>
                         @if ($user->shift)
                             {{ 'Das ' . Carbon::parse($user->shift->work_shift->start_hour)->format('H:i') . ' às ' . Carbon::parse($user->shift->work_shift->end_hour)->format('H:i') }}
