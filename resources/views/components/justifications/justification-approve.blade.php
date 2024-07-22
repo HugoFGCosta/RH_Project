@@ -56,8 +56,14 @@
 
     <div class="buttonsDiv">
     <a href="{{ url('/justification/'. $justification->id.'/download') }}" class="btn-detail-edit buttonJustification">Download</a>
-    <a href="{{ url('/justification/'. $justification->id.'/approve') }}" class="btn-detail-edit buttonJustification">Aprovar</a>
-    <a href="{{ url('/justification/'. $justification->id.'/reject') }}" class="btn-detail-edit buttonJustification">Rejeitar</a>
+    @foreach($justification->absences as $index => $absence)
+        @if($absence->absence_states_id == 3)
+            <a href="{{ url('/justification/'. $justification->id.'/approve') }}" class="btn-detail-edit buttonJustification">Aprovar</a>
+            <a href="{{ url('/justification/'. $justification->id.'/reject') }}" class="btn-detail-edit buttonJustification">Rejeitar</a>
+        @endif
+        @break
+    @endforeach
+
     </div>
 
 
