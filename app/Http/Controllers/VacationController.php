@@ -259,9 +259,15 @@ class VacationController extends Controller
         if (($total_dias_atuais - $dias_antigos + $dias_novos) > 22) {
             return redirect()->back()->with('error', 'Você excedeu o limite de dias de férias disponíveis.');
         }
+        if ($vacation->vacation_approval_states_id == 2) {
+            return redirect()->back()->with('error', 'Já não é possivel a edição destas ferias.');
+        }
+
 
         if ($this->timeCollide($vacation->id, $vacation->user_id, $request->date_start, $request->date_end) &&
-            $this->must_date($request->date_start, $request->date_end, $vacation->id)) {
+            $this->must_date($request->date_start, $request->date_end, $vacation->id)
+
+           ){
 
             $vacation->date_start = $request->date_start;
             $vacation->date_end = $request->date_end;
