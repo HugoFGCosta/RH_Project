@@ -30,7 +30,6 @@ body {
 }
 
 h1 {
-    padding-top: 72px;
     font-size: 1.5rem;
     color: var(--blue);
     font-weight: 1000;
