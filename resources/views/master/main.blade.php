@@ -84,7 +84,7 @@
                         <li class="nav-item">
                             <a href="/menu">
                                 <span id="notification-bell" style="display: none;">
-                                    <ion-icon name="notifications-outline" size="large"></ion-icon>
+                                    <ion-icon name="notifications-outline" size="large" id="notification-bell"></ion-icon>
                                 </span>
                                 <a href="/user/show">
                                     {{ $firstName }}{{ $lastName ? ' ' . $lastName : '' }}
