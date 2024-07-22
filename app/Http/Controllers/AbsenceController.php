@@ -29,8 +29,12 @@ class AbsenceController extends Controller
     /*Metodo index- serve para listar todas as faltas*/
     public function index()
     {
-        //
-        $absences = Absence::all();
+
+        //vai buscar as faltas que tem um user com o delete_at a null
+        $absences = Absence::whereHas('user', function ($query) {
+            $query->whereNull('deleted_at');
+        })->get();
+
         $absences_states = Absence_State::all();
         $absences_types = AbsenceType::all();
         $justifications = Justification::all();
