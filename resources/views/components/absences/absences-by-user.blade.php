@@ -1,16 +1,41 @@
+@php
+    use Carbon\Carbon;
+    // Generate arrays for months and years
+    $months = [
+        'Janeiro' => '01', 'Fevereiro' => '02', 'Março' => '03', 'Abril' => '04',
+        'Maio' => '05', 'Junho' => '06', 'Julho' => '07', 'Agosto' => '08',
+        'Setembro' => '09', 'Outubro' => '10', 'Novembro' => '11', 'Dezembro' => '12'
+    ];
+    $years = range(Carbon::now()->year, Carbon::now()->year - 10);
+@endphp
 <link rel="stylesheet" href="{{ asset('css/show-all.css') }}">
 <link rel="stylesheet" href="{{ asset('css/absences-by-user.css') }}">
 
 <p class="messageError" id="messageError"></p>
 
 <form id="abcenseForm" action="/justification/create">
-
     <main class="table" id="users_table">
-        <section class="table__header">
+        <section class="table__header input-group-wrapper">
             <input class="submitButton" type="submit" value="Justificar">
             <div class="input-group">
                 <input type="search" placeholder="Pesquisar...">
                 <ion-icon name="search-outline"></ion-icon>
+            </div>
+            <div class="input-group-filter no-export">
+                <select id="monthFilter">
+                    <option value="">Selecionar Mês</option>
+                    @foreach($months as $month => $value)
+                        <option value="{{ $month }}">{{ $month }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="input-group-filter no-export">
+                <select id="yearFilter">
+                    <option value="">Selecionar Ano</option>
+                    @foreach($years as $year)
+                        <option value="{{ $year }}">{{ $year }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="export__file">
                 <label for="export-file" class="export__file-btn" title="Export File"></label>
@@ -38,7 +63,7 @@
                 </thead>
                 <tbody>
                 @foreach ($absences as $absence)
-                    <tr>
+                    <tr data-date="{{ $absence->absence_start_date }}">
                         <td class="idCell">{{ $absence->id }}</td>
                         <td class="absenceStartCell">{{ $absence->absence_start_date }}</td>
                         <td class="absenceEndCell">{{ $absence->absence_end_date }}</td>
@@ -76,4 +101,3 @@
         </section>
     </main>
 </form>
-

@@ -427,6 +427,29 @@ thead th.asc span.icon-arrow {
     border: 2px solid var(--green);
 }
 
+/* Envolver os filtros em um contêiner flex */
+.input-group-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    flex-grow: 1;
+    gap: 1rem;
+}
+
+#monthFilter, #yearFilter {
+    height: 2.5rem;
+    background-color: #fff5;
+    padding: 0 1rem;
+    border-radius: 2rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    transition: .2s;
+    box-shadow: 0 .1rem .4rem #0002;
+    color: var(--blue);
+    cursor: pointer;
+}
+
+
 /* Ajustes responsivos */
 @media (max-width: 1200px) {
     .centralBox {

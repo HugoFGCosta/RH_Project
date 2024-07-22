@@ -79,7 +79,7 @@
 
                     let html = `
                         <div class="container mt-5">
-                            <h1>Notificações não lidas</h1>
+                            <h1>Notificações</h1>
                             <div class="table-container">
                                 <table class="table-notifications">
                                     <thead>
@@ -87,7 +87,7 @@
                                             <th scope="col">#</th>
                                             <th scope="col">Tipo</th>
                                             <th scope="col">Estado</th>
-                                            <th scope="col">Lido/ Não Lido</th>
+                                            <th scope="col">Lido / Não Lido</th>
                                             <th scope="col">Ação</th>
                                         </tr>
                                     </thead>
@@ -124,18 +124,18 @@
                             }
                             html += `<td>${description}</td>`;
                         } else if (notification.vacation_id !== null) {
-                            html += `<td>FERIAS</td>`;
+                            html += `<td>FÉRIAS</td>`;
                             let description = 'Pendente';
                             if (notification.vacation.vacation_approval_states_id === 1) {
                                 description = 'Aprovado';
                             } else if (notification.vacation.vacation_approval_states_id === 2) {
-                                description = 'Negado';
+                                description = 'Rejeitado';
                             }
                             html += `<td>${description}</td>`;
                         }
 
                         html += `
-                            <td>${notification.state === 0 ? 'Nao Lido' : 'Lido'}</td>
+                            <td>${notification.state === 0 ? 'Não Lido' : 'Lido'}</td>
 
                             <td>
                                 ${notification.events_id !== null ? '---' : ''}

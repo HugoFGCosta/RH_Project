@@ -39,5 +39,5 @@
     <p class="error-message"><ion-icon name="alert-circle-outline"></ion-icon></i>{{ $message }}</p>
     @enderror
 
-    <button type="submit" class="btn btn-primary">Enviar</button>
+    <button  @if($totaldias >= 22) disabled @endif type="submit" class="btn btn-primary">Enviar</button>
 </form>

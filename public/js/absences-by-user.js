@@ -70,6 +70,51 @@ document.addEventListener('DOMContentLoaded', function () {
         table_rows = document.querySelectorAll('tbody tr'),
         table_headings = document.querySelectorAll('thead th');
 
+    const monthFilter = document.getElementById('monthFilter');
+    const yearFilter = document.getElementById('yearFilter');
+    const presenceTableBody = document.querySelector('#users_table tbody');
+
+    const months = {
+        'Janeiro': '01', 'Fevereiro': '02', 'Março': '03', 'Abril': '04',
+        'Maio': '05', 'Junho': '06', 'Julho': '07', 'Agosto': '08',
+        'Setembro': '09', 'Outubro': '10', 'Novembro': '11', 'Dezembro': '12'
+    };
+
+    function filterTable() {
+        const selectedMonth = monthFilter.value;
+        const selectedYear = yearFilter.value;
+
+        Array.from(presenceTableBody.querySelectorAll('tr')).forEach((row, i) => {
+            const date = row.querySelector('.absenceStartCell').textContent;
+            if (!date) {
+                return;
+            }
+            const [year, month] = date.split('-');
+
+            const match = (selectedMonth === '' || months[selectedMonth] === month) &&
+                (selectedYear === '' || selectedYear === year);
+
+            row.classList.toggle('hide', !match);
+            row.style.setProperty('--delay', i / 25 + 's');
+
+            setTimeout(() => {
+                if (row.classList.contains('hide')) {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = 'table-row';
+                }
+            }, 1000);
+        });
+
+        document.querySelectorAll('tbody tr:not(.hide)').forEach((visible_row, i) => {
+            visible_row.style.backgroundColor = (i % 2 === 0) ? 'transparent' : '#0000000b';
+        });
+    }
+
+    monthFilter.addEventListener('change', filterTable);
+    yearFilter.addEventListener('change', filterTable);
+
+
     // Evento de input para a busca na tabela
     search.addEventListener('input', searchTable);
 
@@ -131,6 +176,12 @@ document.addEventListener('DOMContentLoaded', function () {
             .map(sorted_row => document.querySelector('tbody').appendChild(sorted_row));
     }
 
+    // Função para remover elementos de filtro
+    function removeFilterElements(clone) {
+        const filters = clone.querySelectorAll('.input-group-filter, #monthFilter, #yearFilter');
+        filters.forEach(filter => filter.remove());
+    }
+
     // Converte a tabela HTML para PDF
     const pdf_btn = document.querySelector('#toPDF');
     const users_table = document.querySelector('#users_table');
@@ -138,6 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const toPDF = function (users_table) {
         // Clonar a tabela original
         const table_clone = users_table.cloneNode(true);
+        removeFilterElements(table_clone);
 
         // Remover as setas dos cabeçalhos
         const t_headings = table_clone.querySelectorAll('th');
@@ -244,14 +296,18 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
 
+
     // Converte a tabela HTML para JSON
     const json_btn = document.querySelector('#toJSON');
 
     const toJSON = function (table) {
+        const table_clone = table.cloneNode(true);
+        removeFilterElements(table_clone);
+
         let table_data = [],
             t_head = [],
-            t_headings = table.querySelectorAll('th'),
-            t_rows = table.querySelectorAll('tbody tr');
+            t_headings = table_clone.querySelectorAll('th'),
+            t_rows = table_clone.querySelectorAll('tbody tr');
 
         // Captura todos os cabeçalhos da tabela e remove as setas
         t_headings.forEach((t_heading, index) => {
@@ -289,14 +345,15 @@ document.addEventListener('DOMContentLoaded', function () {
         downloadFile(json, 'json', 'user_data.json');
     };
 
-
-
     // Converte a tabela HTML para CSV
     const csv_btn = document.querySelector('#toCSV');
 
     const toCSV = function (table) {
-        const t_heads = table.querySelectorAll('th'),
-            tbody_rows = table.querySelectorAll('tbody tr');
+        const table_clone = table.cloneNode(true);
+        removeFilterElements(table_clone);
+
+        const t_heads = table_clone.querySelectorAll('th'),
+            tbody_rows = table_clone.querySelectorAll('tbody tr');
 
         // Captura os cabeçalhos da tabela e formata para CSV, removendo setas
         const headings = [...t_heads].map(head => head.childNodes[0].nodeValue.trim().toLowerCase()).join(',');
@@ -315,16 +372,18 @@ document.addEventListener('DOMContentLoaded', function () {
         downloadFile(csv, 'csv', 'user_data.csv');
     };
 
-
     // Converte a tabela HTML para EXCEL usando SheetJS
     const excel_btn = document.querySelector('#toEXCEL');
 
     const toExcel = function (table) {
+        const table_clone = table.cloneNode(true);
+        removeFilterElements(table_clone);
+
         const workbook = XLSX.utils.book_new();
         const worksheet_data = [];
 
-        const t_heads = table.querySelectorAll('th');
-        const tbody_rows = table.querySelectorAll('tbody tr');
+        const t_heads = table_clone.querySelectorAll('th');
+        const tbody_rows = table_clone.querySelectorAll('tbody tr');
 
         // Captura os cabeçalhos da tabela e remove as setas
         const headers = [...t_heads].map(head => head.childNodes[0].nodeValue.trim());
@@ -351,6 +410,7 @@ document.addEventListener('DOMContentLoaded', function () {
     excel_btn.onclick = () => {
         toExcel(users_table);
     };
+
 
 
     // Função para baixar arquivos em diferentes formatos
