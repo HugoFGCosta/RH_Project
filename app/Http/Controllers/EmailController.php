@@ -13,7 +13,7 @@ class EmailController extends Controller
     public function justificationApproved($name, $email, $justifiedAbsences)
     {
         $toEmail = $email;
-        $message = 'Caro '.$name.','."<br>".' As justificações de: ' . "<br>";
+        $message = 'Caro ' . $name . ',' . "<br>" . ' As justificações de: ' . "<br>";
 
         foreach ($justifiedAbsences as $justifiedAbsence) {
             $message .= $justifiedAbsence->absence_start_date . " - " . $justifiedAbsence->absence_end_date . "<br>";
@@ -29,7 +29,7 @@ class EmailController extends Controller
     public function justificationRejected($name, $email, $justifiedAbsences)
     {
         $toEmail = $email;
-        $message = 'Caro '.$name.','."<br>".' As justificações de: ' . "<br>";
+        $message = 'Caro ' . $name . ',' . "<br>" . ' As justificações de: ' . "<br>";
 
         foreach ($justifiedAbsences as $justifiedAbsence) {
             $message .= $justifiedAbsence->absence_start_date . " - " . $justifiedAbsence->absence_end_date . "<br>";
@@ -45,7 +45,7 @@ class EmailController extends Controller
     public function justificationCreated($emailSend, $emailName, $userName, $userEmail, $absences)
     {
         $toEmail = $emailSend;
-        $message = 'Caro '.$emailName.','."<br>".' O utilizador '.$userName.' com o email: '.$userEmail .' submeteu uma justificação das seguintes faltas:'. "<br>";
+        $message = 'Caro ' . $emailName . ',' . "<br>" . ' O utilizador ' . $userName . ' com o email: ' . $userEmail . ' submeteu uma justificação das seguintes faltas:' . "<br>";
 
         foreach ($absences as $absence) {
             $message .= $absence->absence_start_date . " - " . $absence->absence_end_date . "<br>";
@@ -56,4 +56,3 @@ class EmailController extends Controller
         Mail::to($toEmail)->send(new JustificationSubmitted($message, $subject));
     }
 }
-

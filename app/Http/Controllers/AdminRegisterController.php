@@ -10,6 +10,9 @@ use Auth;
 use Hash;
 use Illuminate\Http\Request;
 use Validator;
+use App\Mail\PersonRegistered;
+use Illuminate\Support\Facades\Mail;
+
 
 class AdminRegisterController extends Controller
 {
@@ -91,6 +94,9 @@ class AdminRegisterController extends Controller
             $user_shift->start_date = now();
             $user_shift->save();
 
+            // Enviar e-mail para o usuário recém-criado
+            Mail::to($user->email)->send(new PersonRegistered($user));
+
             return redirect('/menu');
         }
 
@@ -132,6 +138,9 @@ class AdminRegisterController extends Controller
             $user_shift->user_id = $user->id;
             $user_shift->start_date = now();
             $user_shift->save();
+
+            // Enviar e-mail para o usuário recém-criado
+            Mail::to($user->email)->send(new PersonRegistered($user));
 
             return redirect('/menu');
         }
