@@ -146,6 +146,7 @@ class VacationController extends Controller
             'date_end.weekday' => 'O dia de fim não pode ser um fim de semana.',
         ];
 
+        // Validações iniciais
         if (!$request->has('date_start')) {
             return redirect(url('/vacations/create'))->with('error', $messages['date_start.required']);
         }
@@ -165,8 +166,21 @@ class VacationController extends Controller
             return redirect(url('/vacations/create'))->with('error', $messages['date_end.after:date_start']);
         }
 
-        if ($this->difInput($request->date_start, $request->date_end, $this->difTotal(Auth::id()),3,0,0) &&
-            $this->timeCollide(0, auth::id(), $request->date_start, $request->date_end) &&
+        // Calcula a diferença de dias da nova solicitação
+        $new_diff_date = Carbon::parse($request->date_start)->diffInDaysFiltered(function (Carbon $remover) {
+                return !$remover->isWeekend();
+            }, Carbon::parse($request->date_end)) + 1;
+
+        // Obtém o total de dias de férias já marcados
+        $total_dias_atuais = $this->difTotal(Auth::id());
+
+        // Verifica se o novo total de dias não ultrapassa o limite
+        if (($total_dias_atuais + $new_diff_date) > 22) {
+            return redirect(url('/vacations/create'))->with('error', 'Você excedeu o limite de dias de férias disponíveis.');
+        }
+
+        // Verifica se há colisão de datas
+        if ($this->timeCollide(0, auth::id(), $request->date_start, $request->date_end) &&
             $this->must_date($request->date_start, $request->date_end, 0)) {
 
             $vacation = new Vacation();
@@ -182,6 +196,7 @@ class VacationController extends Controller
             return redirect(url('/vacations/create'))->with('error', 'Houve um erro durante a marcação de férias, verifique se já tem 10 dias seguidos marcados ou se os dias pedidos já estão marcados!');
         }
     }
+
 
     public function show()
     {
@@ -215,26 +230,50 @@ class VacationController extends Controller
             'date_end.after' => 'O dia de fim deve ser uma data após amanhã.',
             'date_end.after:date_start' => 'O dia de fim deve ser após o dia de inicio.',
         ];
+
+        // Validações necessárias
         $validatedData = $request->validate([
             'date_start' => 'required|date|after:today',
             'date_end' => 'required|date|after_or_equal:date_start',
         ], $messages);
-        $roleId = auth()->user()->role_id;
-        if ($this->timeCollide($vacation->id, $vacation->user_id, $request->date_start, $request->date_end)&&
-            $this->difInput( $request->date_start, $request->date_end,$request->vacation_approval_states_id,$vacation->date_start,$vacation->date_end) <= 22 &&
-            $this->must_date($request->date_start, $request->date_end,$vacation->id)
-            ) {
-            $vacation = Vacation::find($vacation->id);
+
+        if (Carbon::parse($request->date_start)->isWeekend()) {
+            return redirect()->back()->with('error', $messages['date_start.weekday']);
+        }
+        if (Carbon::parse($request->date_end)->isWeekend()) {
+            return redirect()->back()->with('error', $messages['date_end.weekday']);
+        }
+
+        // Calcular a diferença de dias anterior e nova
+        $dias_antigos = Carbon::parse($vacation->date_start)->diffInDaysFiltered(function (Carbon $date) {
+                return !$date->isWeekend();
+            }, Carbon::parse($vacation->date_end)) + 1;
+
+        $dias_novos = Carbon::parse($request->date_start)->diffInDaysFiltered(function (Carbon $date) {
+                return !$date->isWeekend();
+            }, Carbon::parse($request->date_end)) + 1;
+
+        $total_dias_atuais = $this->difTotal(Auth::id());
+
+        // Verificar se o novo total de dias não ultrapassa o limite
+        if (($total_dias_atuais - $dias_antigos + $dias_novos) > 22) {
+            return redirect()->back()->with('error', 'Você excedeu o limite de dias de férias disponíveis.');
+        }
+
+        if ($this->timeCollide($vacation->id, $vacation->user_id, $request->date_start, $request->date_end) &&
+            $this->must_date($request->date_start, $request->date_end, $vacation->id)) {
+
+            $vacation->date_start = $request->date_start;
+            $vacation->date_end = $request->date_end;
+
+            $roleId = auth()->user()->role_id;
             if ($roleId > 2 && $vacation->vacation_approval_states_id != null) {
                 $vacation->vacation_approval_states_id = $request->vacation_approval_states_id;
                 $vacation->approved_by = auth()->user()->id;
             } else {
                 $vacation->vacation_approval_states_id = 3;
                 $vacation->approved_by = null;
-
             }
-            $vacation->date_start = $request->date_start;
-            $vacation->date_end = $request->date_end;
 
             $vacation->save();
 
@@ -249,9 +288,11 @@ class VacationController extends Controller
             event(new NotificationEvent('Vacation details updated successfully!', $notification->id));
 
             return redirect(url('/vacation'))->with('status', 'Atualizado com sucesso!');
-        } else
-            return redirect('/vacation')->with('status', 'O Utilizador já marcou ferias neste(s) dia(s)!');
+        } else {
+            return redirect()->back()->with('error', 'Houve um erro durante a atualização das férias, verifique se já tem 10 dias seguidos marcados ou se os dias pedidos já estão marcados!');
+        }
     }
+
 
 
     public function destroy(Vacation $vacation)
