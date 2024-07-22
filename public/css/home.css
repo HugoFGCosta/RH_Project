@@ -50,23 +50,23 @@
 }
 
 .button-In-Out {
-    margin-bottom: 10px;
+    padding-bottom: 15px;
+    padding-top: 15px;
     display: flex;
     justify-content: center;
 }
 
 .btn-in {
-    padding: 20px 40px;
+    padding: 20px 100px;
     border: none;
     cursor: pointer;
     border-radius: 5px;
-    margin-right: 10px;
     color: var(--white);
     font-size: larger;
 }
 
 .btn-out {
-    padding: 20px 40px;
+    padding: 20px 100px;
     border: none;
     cursor: pointer;
     border-radius: 5px;

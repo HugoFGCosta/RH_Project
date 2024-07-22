@@ -128,9 +128,14 @@ p {
     padding: 8px 0 5px 0;
     font-size: 16px;
     color: #fff;
-    padding-right: 40px; /* Adicione padding à direita para o ícone */
+    padding-right: 40px;
 }
 
+/*previne que a label desça quando o input está preenchido - Beatriz Barbosa*/
+.input-container .always-focused {
+    top: -12px;
+    font-size: 12px;
+}
 .input-container input:focus {
     border: none;
     outline: none;

@@ -6,7 +6,7 @@
 
 @section('content')
     <div class="container p-5">
-        <h1>Lista de Utilizadores</h1>
+        <h1 id="users-list-title">Lista de Utilizadores</h1>
         @component('components.alerts.alerts')
         @endcomponent
 

@@ -11,8 +11,8 @@
 
                 <div class="input-container mt-4 align-items-start">
                     <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
-                           name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus>
-                    <label for="email">{{ __('Email') }}</label>
+                           name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" readonly>
+                    <label for="email" class="always-focused">{{ __('Email') }}</label>
 
                     @error('email')
                     <span class="invalid-feedback" role="alert">
