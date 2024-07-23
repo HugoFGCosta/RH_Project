@@ -22,20 +22,22 @@ class Sidebar {
     }
 
     collapse(updateState = true) {
+        console.log("Collapsing sidebar");
         if (updateState) localStorage.setItem('sidebarState', 'collapsed');
         menu.classList.add('active');
         main.classList.add('active');
         content.classList.add('active');
-        this.arrowImg.src = 'images/menu-arrow-open.svg';
+        this.arrowImg.src = '/images/menu-arrow-open.svg';
         rootListItems.forEach(item => toggleSubMenu(item, false));
     }
 
     expand(updateState = true) {
+        console.log("Expanding sidebar");
         if (updateState) localStorage.setItem('sidebarState', 'expanded');
         menu.classList.remove('active');
         main.classList.remove('active');
         content.classList.remove('active');
-        this.arrowImg.src = 'images/menu-arrow-closed.svg';
+        this.arrowImg.src = '/images/menu-arrow-closed.svg';
     }
 }
 
@@ -55,6 +57,7 @@ function toggleSubMenu(item, open = undefined) {
     const arrow = dropdown ? dropdown.querySelector('img') : null;
 
     if (dropdown && dropdownContent) {
+        console.log("Toggling submenu for item", item, open);
         if (open == null) {
             dropdownContent.classList.toggle('expanded-item');
         } else {
@@ -67,11 +70,13 @@ function toggleSubMenu(item, open = undefined) {
         }
         if (arrow) {
             if (dropdownContent.classList.contains('expanded-item')) {
-                arrow.src = 'images/up-arrow.svg';
+                arrow.src = '/images/up-arrow.svg';
             } else {
-                arrow.src = 'images/dropdown-arrow.svg';
+                arrow.src = '/images/dropdown-arrow.svg';
             }
         }
+    } else {
+        console.log("Dropdown or dropdownContent not found for item", item);
     }
 }
 
@@ -80,7 +85,7 @@ function closeAllSubMenus() {
         item.classList.remove('expanded-item');
         const dropdown = item.previousElementSibling;
         const arrow = dropdown ? dropdown.querySelector('img') : null;
-        if (arrow) arrow.src = 'images/dropdown-arrow.svg';
+        if (arrow) arrow.src = '/images/dropdown-arrow.svg';
     });
 }
 
