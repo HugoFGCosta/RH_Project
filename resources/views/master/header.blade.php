@@ -29,7 +29,7 @@
                 </div>
             </li>
             <div id="daily-tasks-content" class="dropdown-content">
-                <li><a href="/dashboard-statistics">Dashboard Estatísticas</a></li>
+                <li><a href="/dashboard-statistics">Estatísticas</a></li>
                 <li><a href="/attendance-record">Registo de Assiduidade</a></li>
                 <li><a href="/users/{{Auth::user()->id}}/absences">Ver faltas</a></li>
                 <li><a href="/time-bank-balance">Ver Saldo</a></li>
@@ -74,7 +74,7 @@
             <li id="logout">
                 <a href="/logout">
                     <span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
-                    <span class="title">Log Out</span>
+                    <span class="title">Sair</span>
                 </a>
             </li>
         </ul>
