@@ -129,8 +129,7 @@ Route::post('import/presences', [\App\Http\Controllers\PresenceController::class
 Route::get('export/presences', [\App\Http\Controllers\PresenceController::class, 'export'])->name('exportPresences')->middleware('AdminMiddleware');
 
 Route::get('export/work-shifts', [\App\Http\Controllers\WorkShiftController::class, 'export'])->name('exportWorkShifts')->middleware('AdminMiddleware');
-Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift')->middleware('AdminMiddleware');
-Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift')->middleware('AdminMiddleware');
+Route::get('export/work-shifts/{user}', [\App\Http\Controllers\WorkShiftController::class, 'exportUserWorkShift'])->name('exportUserWorkShift');
 
 
 /* Rota CALENDARIO*/
