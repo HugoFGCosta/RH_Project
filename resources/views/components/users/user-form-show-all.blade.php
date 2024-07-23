@@ -24,8 +24,8 @@
             <thead>
             <tr>
                 <th> Id <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Username <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Role <span class="icon-arrow">&UpArrow;</span></th>
+                <th> Utilizador <span class="icon-arrow">&UpArrow;</span></th>
+                <th> Cargo <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Horário <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Detalhe/Editar <span class="icon-arrow">&UpArrow;</span></th>
                 <th> Delete <span class="icon-arrow">&UpArrow;</span></th>

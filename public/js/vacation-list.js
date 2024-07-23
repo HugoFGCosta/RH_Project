@@ -77,6 +77,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Função para remover o botão de filtrar próprias
+    function removeFilterButton(table) {
+        const filterButton = table.querySelector('a[href^="/vacation/show"]');
+        if (filterButton) {
+            filterButton.remove();
+        }
+    }
+
     // Função para remover a coluna de edição e apagar
     function removeEditDeleteColumns(table) {
         const rows = table.querySelectorAll('tr');
@@ -84,6 +92,30 @@ document.addEventListener('DOMContentLoaded', function () {
             if (row.children.length > 1) {
                 row.removeChild(row.lastElementChild); // Remove a última coluna (Apagar)
                 row.removeChild(row.lastElementChild); // Remove a penúltima coluna (Editar)
+            }
+        });
+    }
+
+    // Função para substituir os ícones de estado por texto
+    function replaceStateIconsWithText(table) {
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const stateCell = row.querySelector('td:nth-child(3)');
+            if (stateCell) {
+                const stateIcon = stateCell.querySelector('ion-icon');
+                if (stateIcon) {
+                    switch (stateIcon.getAttribute('name')) {
+                        case 'hourglass-outline':
+                            stateCell.textContent = 'Pendente';
+                            break;
+                        case 'close-circle-outline':
+                            stateCell.textContent = 'Recusado';
+                            break;
+                        case 'checkmark-circle-outline':
+                            stateCell.textContent = 'Validado';
+                            break;
+                    }
+                }
             }
         });
     }
@@ -101,6 +133,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Remover as duas últimas colunas (Editar e Apagar)
         removeEditDeleteColumns(table_clone);
+
+        // Remover o botão de filtrar próprias
+        removeFilterButton(table_clone);
+
+        // Substituir ícones de estado por texto
+        replaceStateIconsWithText(table_clone);
 
         // Adicionar estilos específicos para a impressão
         const styles = `
@@ -186,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function () {
         toPDF(vacations_table);
     };
 
-
     // Converte a tabela HTML para JSON
     const json_btn = document.querySelector('#toJSON');
 
@@ -221,7 +258,24 @@ document.addEventListener('DOMContentLoaded', function () {
             // Mapeia cada célula para o respectivo cabeçalho
             t_cells.forEach((t_cell, cell_index) => {
                 if (cell_index < t_cells.length - 2) { // Ignora as últimas duas colunas
-                    row_object[t_head[cell_index]] = t_cell.textContent.trim();
+                    let textContent = t_cell.textContent.trim();
+                    if (cell_index === 2) { // Verifica se é a coluna de estado
+                        const stateIcon = t_cell.querySelector('ion-icon');
+                        if (stateIcon) {
+                            switch (stateIcon.getAttribute('name')) {
+                                case 'hourglass-outline':
+                                    textContent = 'Pendente';
+                                    break;
+                                case 'close-circle-outline':
+                                    textContent = 'Recusado';
+                                    break;
+                                case 'checkmark-circle-outline':
+                                    textContent = 'Validado';
+                                    break;
+                            }
+                        }
+                    }
+                    row_object[t_head[cell_index]] = textContent;
                 }
             });
 
@@ -249,7 +303,26 @@ document.addEventListener('DOMContentLoaded', function () {
         // Captura os dados das linhas da tabela e formata para CSV
         const table_data = [...tbody_rows].map(row => {
             const cells = row.querySelectorAll('td');
-            return [...cells].slice(0, -2).map(cell => cell.textContent.replace(/,/g, ".").trim()).join(',');
+            return [...cells].slice(0, -2).map((cell, cell_index) => {
+                let textContent = cell.textContent.replace(/,/g, ".").trim();
+                if (cell_index === 2) { // Verifica se é a coluna de estado
+                    const stateIcon = cell.querySelector('ion-icon');
+                    if (stateIcon) {
+                        switch (stateIcon.getAttribute('name')) {
+                            case 'hourglass-outline':
+                                textContent = 'Pendente';
+                                break;
+                            case 'close-circle-outline':
+                                textContent = 'Recusado';
+                                break;
+                            case 'checkmark-circle-outline':
+                                textContent = 'Validado';
+                                break;
+                        }
+                    }
+                }
+                return textContent;
+            }).join(',');
         }).join('\n');
 
         return headings + '\n' + table_data;
@@ -259,7 +332,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const csv = toCSV(vacations_table);
         downloadFile(csv, 'csv', 'vacation_data.csv');
     };
-
 
     // Converte a tabela HTML para EXCEL usando SheetJS
     const excel_btn = document.querySelector('#toEXCEL');
@@ -278,7 +350,26 @@ document.addEventListener('DOMContentLoaded', function () {
         // Captura os dados das linhas da tabela e adiciona ao excel, removendo as últimas duas colunas
         [...tbody_rows].forEach(row => {
             const cells = row.querySelectorAll('td');
-            const row_data = [...cells].slice(0, -2).map(cell => cell.textContent.trim());
+            const row_data = [...cells].slice(0, -2).map((cell, cell_index) => {
+                let textContent = cell.textContent.trim();
+                if (cell_index === 2) { // Verifica se é a coluna de estado
+                    const stateIcon = cell.querySelector('ion-icon');
+                    if (stateIcon) {
+                        switch (stateIcon.getAttribute('name')) {
+                            case 'hourglass-outline':
+                                textContent = 'Pendente';
+                                break;
+                            case 'close-circle-outline':
+                                textContent = 'Recusado';
+                                break;
+                            case 'checkmark-circle-outline':
+                                textContent = 'Validado';
+                                break;
+                        }
+                    }
+                }
+                return textContent;
+            });
             worksheet_data.push(row_data);
         });
 
@@ -293,6 +384,7 @@ document.addEventListener('DOMContentLoaded', function () {
         toExcel(vacations_table);
     };
 
+
     // Função para baixar arquivos em diferentes formatos
     const downloadFile = function (data, fileType, fileName) {
         const a = document.createElement('a');
@@ -302,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'csv': 'text/csv',
             'excel': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         };
-        const blob = new Blob([data], { type: mime_types[fileType] + ';charset=utf-8;' });
+        const blob = new Blob([data], {type: mime_types[fileType] + ';charset=utf-8;'});
         const url = URL.createObjectURL(blob);
         a.href = url;
         document.body.appendChild(a);
