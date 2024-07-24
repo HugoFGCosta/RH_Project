@@ -512,13 +512,3 @@ footer {
     color: var(--white);
     margin: 10px 0 0 10px;
 }
-
-
-/*show-all*/
-#users-list-title {
-    padding-top: 20px;
-    padding-bottom: 20px;
-    font-size: 1.5rem;
-    color: var(--blue);
-    font-weight: 1000;
-}
