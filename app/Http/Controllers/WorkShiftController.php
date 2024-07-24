@@ -174,53 +174,63 @@ class WorkShiftController extends Controller
         return Response::make('', 200, $headers);
     }
 
-    // Metodo exportUserWorkShift- Serve para atualizar o horario do utilizador logado
+    // Metodo exportUserWorkShift- Serve para exportar o horario do utilizador logado (segunda a sexta)
     public function exportUserWorkShift($userId){
 
         // Data atual
         $today = Carbon::now();
 
-        // Ajustar para o início da semana (segunda-feira)
+        // Ajusta para o início da semana (segunda-feira)
         $startOfWeek = $today->copy()->startOfWeek(Carbon::MONDAY);
 
-        // Array para armazenar os dias da semana
+        // Array para armazenar os dias da semana e ids de work_shifts
         $weekDays = [];
         $weekWorkShifts = [];
 
-        // Obter todos os dias da semana (segunda a domingo)
-        for ($i = 0; $i < 7; $i++) {
+        // Obter todos os dias da semana (segunda a sexta)
+        for ($i = 0; $i < 5; $i++) {
             $weekDays[] = $startOfWeek->copy()->addDays($i)->format('Y-m-d');
         }
 
-        // Exibir os dias da semana
+        // Percorre todos os dias da semana
         foreach ($weekDays as $day) {
 
             $userShifts = User_Shift::all()->where('user_id', $userId);
+            $ver =false;
 
             foreach ($userShifts as $userShift){
-
-                $ver =false;
 
                 // Se encontrar um usershift em que o dia da semana esteja entre o start_date e o end_date adiciona ao array
                 if (Carbon::parse($userShift->start_date)->format('Y-m-d') <= $day && Carbon::parse($userShift->end_date)->format('Y-m-d') >= $day) {
                     $workShift = Work_Shift::find($userShift->work_shift_id);
-                    array_push($weekWorkShifts, $workShift);
+                    array_push($weekWorkShifts, $workShift->id);
                     $ver = true;
                 }
 
-                // Se não encontrar um usershift em que o dia da semana esteja entre o start_date e o end_date adiciona ao array procura um em que o day seja maior
-                // que o start_date e end_date seja null
-                if(!$ver){
-                    if (Carbon::parse($userShift->start_date)->format('Y-m-d') <= $day && $userShift->end_date == null) {
-                        $workShift = Work_Shift::find($userShift->work_shift_id);
-                        array_push($weekWorkShifts, $workShift);
-                    }
-                }
 
             }
 
-        }
+            // Se não encontrar um usershift em que o dia da semana esteja entre o start_date e o end_date adiciona ao array procura um em que o day seja maior
+            // que o start_date e end_date seja null
+            if(!$ver){
+                foreach ($userShifts as $userShift){
 
+                    if ($userShift->end_date == null) {
+                        $workShift = Work_Shift::find($userShift->work_shift_id);
+                        array_push($weekWorkShifts, $workShift->id);
+                        $ver = true;
+                    }
+
+                }
+            }
+
+            //Se não encontrar um usershift em que o end_date seja null
+            if(!$ver){
+                array_push($weekWorkShifts, 0);
+            }
+
+
+        }
 
         // Controi o ficheiro csv
         $csvFileName = 'user-work-shift.csv';
@@ -233,13 +243,26 @@ class WorkShiftController extends Controller
         $handle = fopen('php://output', 'w');
         fputcsv($handle, ['HoraEntrada','HoraInicioIntervalo', 'HoraFimIntervalo','HoraSaida']); // Add more headers as needed
 
-        $weekDays = ['Segunda','Terca','Quarta','Quinta','Sabado','Domingo'];
+        $weekDays = ['Segunda','Terca','Quarta','Quinta','Sexta'];
         $counter = 0;
+        $workShifts = Work_Shift::all();
 
         // Imprime os dados do horário por cada dia da semana
         foreach ($weekDays as $day){
-            fputcsv($handle, [$day,$weekWorkShifts[$counter]->start_hour,$weekWorkShifts[$counter]->break_start, $weekWorkShifts[$counter]->break_end,$weekWorkShifts[$counter]->end_hour]); // Add more fields as needed
-            $counter++;
+
+            foreach ($workShifts as $workShift){
+                if($weekWorkShifts[$counter] == 0){
+                    fputcsv($handle, [$day,'Nao tem horario atribuido']); // Add more fields as needed
+                    $counter++;
+                    break;
+                }
+
+                if($weekWorkShifts[$counter] == $workShift->id){
+                    fputcsv($handle, [$day,$workShift->start_hour,$workShift->break_start, $workShift->break_end,$workShift->end_hour]); // Add more fields as needed
+                    $counter++;
+                    break;
+                }
+            }
         }
 
         fclose($handle);
