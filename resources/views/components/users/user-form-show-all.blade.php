@@ -22,40 +22,47 @@
     <section class="table__body">
         <table>
             <thead>
-            <tr>
-                <th> Id <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Utilizador <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Cargo <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Horário <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Detalhe/Editar <span class="icon-arrow">&UpArrow;</span></th>
-                <th> Delete <span class="icon-arrow">&UpArrow;</span></th>
-            </tr>
+                <tr>
+                    <th> Id <span class="icon-arrow">&UpArrow;</span></th>
+                    <th> Utilizador <span class="icon-arrow">&UpArrow;</span></th>
+                    <th> Cargo <span class="icon-arrow">&UpArrow;</span></th>
+                    <th> Horário <span class="icon-arrow">&UpArrow;</span></th>
+                    <th> Detalhe/Editar <span class="icon-arrow">&UpArrow;</span></th>
+                    <th> Delete <span class="icon-arrow">&UpArrow;</span></th>
+                </tr>
             </thead>
             <tbody>
-            @foreach ($users as $user)
-                <tr>
-                    <td>{{ $user->id }}</td>
-                    <td>{{ $user->name }}</td>
-                    <td>{{ $user->role->role }}</td>
-                    <td>
-                        @if ($user->shift)
-                            {{ 'Das ' . Carbon::parse($user->shift->work_shift->start_hour)->format('H:i') . ' às ' . Carbon::parse($user->shift->work_shift->end_hour)->format('H:i') }}
-                        @else
-                            O utilizador não tem um turno de trabalho atribuído.
+                @foreach ($users as $user)
+                    <tr>
+                        <td>{{ $user->id }}</td>
+                        <td>{{ $user->name }}</td>
+                        @if ($user->role->role == 'Worker')
+                            <td>Utilizador</td>
+                        @elseif($user->role->role == 'Manager')
+                            <td>Gestor</td>
+                        @elseif($user->role->role == 'Administrator')
+                            <td>Administrador</td>
                         @endif
-                    </td>
-                    <td>
-                        <a href="{{ url('/user/edit', $user->id) }}" class="btn-detail-edit">Detalhe/Editar</a>
-                    </td>
-                    <td>
-                        <form action="{{ url('/user/delete', $user->id) }}" method="POST" style="display:inline;" class="delete-form">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="delete-button">Apagar</button>
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
+                        <td>
+                            @if ($user->shift)
+                                {{ 'Das ' . Carbon::parse($user->shift->work_shift->start_hour)->format('H:i') . ' às ' . Carbon::parse($user->shift->work_shift->end_hour)->format('H:i') }}
+                            @else
+                                O utilizador não tem um turno de trabalho atribuído.
+                            @endif
+                        </td>
+                        <td>
+                            <a href="{{ url('/user/edit', $user->id) }}" class="btn-detail-edit">Detalhe/Editar</a>
+                        </td>
+                        <td>
+                            <form action="{{ url('/user/delete', $user->id) }}" method="POST" style="display:inline;"
+                                class="delete-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="delete-button">Apagar</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
     </section>
