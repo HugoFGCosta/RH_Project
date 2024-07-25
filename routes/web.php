@@ -69,7 +69,7 @@ Route::get('/users/show-all', [UserController::class, 'showAll'])->middleware('A
 
 Route::get('/user/edit/{id}', [UserController::class, 'editSpec'])->middleware('AdminOrManagerMiddleware'); // Edit funcionario especifico, apenas Admin e Gestor tem acesso;
 Route::put('/user/edit/{id}', [UserController::class, 'updateSpec'])->middleware('AdminOrManagerMiddleware'); // Edit funcionario especifico, apenas Admin e Gestor tem acesso;
-Route::get('/user/show/{id}', [UserController::class, 'showSpec'])->middleware('AdminOrManagerMiddleware'); // Edit funcionario especifico, apenas Admin e Gestor tem acesso;
+Route::get('/user/show/{id}', [UserController::class, 'showSpec'])->middleware('AdminOrManagerMiddleware'); // Mostrar funcionario especifico, apenas Admin e Gestor tem acesso;
 
 
 /*Rotas WorkShifts  ->  IMPLEMENTADO MIDDLEWARE*/

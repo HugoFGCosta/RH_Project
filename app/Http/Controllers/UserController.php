@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
+use Validator;
 
 class UserController extends Controller
 {
@@ -166,19 +167,44 @@ class UserController extends Controller
     public function update(Request $request)
     {
 
+        $messages = [
+            'name.required' => 'O nome é obrigatório.',
+            'role_id.required' => 'O cargo é obrigatório.',
+            'address.required' => 'O endereço é obrigatório.',
+            'nif.required' => 'O Número de Identificação Fiscal (NIF) é obrigatório.',
+            'nif.digits' => 'O Número de Identificação Fiscal (NIF) deve conter exatamente 9 dígitos.',
+            'tel.required' => 'O número de telemóvel é obrigatório.',
+            'tel.digits' => 'O número de telemóvel deve conter exatamente 9 dígitos.',
+            'tel.unique' => 'Este telemóvel já se encontra registado.',
+            'birth_date.required' => 'A data de aniversário é obrigatório.',
+            'birth_date.before' => 'É necessário ter mais de 18 anos ou mais.',
+            'work_shift_id.required' => 'O turno é obrigatório.',
+        ];
+
+        Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'role_id' => 'required',
+            'address' => 'required',
+            'nif' => 'required|digits:9',
+            'tel' => 'required|digits:9|unique:users,tel',
+            'birth_date' => ['required', 'date', 'before:-18 years'],
+            'work_shift_id' => 'required',
+        ], $messages)->validate();
+
         $user = auth()->user();
-        $user->name = $request->input('name');
-        $user->email = $request->input('email');
+        $user->name = $request->name;
+        $user->email = $request->email;
         if ($request->has('role')) {
             $role = Role::where('role', $request->input('role'))->first();
             if ($role) {
                 $user->role_id = $role->id;
             }
         }
-        $user->address = $request->input('address');
-        $user->nif = $request->input('nif');
-        $user->tel = $request->input('tel');
-        $user->birth_date = $request->input('birth_date');
+        $user->address = $request->address;
+        $user->nif = $request->nif;
+        $user->tel = $request->tel;
+        $user->birth_date = $request->birth_date;
         $user->save();
 
         // Ao trocar de horário ele adiciona um user_shift
@@ -190,7 +216,7 @@ class UserController extends Controller
 
         User_Shift::create([
             'user_id' => $user->id,
-            'work_shift_id' => $request->input('work_shift_id'),
+            'work_shift_id' => $request->work_shift_id,
             'start_date' => now(),
             'end_date' => null,
         ]);
@@ -203,23 +229,46 @@ class UserController extends Controller
     public function updateSpec(Request $request, $id)
     {
 
+        $messages = [
+            'name.required' => 'O nome é obrigatório.',
+            'role_id.required' => 'O cargo é obrigatório.',
+            'address.required' => 'O endereço é obrigatório.',
+            'nif.required' => 'O Número de Identificação Fiscal (NIF) é obrigatório.',
+            'nif.digits' => 'O Número de Identificação Fiscal (NIF) deve conter exatamente 9 dígitos.',
+            'tel.required' => 'O número de telemóvel é obrigatório.',
+            'tel.digits' => 'O número de telemóvel deve conter exatamente 9 dígitos.',
+            'tel.unique' => 'Este telemóvel já se encontra registado.',
+            'birth_date.required' => 'A data de aniversário é obrigatório.',
+            'birth_date.before' => 'É necessário ter mais de 18 anos ou mais.',
+            'work_shift_id.required' => 'O turno é obrigatório.',
+        ];
+
+        Validator::make($request->all(), [
+            'name' => 'required',
+            'address' => 'required',
+            'nif' => 'required|digits:9',
+            'tel' => 'required|digits:9',
+            'birth_date' => ['required', 'date', 'before:-18 years'],
+            'work_shift_id' => 'required',
+        ], $messages)->validate();
+
         $user = User::find($id);
         if (!$user) {
             return redirect('/user/show')->with('error', 'Utilizador não encontrado!');
         }
 
-        $user->name = $request->input('name');
-        $user->email = $request->input('email');
+        $user->name = $request->name;
+        $user->email = $request->email;
         if ($request->has('role')) {
             $role = Role::where('role', $request->input('role'))->first();
             if ($role) {
                 $user->role_id = $role->id;
             }
         }
-        $user->address = $request->input('address');
-        $user->nif = $request->input('nif');
-        $user->tel = $request->input('tel');
-        $user->birth_date = $request->input('birth_date');
+        $user->address = $request->address;
+        $user->nif = $request->nif;
+        $user->tel = $request->tel;
+        $user->birth_date = $request->birth_date;
         $user->save();
 
         $user_shift = User_Shift::where('user_id', $user->id)->latest()->first();
@@ -252,12 +301,12 @@ class UserController extends Controller
         $users = User::all();
 
         // Verifica se o utilizador se está a apagar a si mesmo
-        if($user->id == auth()->user()->id){
+        if ($user->id == auth()->user()->id) {
             return redirect('/users/show-all')->with('error', 'Não se pode apagar a si mesmo! Por favor, solicite a outro administrador.');
         }
 
         // Verifica se o utilizador é o único administrador
-        if($user-> role_id == 3){
+        if ($user->role_id == 3) {
             $verAdmin = true;
 
             // Se houver outro admin
@@ -350,7 +399,7 @@ class UserController extends Controller
             }
 
             // Verifica se o role_id existe
-            $role= Role::find($data[0]);
+            $role = Role::find($data[0]);
 
             if (!$role) {
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de role existem (entre 1 e 3).');
@@ -521,7 +570,7 @@ class UserController extends Controller
             'end_date' => $endDateTime,
         ]);
 
-        return redirect()->route('work-times.index')->with('success', 'Work time added successfully.');
+        return redirect()->route('work-times.index')->with('success', 'Turno adicionado com sucesso.');
     }
 
 

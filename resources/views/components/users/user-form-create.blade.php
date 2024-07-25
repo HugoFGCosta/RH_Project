@@ -17,7 +17,7 @@
             <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name"
                 value="{{ old('name') }}" required autocomplete="name" autofocus>
             <div class="underline"></div>
-            <label for="name">{{ __('Nome') }}</label>
+            <label for="name">{{ __('Nome*') }}</label>
             @error('name')
             @enderror
         </div>
@@ -26,7 +26,7 @@
             <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
                 name="email" value="{{ old('email') }}" required autocomplete="email">
             <div class="underline"></div>
-            <label for="email">{{ __('E-Mail') }}</label>
+            <label for="email">{{ __('E-Mail*') }}</label>
             @error('email')
             @enderror
         </div>
@@ -35,7 +35,7 @@
             <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
                 name="password" required autocomplete="new-password">
             <div class="underline"></div>
-            <label for="password">{{ __('Palavra-Passe') }}</label>
+            <label for="password">{{ __('Palavra-Passe*') }}</label>
             @error('password')
             @enderror
         </div>
@@ -44,7 +44,7 @@
             <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required
                 autocomplete="new-password">
             <div class="underline"></div>
-            <label for="password-confirm">{{ __('Confirmar Palavra-Passe') }}</label>
+            <label for="password-confirm">{{ __('Confirmar Palavra-Passe*') }}</label>
         </div>
 
         <div class="input-data">
@@ -69,25 +69,25 @@
         <div class="input-data full-width">
             <input id="address" type="text" class="form-control" name="address" required>
             <div class="underline"></div>
-            <label for="address">{{ __('Morada') }}</label>
+            <label for="address">{{ __('Morada*') }}</label>
         </div>
 
         <div class="input-data">
             <input id="nif" type="text" class="form-control" name="nif" required>
             <div class="underline"></div>
-            <label for="nif">{{ __('NIF') }}</label>
+            <label for="nif">{{ __('Número Identificação Fiscal (NIF)*') }}</label>
         </div>
 
         <div class="input-data">
             <input id="tel" type="text" class="form-control" name="tel" required>
             <div class="underline"></div>
-            <label for="tel">{{ __('Telemóvel') }}</label>
+            <label for="tel">{{ __('Telemóvel*') }}</label>
         </div>
 
         <div class="input-data">
             <input id="birth_date" type="date" class="form-control" name="birth_date" required>
             <div class="underline"></div>
-            <label for="birth_date">{{ __('Data Nascimento') }}</label>
+            <label for="birth_date">{{ __('Data Nascimento*') }}</label>
         </div>
 
         <div class="input-data">
@@ -100,10 +100,10 @@
                 @endforeach
             </select>
             <div class="underline"></div>
-            <label for="work_shift_id">{{ __('Horário de Trabalho') }}</label>
+            <label for="work_shift_id">{{ __('Horário de Trabalho*') }}</label>
         </div>
     </div>
-
+    <p>Campos com asterico(*) são obrigatórios.</p>
     <div class="form-row">
         <button type="submit" class="btn showform-btn">
             <span>{{ __('Confirmar') }}</span>
