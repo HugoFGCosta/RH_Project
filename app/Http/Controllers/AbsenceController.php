@@ -267,8 +267,8 @@ class AbsenceController extends Controller
     }
 
     /*Metodo export- serve para exportar todas as faltas existentes na base de dados*/
-    public function export(){
-
+    public function export()
+    {
         // Define o nome do ficheiro e os cabeçalhos
         $absences = Absence::all();
         $csvFileName = 'absences.csv';
@@ -277,19 +277,28 @@ class AbsenceController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
         ];
 
-        //Escreve os cabeçalhos no ficheiro
-        $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['Id_Utilizador','Id_Justificacao','Id_Estado_Falta','Id_Tipo_Falta', 'Aprovado_Por','Data_Comeco_Falta','Data_Fim_Falta','Criado_A','Atualizado_A']);
+        // Cria um buffer para armazenar o conteúdo CSV temporariamente
+        $output = fopen('php://temp', 'r+');
 
-        //Para cada falta insere uma linha no ficheiro
+        // Escreve os cabeçalhos no ficheiro
+        fputcsv($output, ['Id_Utilizador','Id_Justificacao','Id_Estado_Falta','Id_Tipo_Falta', 'Aprovado_Por','Data_Comeco_Falta','Data_Fim_Falta','Criado_A','Atualizado_A']);
+
+        // Para cada falta insere uma linha no ficheiro
         foreach ($absences as $absence) {
-            fputcsv($handle, [$absence->user_id,$absence->justification_id,$absence->absence_states_id,$absence->absence_types_id, $absence->approved_by,$absence->absence_start_date,$absence->absence_end_date, $absence->created_at, $absence->updated_at]); // Add more fields as needed
+            fputcsv($output, [$absence->user_id, $absence->justification_id, $absence->absence_states_id, $absence->absence_types_id, $absence->approved_by, $absence->absence_start_date, $absence->absence_end_date, $absence->created_at, $absence->updated_at]); // Adicione mais campos conforme necessário
         }
 
-        // Fecha o ficheiro
-        fclose($handle);
+        // Volta para o início do buffer para leitura
+        rewind($output);
 
-        return Response::make('', 200, $headers);
+        // Captura o conteúdo CSV
+        $csvContent = stream_get_contents($output);
+
+        // Fecha o buffer
+        fclose($output);
+
+        // Retorna a resposta com o conteúdo CSV e os headers apropriados
+        return response($csvContent, 200, $headers);
     }
 
     // Metodo verifyPresences- serve para correr todos os metodos do procedure
