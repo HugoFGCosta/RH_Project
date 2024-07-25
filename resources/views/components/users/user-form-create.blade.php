@@ -33,7 +33,7 @@
 
         <div class="input-data">
             <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
-                name="password" required autocomplete="new-password">
+                name="password" value="{{ old('password') }}" required autocomplete="new-password">
             <div class="underline"></div>
             <label for="password">{{ __('Palavra-Passe*') }}</label>
             @error('password')
@@ -41,17 +41,18 @@
         </div>
 
         <div class="input-data">
-            <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required
-                autocomplete="new-password">
+            <input id="password-confirm" type="password" class="form-control" name="password_confirmation"
+                value="{{ old('password_confirmation') }}" required autocomplete="new-password">
             <div class="underline"></div>
             <label for="password-confirm">{{ __('Confirmar Palavra-Passe*') }}</label>
         </div>
 
         <div class="input-data">
-            <select name="role_id" id="role_id" class="form-control" required>
+            <select name="role_id" id="role_id" class="form-control" value="{{ 'role_id' }}" required>
                 <option value="" disabled selected></option>
                 @foreach ($roles as $role)
-                    <option value="{{ $role->id }}">
+                    <option @if (old('role_id') == $role->id) {{ 'selected="selected"' }} @endif
+                        value="{{ $role->id }}">
                         @if ($role->role == 'Worker')
                             Utilizador
                         @elseif($role->role == 'Manager')
@@ -67,34 +68,40 @@
         </div>
 
         <div class="input-data full-width">
-            <input id="address" type="text" class="form-control" name="address" required>
+            <input id="address" type="text" class="form-control" name="address" value="{{ old('address') }}"
+                required>
             <div class="underline"></div>
             <label for="address">{{ __('Morada*') }}</label>
         </div>
 
         <div class="input-data">
-            <input id="nif" type="text" class="form-control" name="nif" required>
+            <input id="nif" type="text" class="form-control" name="nif" value="{{ old('nif') }}"
+                required>
             <div class="underline"></div>
             <label for="nif">{{ __('Número Identificação Fiscal (NIF)*') }}</label>
         </div>
 
         <div class="input-data">
-            <input id="tel" type="text" class="form-control" name="tel" required>
+            <input id="tel" type="text" class="form-control" name="tel" value="{{ old('tel') }}"
+                required>
             <div class="underline"></div>
             <label for="tel">{{ __('Telemóvel*') }}</label>
         </div>
 
         <div class="input-data">
-            <input id="birth_date" type="date" class="form-control" name="birth_date" required>
+            <input id="birth_date" type="date" class="form-control" name="birth_date"
+                value="{{ old('birth_date') }}" required>
             <div class="underline"></div>
             <label for="birth_date">{{ __('Data Nascimento*') }}</label>
         </div>
 
         <div class="input-data">
-            <select name="work_shift_id" id="work_shift_id" class="form-control" required>
+            <select name="work_shift_id" id="work_shift_id" class="form-control" value="{{ old('work_shift_id') }}"
+                required>
                 <option value="" disabled selected></option>
                 @foreach ($work_shifts as $work_shift)
-                    <option value="{{ $work_shift->id }}">
+                    <option @if (old('work_shift_id') == $work_shift->id) {{ 'selected="selected"' }} @endif
+                        value="{{ $work_shift->id }}">
                         {{ \Carbon\Carbon::parse($work_shift->start_hour)->format('H\hi') . ' / ' . \Carbon\Carbon::parse($work_shift->break_start)->format('H\hi') . ' - ' . \Carbon\Carbon::parse($work_shift->break_end)->format('H\hi') . ' / ' . \Carbon\Carbon::parse($work_shift->end_hour)->format('H\hi') }}
                     </option>
                 @endforeach

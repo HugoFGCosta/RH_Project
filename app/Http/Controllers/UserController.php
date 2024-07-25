@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 use Validator;
 
 class UserController extends Controller
@@ -166,9 +167,9 @@ class UserController extends Controller
     // Metodo update - Responsavel por verificar as novas informaçoes e validar para que atualize os dados.
     public function update(Request $request)
     {
-
         $messages = [
             'name.required' => 'O nome é obrigatório.',
+            'email.unique' => 'Este e-mail já está em uso.',
             'role_id.required' => 'O cargo é obrigatório.',
             'address.required' => 'O endereço é obrigatório.',
             'nif.required' => 'O Número de Identificação Fiscal (NIF) é obrigatório.',
@@ -177,22 +178,37 @@ class UserController extends Controller
             'tel.digits' => 'O número de telemóvel deve conter exatamente 9 dígitos.',
             'tel.unique' => 'Este telemóvel já se encontra registado.',
             'birth_date.required' => 'A data de aniversário é obrigatório.',
-            'birth_date.before' => 'É necessário ter mais de 18 anos ou mais.',
+            'birth_date.before' => 'É necessário ter 18 anos ou mais.',
             'work_shift_id.required' => 'O turno é obrigatório.',
         ];
 
+        $user = auth()->user();
+
         Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email|unique:users,email',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
             'role_id' => 'required',
             'address' => 'required',
             'nif' => 'required|digits:9',
-            'tel' => 'required|digits:9|unique:users,tel',
+            'tel' => [
+                'required',
+                'digits:9',
+                Rule::unique('users', 'tel')->ignore($user->id),
+            ],
             'birth_date' => ['required', 'date', 'before:-18 years'],
             'work_shift_id' => 'required',
         ], $messages)->validate();
 
-        $user = auth()->user();
+        // Verifica se o e-mail já está sendo usado por outro usuário
+        $existingUser = User::where('email', $request->email)->where('id', '<>', $user->id)->first();
+        if ($existingUser) {
+            return redirect()->back()->withErrors(['email' => 'Este e-mail já está em uso.']);
+        }
+
         $user->name = $request->name;
         $user->email = $request->email;
         if ($request->has('role')) {
@@ -225,12 +241,14 @@ class UserController extends Controller
     }
 
 
+
     // Metodo updateSpec - Responsavel por verificar as novas informaçoes e validar para que atualize os dados para um user especifico.
+
     public function updateSpec(Request $request, $id)
     {
-
         $messages = [
             'name.required' => 'O nome é obrigatório.',
+            'email.unique' => 'Este e-mail já está em uso.',
             'role_id.required' => 'O cargo é obrigatório.',
             'address.required' => 'O endereço é obrigatório.',
             'nif.required' => 'O Número de Identificação Fiscal (NIF) é obrigatório.',
@@ -238,16 +256,25 @@ class UserController extends Controller
             'tel.required' => 'O número de telemóvel é obrigatório.',
             'tel.digits' => 'O número de telemóvel deve conter exatamente 9 dígitos.',
             'tel.unique' => 'Este telemóvel já se encontra registado.',
-            'birth_date.required' => 'A data de aniversário é obrigatório.',
-            'birth_date.before' => 'É necessário ter mais de 18 anos ou mais.',
+            'birth_date.required' => 'A data de aniversário é obrigatória.',
+            'birth_date.before' => 'É necessário ter 18 anos ou mais.',
             'work_shift_id.required' => 'O turno é obrigatório.',
         ];
 
         Validator::make($request->all(), [
             'name' => 'required',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($id),
+            ],
             'address' => 'required',
             'nif' => 'required|digits:9',
-            'tel' => 'required|digits:9',
+            'tel' => [
+                'required',
+                'digits:9',
+                Rule::unique('users', 'tel')->ignore($id),
+            ],
             'birth_date' => ['required', 'date', 'before:-18 years'],
             'work_shift_id' => 'required',
         ], $messages)->validate();
@@ -255,6 +282,12 @@ class UserController extends Controller
         $user = User::find($id);
         if (!$user) {
             return redirect('/user/show')->with('error', 'Utilizador não encontrado!');
+        }
+
+        // Verifica se o e-mail já está sendo usado por outro usuário
+        $existingUser = User::where('email', $request->email)->where('id', '<>', $user->id)->first();
+        if ($existingUser) {
+            return redirect()->back()->withErrors(['email' => 'Este e-mail já está em uso.']);
         }
 
         $user->name = $request->name;
@@ -271,6 +304,7 @@ class UserController extends Controller
         $user->birth_date = $request->birth_date;
         $user->save();
 
+        // Atualiza o turno do usuário
         $user_shift = User_Shift::where('user_id', $user->id)->latest()->first();
         if ($user_shift) {
             $user_shift->end_date = now();
@@ -489,21 +523,30 @@ class UserController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
         ];
 
-        $handle = fopen('php://output', 'w');
+        // Cria um buffer para armazenar o conteúdo CSV temporariamente
+        $output = fopen('php://temp', 'r+');
 
         // Coloca o header no ficheiro
-        fputcsv($handle, ['Role_id', 'Nome', 'Rua', 'Nif', 'Telemovel', 'Data_Nascimento', 'Email', 'Password', 'User_Work_Shift_Id']);
+        fputcsv($output, ['Role_id', 'Nome', 'Rua', 'Nif', 'Telemovel', 'Data_Nascimento', 'Email', 'Password', 'User_Work_Shift_Id']);
 
         // Imprime cada utilizador no ficheiro csv
         foreach ($users as $user) {
             $user_shift = User_Shift::where('user_id', $user->id)->orderBy('id', 'desc')->first();
 
-            fputcsv($handle, [$user->role_id, $user->name, $user->address, $user->nif, $user->tel, $user->birth_date, $user->email, $user->password, $user_shift->work_shift_id]); // Add more fields as needed
+            fputcsv($output, [$user->role_id, $user->name, $user->address, $user->nif, $user->tel, $user->birth_date, $user->email, $user->password, $user_shift->work_shift_id]); // Adicione mais campos conforme necessário
         }
 
-        fclose($handle);
+        // Volta para o início do buffer para leitura
+        rewind($output);
 
-        return Response::make('', 200, $headers);
+        // Captura o conteúdo CSV
+        $csvContent = stream_get_contents($output);
+
+        // Fecha o buffer
+        fclose($output);
+
+        // Retorna a resposta com o conteúdo CSV e os headers apropriados
+        return response($csvContent, 200, $headers);
     }
 
     public function manageWorkTimes()
