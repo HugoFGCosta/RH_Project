@@ -523,21 +523,30 @@ class UserController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
         ];
 
-        $handle = fopen('php://output', 'w');
+        // Cria um buffer para armazenar o conteúdo CSV temporariamente
+        $output = fopen('php://temp', 'r+');
 
         // Coloca o header no ficheiro
-        fputcsv($handle, ['Role_id', 'Nome', 'Rua', 'Nif', 'Telemovel', 'Data_Nascimento', 'Email', 'Password', 'User_Work_Shift_Id']);
+        fputcsv($output, ['Role_id', 'Nome', 'Rua', 'Nif', 'Telemovel', 'Data_Nascimento', 'Email', 'Password', 'User_Work_Shift_Id']);
 
         // Imprime cada utilizador no ficheiro csv
         foreach ($users as $user) {
             $user_shift = User_Shift::where('user_id', $user->id)->orderBy('id', 'desc')->first();
 
-            fputcsv($handle, [$user->role_id, $user->name, $user->address, $user->nif, $user->tel, $user->birth_date, $user->email, $user->password, $user_shift->work_shift_id]); // Add more fields as needed
+            fputcsv($output, [$user->role_id, $user->name, $user->address, $user->nif, $user->tel, $user->birth_date, $user->email, $user->password, $user_shift->work_shift_id]); // Adicione mais campos conforme necessário
         }
 
-        fclose($handle);
+        // Volta para o início do buffer para leitura
+        rewind($output);
 
-        return Response::make('', 200, $headers);
+        // Captura o conteúdo CSV
+        $csvContent = stream_get_contents($output);
+
+        // Fecha o buffer
+        fclose($output);
+
+        // Retorna a resposta com o conteúdo CSV e os headers apropriados
+        return response($csvContent, 200, $headers);
     }
 
     public function manageWorkTimes()
