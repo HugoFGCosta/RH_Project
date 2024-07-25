@@ -398,18 +398,27 @@ class VacationController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
         ];
 
-        $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['Id_Utilizador', 'Id_Estado_Aprovacao_Falta', 'Aprovado_Por', 'Data_Comeco', 'Data_Fim', 'Criado_A', 'Atualizado_A']); // Add more headers as needed
+        // Cria um buffer para armazenar o conteúdo CSV temporariamente
+        $output = fopen('php://temp', 'r+');
+
+        fputcsv($output, ['Id_Utilizador', 'Id_Estado_Aprovacao_Falta', 'Aprovado_Por', 'Data_Comeco', 'Data_Fim', 'Criado_A', 'Atualizado_A']); // Add more headers as needed
 
         //Percorre o vetor com as férias e escreve no ficheiro
         foreach ($vacations as $vacation) {
-            fputcsv($handle, [$vacation->user_id, $vacation->vacation_approval_states_id, $vacation->approved_by, $vacation->date_start, $vacation->date_end, $vacation->created_at, $vacation->updated_at]); // Add more fields as needed
+            fputcsv($output, [$vacation->user_id, $vacation->vacation_approval_states_id, $vacation->approved_by, $vacation->date_start, $vacation->date_end, $vacation->created_at, $vacation->updated_at]); // Add more fields as needed
         }
 
-        fclose($handle);
+        // Volta para o início do buffer para leitura
+        rewind($output);
 
-        // Retorna o ficheiro
-        return Response::make('', 200, $headers);
+        // Captura o conteúdo CSV
+        $csvContent = stream_get_contents($output);
+
+        // Fecha o buffer
+        fclose($output);
+
+        // Retorna a resposta com o conteúdo CSV e os headers apropriados
+        return response($csvContent, 200, $headers);
     }
 }
 
