@@ -32,9 +32,11 @@ createButton.addEventListener('click', function() {
     console.log("Duração Segundo Turno: " + durationSecondTurnHours);
     console.log("Duração Intervalo: " + durationBreakHours);
 
-    if(durationFirstTurnHours + durationSecondTurnHours + durationBreakHours > 8){
+    //Validações
+
+    if(durationFirstTurnHours + durationSecondTurnHours > 8){
         errorDiv.style.visibility = 'visible';
-        errorMessage.innerHTML = 'O turno tem de ter no máximo 8 horas de duração';
+        errorMessage.innerHTML = 'O turno tem de ter no máximo 8 horas efetivas';
         return;
     }
 
