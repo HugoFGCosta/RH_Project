@@ -170,7 +170,6 @@ class UserController extends Controller
         $messages = [
             'name.required' => 'O nome é obrigatório.',
             'email.unique' => 'Este e-mail já está em uso.',
-            'role_id.required' => 'O cargo é obrigatório.',
             'address.required' => 'O endereço é obrigatório.',
             'nif.required' => 'O Número de Identificação Fiscal (NIF) é obrigatório.',
             'nif.digits' => 'O Número de Identificação Fiscal (NIF) deve conter exatamente 9 dígitos.',
@@ -191,7 +190,6 @@ class UserController extends Controller
                 'email',
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
-            'role_id' => 'required',
             'address' => 'required',
             'nif' => 'required|digits:9',
             'tel' => [

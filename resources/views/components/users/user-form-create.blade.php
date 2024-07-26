@@ -110,7 +110,7 @@
             <label for="work_shift_id">{{ __('Horário de Trabalho*') }}</label>
         </div>
     </div>
-    <p>Campos com asterico(*) são obrigatórios.</p>
+    <p>Campos com asterisco(*) são obrigatórios.</p>
     <div class="form-row">
         <button type="submit" class="btn showform-btn">
             <span>{{ __('Confirmar') }}</span>
