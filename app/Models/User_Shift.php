@@ -21,10 +21,10 @@ class User_Shift extends Model
     protected $table = 'user_shifts';
     public function work_shift()
     {
-        return $this->belongsTo(Work_Shift::class);
+        return $this->belongsTo(Work_Shift::class)->withTrashed();
     }
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 }
