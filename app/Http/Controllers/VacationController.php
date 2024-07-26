@@ -309,6 +309,7 @@ class VacationController extends Controller
 
     }
 
+    //Método import- importa os dados das férias de um ficheiro CSV
     public function import(Request $request)
     {
         $file = $request->file('file');
@@ -326,39 +327,53 @@ class VacationController extends Controller
         // Ignorar a primeira linha (cabeçalhos)
         fgets($handle);
 
-        // Armazenar mensagens de erro
-        $errors = [];
-
         // Verificar os dados do arquivo antes de truncar as tabelas
         while (($line = fgets($handle)) !== false) {
             $data = str_getcsv($line);
 
-            if (count($data) != 5) {
-                return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem informações de férias.');
+            //Separa a linha por ","
+            $dataArray = explode(',', $line);
+
+            //Busca o tamanho de $dataArray
+            $tamanho = count($dataArray);
+
+            //Verifica se o tamanho de $dataArray é igual a 7
+            if($tamanho != 7){
+                return redirect()->back()->with('error', 'Certifique-se que o ficheiro contem 7 colunas.');
             }
 
+            //Remove as aspas
+            $dataArray[0] = str_replace('"', '', $dataArray[0]);
+            $dataArray[1] = str_replace('"', '', $dataArray[1]);
+            $dataArray[2] = str_replace('"', '', $dataArray[2]);
+            $dataArray[3] = str_replace('"', '', $dataArray[3]);
+            $dataArray[4] = str_replace('"', '', $dataArray[4]);
+            $dataArray[5] = str_replace('"', '', $dataArray[5]);
+            $dataArray[6] = str_replace('"', '', $dataArray[6]);
+
             // Verifica se os IDs são inteiros
-            if (!is_numeric($data[0]) || !is_numeric($data[1]) || !is_numeric($data[2])) {
-                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador, de estado de Aprovação, e Aprovado_Por são números válidos.');
+            if (!is_numeric($dataArray[0]) || !is_numeric($dataArray[1])) {
+                return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador, de estado de Aprovação são números válidos.');
+            }
+
+            if($dataArray[2] != null){
+                if (!is_numeric($dataArray[2])) {
+                    return redirect()->back()->with('error', 'Certifique-se que os ID de Aprovado_Por é válido.');
+                }
+                $user = DB::table('users')->where('id', $dataArray[2])->first();
+                if (!$user) {
+                    return redirect()->back()->with('error', 'Certifique-se que o ID de Aprovado_Por existe na BD.');
+                }
             }
 
             // Valida se os campos date_start e date_end são datas válidas
-            if (strtotime($data[3]) === false || strtotime($data[4]) === false) {
+            if (strtotime($dataArray[3]) === false || strtotime($dataArray[4]) === false) {
                 return redirect()->back()->with('error', 'Certifique-se que este ficheiro contem as data no formato AAAA-MM-DD.');
             }
         }
 
         // Fecha o arquivo após a verificação
         fclose($handle);
-
-        // Desativa as verificações de chave estrangeira
-        Schema::disableForeignKeyConstraints();
-
-        // Trunca as tabelas
-        DB::table('vacations')->truncate();
-
-        // Reabilita as verificações de chave estrangeira
-        Schema::enableForeignKeyConstraints();
 
         // Abre novamente o arquivo para importar os dados
         $handle = fopen($file->getPathname(), 'r');
@@ -370,15 +385,33 @@ class VacationController extends Controller
         while (($line = fgets($handle)) !== false) {
             $data = str_getcsv($line);
 
-            Vacation::create([
-                'user_id' => $data[0],
-                'vacation_approval_states_id' => $data[1],
-                'approved_by' => $data[2],
-                'date_start' => $data[3],
-                'date_end' => $data[4],
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
+            //Separa a linha por ","
+            $dataArray = explode(',', $line);
+
+            //Remove as aspas
+            $dataArray[0] = str_replace('"', '', $dataArray[0]);
+            $dataArray[1] = str_replace('"', '', $dataArray[1]);
+            $dataArray[2] = str_replace('"', '', $dataArray[2]);
+            $dataArray[3] = str_replace('"', '', $dataArray[3]);
+            $dataArray[4] = str_replace('"', '', $dataArray[4]);
+            $dataArray[5] = str_replace('"', '', $dataArray[5]);
+            $dataArray[6] = str_replace('"', '', $dataArray[6]);
+
+
+            $vacation = new Vacation();
+            $vacation->user_id = $dataArray[0];
+            $vacation->vacation_approval_states_id = $dataArray[1];
+            if($dataArray[2] != null){
+                $vacation->approved_by = $dataArray[2];
+            }
+            else{
+                $vacation->approved_by = null;
+            }
+            $vacation->date_start = $dataArray[3];
+            $vacation->date_end = $dataArray[4];
+            $vacation->created_at = $dataArray[5];
+            $vacation->updated_at = $dataArray[6];
+            $vacation->save();
         }
 
         fclose($handle);
@@ -387,6 +420,7 @@ class VacationController extends Controller
         return redirect()->back()->with('success', 'Férias importadas com sucesso.');
     }
 
+    //Método export- exporta os dados das férias para um ficheiro CSV
     public function export()
     {
 
@@ -398,18 +432,27 @@ class VacationController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
         ];
 
-        $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['Id_Utilizador', 'Id_Estado_Aprovacao_Falta', 'Aprovado_Por', 'Data_Comeco', 'Data_Fim', 'Criado_A', 'Atualizado_A']); // Add more headers as needed
+        // Cria um buffer para armazenar o conteúdo CSV temporariamente
+        $output = fopen('php://temp', 'r+');
+
+        fputcsv($output, ['Id_Utilizador', 'Id_Estado_Aprovacao_Ferias', 'Aprovado_Por', 'Data_Comeco', 'Data_Fim', 'Criado_A', 'Atualizado_A']); // Add more headers as needed
 
         //Percorre o vetor com as férias e escreve no ficheiro
         foreach ($vacations as $vacation) {
-            fputcsv($handle, [$vacation->user_id, $vacation->vacation_approval_states_id, $vacation->approved_by, $vacation->date_start, $vacation->date_end, $vacation->created_at, $vacation->updated_at]); // Add more fields as needed
+            fputcsv($output, [$vacation->user_id, $vacation->vacation_approval_states_id, $vacation->approved_by, $vacation->date_start, $vacation->date_end, $vacation->created_at, $vacation->updated_at]); // Add more fields as needed
         }
 
-        fclose($handle);
+        // Volta para o início do buffer para leitura
+        rewind($output);
 
-        // Retorna o ficheiro
-        return Response::make('', 200, $headers);
+        // Captura o conteúdo CSV
+        $csvContent = stream_get_contents($output);
+
+        // Fecha o buffer
+        fclose($output);
+
+        // Retorna a resposta com o conteúdo CSV e os headers apropriados
+        return response($csvContent, 200, $headers);
     }
 }
 

@@ -48,7 +48,7 @@
                 <input type="date" id="endDate" required>
             </div>
             <div class="form-group-event calendar-buttons">
-                <button type="button" id="saveEvent">Salvar Evento</button>
+                <button type="button" id="saveEvent">Guardar Evento</button>
                 <button type="button" id="deleteEvent" class="btn-delete">Apagar Evento</button>
             </div>
         </form>

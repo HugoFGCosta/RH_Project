@@ -257,6 +257,7 @@ class PresenceController extends Controller
     }
 
 
+    //Método import- Serve para importar presenças de um ficheiro CSV
     public function import(Request $request)
     {
         // Verifica se foi escolhido um arquivo
@@ -295,8 +296,28 @@ class PresenceController extends Controller
                 return redirect()->back()->with('error', 'Certifique-se que os campos de horas extra e efetivas são válidos.');
             }
 
-            if (!strtotime($data[1]) || !strtotime($data[2]) || !strtotime($data[3]) || !strtotime($data[4])) {
-                return redirect()->back()->with('error', 'Certifique-se que as datas estão no formato correto.');
+            if($data[1] != ""){
+                if (!strtotime($data[1])) {
+                    return redirect()->back()->with('error', 'Certifique-se que as datas estão no formato correto.');
+                }
+            }
+
+            if($data[2] != ""){
+                if (!strtotime($data[2])) {
+                    return redirect()->back()->with('error', 'Certifique-se que as datas estão no formato correto.');
+                }
+            }
+
+            if($data[3] != ""){
+                if (!strtotime($data[3])) {
+                    return redirect()->back()->with('error', 'Certifique-se que as datas estão no formato correto.');
+                }
+            }
+
+            if($data[4] != ""){
+                if (!strtotime($data[4])) {
+                    return redirect()->back()->with('error', 'Certifique-se que as datas estão no formato correto.');
+                }
             }
 
             //Verifica se o user_id existe
@@ -350,6 +371,20 @@ class PresenceController extends Controller
 
             }
 
+            //Se alguma data estiver vazia a validação é feita a true
+            if($data[1] == ""){
+                $verFirstStart = true;
+            }
+            if($data[2] == ""){
+                $verFirstEnd = true;
+            }
+            if($data[3] == ""){
+                $verSecondStart = true;
+            }
+            if($data[4] == ""){
+                $verSecondEnd = true;
+            }
+
             //Caso nao exista um horario para o utilizador na altura da presaença, é mostrada uma mensagem de erro
             if($verFirstStart == false || $verFirstEnd == false ||  $verSecondStart == false || $verSecondEnd == false){
                 return redirect()->back()->with('error', 'Certifique-se que os utilizadores têm um horário na altura de todas as presenças.');
@@ -380,15 +415,47 @@ class PresenceController extends Controller
         while (($line = fgets($handle)) !== false) {
             $data = str_getcsv($line);
 
-            Presence::create([
-                'user_id' => $data[0],
-                'first_start' => $data[1],
-                'first_end' => $data[2],
-                'second_start' => $data[3],
-                'second_end' => $data[4],
-                'extra_hour' => $data[5],
-                'effective_hour' => $data[6],
-            ]);
+            $presence = new Presence();
+            $presence->user_id = $data[0];
+
+            // Se existirem datas vazias, atribui null
+            if($data[1] != ""){
+                $presence->first_start = $data[1];
+            }
+            else {
+                $presence->first_start = null;
+            }
+            if ($data[2] != "") {
+                $presence->first_end = $data[2];
+            }
+            else {
+                $presence->first_end = null;
+            }
+            if ($data[3] != "") {
+                $presence->second_start = $data[3];
+            }
+            else {
+                $presence->second_start = null;
+            }
+            if ($data[4] != "") {
+                $presence->second_end = $data[4];
+            }
+            else {
+                $presence->second_end = null;
+            }
+            if($data[5] != ""){
+                $presence->extra_hour = $data[5];
+            }
+            else {
+                $presence->extra_hour = null;
+            }
+            if($data[6] != ""){
+                $presence->effective_hour = $data[6];
+            }
+            else {
+                $presence->effective_hour = null;
+            }
+            $presence->save();
         }
 
         fclose($handle);
@@ -398,6 +465,7 @@ class PresenceController extends Controller
     }
 
 
+    //Método export - Exporta as presenças para um ficheiro CSV
     public function export()
     {
         // Define o nome do ficheiro e os cabeçalhos
@@ -408,17 +476,26 @@ class PresenceController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
         ];
 
-        $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['User_id', 'First_start', 'First_end', 'Second_start', 'Second_end', 'Extra_hour', 'Effective_hour']);
+        // Cria um buffer para armazenar o conteúdo CSV temporariamente
+        $output = fopen('php://temp', 'r+');
+
+        fputcsv($output, ['Id_Utilizador', 'Primeira_Entrada', 'Primeira_Saida', 'Segunda_Entrada', 'Segunda_Saida', 'Horas_Extra', 'Horas_Efetivas']);
 
         //Para cada presença insere uma linha no ficheiro
         foreach ($presences as $presence) {
-            fputcsv($handle, [$presence->user_id, $presence->first_start, $presence->first_end, $presence->second_start, $presence->second_end, $presence->extra_hour, $presence->effective_hour]); // Add more fields as needed
+            fputcsv($output, [$presence->user_id, $presence->first_start, $presence->first_end, $presence->second_start, $presence->second_end, $presence->extra_hour, $presence->effective_hour]); // Add more fields as needed
         }
 
-        fclose($handle);
+        // Volta para o início do buffer para leitura
+        rewind($output);
 
-        // Retorna o ficheiro
-        return Response::make('', 200, $headers);
+        // Captura o conteúdo CSV
+        $csvContent = stream_get_contents($output);
+
+        // Fecha o buffer
+        fclose($output);
+
+        // Retorna a resposta com o conteúdo CSV e os headers apropriados
+        return response($csvContent, 200, $headers);
     }
 }

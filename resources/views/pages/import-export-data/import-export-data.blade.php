@@ -18,7 +18,7 @@
                 @csrf
                 <input class="import-input" type="file" name="file" accept=".csv">
                 <div class="buttonsDiv">
-                    <button class="buttonImport" type="submit">Importar Users</button>
+                    <button class="buttonImport" type="submit">Importar Utilizadores</button>
                     <a class="exportButton" href="{{ route('export') }}">Exportar Utilizadores</a>
                 </div>
             </form>
