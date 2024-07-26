@@ -125,9 +125,6 @@ class AbsenceController extends Controller
         // Ignora a primeira linha do ficheiro
         fgets($handle);
 
-        // Desativa as verificações de chave estrangeira
-        Schema::disableForeignKeyConstraints();
-
         $errors = [];
 
         // Percorre o ficheiro e insere os dados na base de dados
@@ -135,25 +132,42 @@ class AbsenceController extends Controller
 
             $data = str_getcsv($line);
 
+            //Separa a linha por ","
+            $dataArray = explode(',', $line);
 
-            // Verifica se há exatamente 5 campos
-            if (count($data) != 9) {
+            //Busca o tamanho de $dataArray
+            $size = count($dataArray);
+
+
+            // Verifica se há exatamente 9 campos
+            if ($size != 9) {
                 return redirect()->back()->with('error', 'Certifique-se que este ficheiro contém informações de faltas.');
             }
 
+            //Remove as aspas
+            $dataArray[0] = str_replace('"', '', $dataArray[0]);
+            $dataArray[1] = str_replace('"', '', $dataArray[1]);
+            $dataArray[2] = str_replace('"', '', $dataArray[2]);
+            $dataArray[3] = str_replace('"', '', $dataArray[3]);
+            $dataArray[4] = str_replace('"', '', $dataArray[4]);
+            $dataArray[5] = str_replace('"', '', $dataArray[5]);
+            $dataArray[6] = str_replace('"', '', $dataArray[6]);
+            $dataArray[7] = str_replace('"', '', $dataArray[7]);
+            $dataArray[8] = str_replace('"', '', $dataArray[8]);
+
             // Verifica se os IDs são numéricos e depois converte para inteiros
-            if (!is_numeric($data[0]) || !is_numeric($data[2]) || !is_numeric($data[3])) {
+            if (!is_numeric($dataArray[0]) || !is_numeric($dataArray[2]) || !is_numeric($dataArray[3])) {
                 return redirect()->back()->with('error', 'Certifique-se que os IDs de utilizador, estado de falta e aprovador são números válidos.');
             }
 
 
             // Verifica se o campo absence_date é uma data válida
-            if (strtotime($data[5]) === false||strtotime($data[6]) === false) {
+            if (strtotime($dataArray[5]) === false||strtotime($dataArray[6]) === false) {
                 return redirect()->back()->with('error', 'As datas fornecidas não são válidas.');
             }
 
             // Verifica se o utilizador existe
-            $user = User::find($data[0]);
+            $user = User::find($dataArray[0]);
 
             if (!$user) {
                 return redirect()->back()->with('error', 'Certifique se todos os Ids de utilizador correspondem a um utilizador existente.');
@@ -162,24 +176,24 @@ class AbsenceController extends Controller
 
             //Verifica se existe um horario para o utilizador na altura da falta
             $usersShifts = User_Shift::all();
-            $startDate = strtotime($data[5]);
-            $endDate = strtotime($data[5]);
+            $startDate = strtotime($dataArray[5]);
+            $endDate = strtotime($dataArray[5]);
 
             $verStart = false;
             $verEnd = false;
 
             foreach ($usersShifts as $usersShift){
 
-             if(date("Y-m-d H:i:s", $startDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $startDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+             if(date("Y-m-d H:i:s", $startDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $startDate) <= $usersShift->end_date && $usersShift->user_id == $dataArray[0]) {
                  $verStart = true;
              }
-             elseif (date("Y-m-d H:i:s", $startDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+             elseif (date("Y-m-d H:i:s", $startDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $dataArray[0]){
                  $verStart = true;
              }
-             if(date("Y-m-d H:i:s", $endDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $endDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+             if(date("Y-m-d H:i:s", $endDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $endDate) <= $usersShift->end_date && $usersShift->user_id == $dataArray[0]) {
                  $verEnd = true;
              }
-             elseif (date("Y-m-d H:i:s", $endDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+             elseif (date("Y-m-d H:i:s", $endDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $dataArray[0]){
                  $verEnd = true;
              }
             }
@@ -190,8 +204,8 @@ class AbsenceController extends Controller
             }
 
             // Verifica se a justificação existe
-            if (!empty($data[1])) {
-                $justification = Justification::find($data[1]);
+            if (!empty($dataArray[1])) {
+                $justification = Justification::find($dataArray[1]);
 
                 if (!$justification) {
                     return redirect()->back()->with('error', 'Certifique-se que todos os IDs de justificação correspondem a uma justificação existente.');
@@ -199,8 +213,8 @@ class AbsenceController extends Controller
             }
 
             // Verifica se o aprovador existe
-            if (!empty($data[4])) {
-                $approver = User::find($data[4]);
+            if (!empty($dataArray[4])) {
+                $approver = User::find($dataArray[4]);
 
                 if (!$approver) {
                     return redirect()->back()->with('error', 'Certifique-se que todos os IDs de aprovador correspondem a um utilizador existente.');
@@ -208,59 +222,105 @@ class AbsenceController extends Controller
             }
 
             // Verifica se a data de início é anterior à data de fim
-            if (strtotime($data[5]) > strtotime($data[6])) {
+            if (strtotime($dataArray[5]) > strtotime($dataArray[6])) {
                 return redirect()->back()->with('error', 'Certifique-se que a data de início é anterior à data de fim.');
             }
 
             // Verifica se a data de início é anterior à data atual
-            if (strtotime($data[5]) > strtotime(now())) {
+            if (strtotime($dataArray[5]) > strtotime(now())) {
                 return redirect()->back()->with('error', 'Certifique-se que a data de início é anterior à data atual.');
             }
 
             // Verifica se a data de fim é anterior à data atual
-            if (strtotime($data[6]) > strtotime(now())) {
+            if (strtotime($dataArray[6]) > strtotime(now())) {
                 return redirect()->back()->with('error', 'Certifique-se que a data de fim é anterior à data atual.');
             }
 
             // Verifica se o absence_states_id existe
-            $absence_state = Absence_State::find($data[2]);
+            $absence_state = Absence_State::find($dataArray[2]);
 
             if (!$absence_state) {
                 return redirect()->back()->with('error', 'Certifique-se que todos os IDs de estado de falta correspondem a um estado de falta existente.');
             }
 
             // Verifica se o absence_types_id existe
-            $absence_type = AbsenceType::find($data[3]);
+            $absence_type = AbsenceType::find($dataArray[3]);
 
             if (!$absence_type) {
                 return redirect()->back()->with('error', 'Certifique-se que todos os IDs de tipo de falta correspondem a um tipo de falta existente.');
             }
 
-            $absenceData = [
-                'user_id' => $data[0],
-                'absence_states_id' => $data[2],
-                'absence_types_id' => $data[3],
-                'absence_start_date' => $data[5],
-                'absence_end_date' => $data[6],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-            $absenceData['justification_id'] = !empty($data[1]) ? $data[1] : null;
-            $absenceData['approved_by'] = !empty($data[4]) ? $data[4] : null;
-
-            Absence::create($absenceData);
-
         }
 
         fclose($handle);
-
-        // Reabilita as verificações de chave estrangeira
-        Schema::enableForeignKeyConstraints();
 
         // Se houver erros, redireciona de volta com as mensagens de erro
         if (!empty($errors)) {
             return redirect()->back()->with('error', $errors);
         }
+
+        // Abre novamente o arquivo para importar os dados
+        $handle = fopen($file->getPathname(), 'r');
+
+        // Ignora a primeira linha (cabeçalhos)
+        fgets($handle);
+
+        // Percorre o ficheiro e insere os dados na base de dados
+        while (($line = fgets($handle)) !== false) {
+            $data = str_getcsv($line);
+
+            //Separa a linha por ","
+            $dataArray = explode(',', $line);
+
+            //Remove as aspas
+            $dataArray[0] = str_replace('"', '', $dataArray[0]);
+            $dataArray[1] = str_replace('"', '', $dataArray[1]);
+            $dataArray[2] = str_replace('"', '', $dataArray[2]);
+            $dataArray[3] = str_replace('"', '', $dataArray[3]);
+            $dataArray[4] = str_replace('"', '', $dataArray[4]);
+            $dataArray[5] = str_replace('"', '', $dataArray[5]);
+            $dataArray[6] = str_replace('"', '', $dataArray[6]);
+            $dataArray[7] = str_replace('"', '', $dataArray[6]);
+            $dataArray[8] = str_replace('"', '', $dataArray[6]);
+
+
+            $absence = new Absence();
+            $absence->user_id = $dataArray[0];
+            if($dataArray[1] != null){
+                $absence->justification_id = $dataArray[1];
+            }
+            else{
+                $absence->justification_id = null;
+            }
+            $absence->absence_states_id = $dataArray[2];
+            $absence->absence_types_id = $dataArray[3];
+            if($dataArray[4] != null){
+                $absence->approved_by = $dataArray[4];
+            }
+            else{
+                $absence->approved_by = null;
+            }
+            $absence->absence_start_date = $dataArray[5];
+            $absence->absence_end_date = $dataArray[6];
+
+            if($dataArray[7] != null){
+                $absence->created_at = $dataArray[7];
+            }
+            else{
+                $absence->created_at = null;
+            }
+            if($dataArray[8] != null){
+                $absence->updated_at = $dataArray[8];
+            }
+            else{
+                $absence->updated_at = null;
+            }
+            $absence->save();
+
+        }
+
+        fclose($handle);
+
 
         // Redireciona para a página anterior com uma mensagem de sucesso
         return redirect()->back()->with('success', 'Faltas importadas com sucesso.');
