@@ -309,6 +309,7 @@ class VacationController extends Controller
 
     }
 
+    //Método import- importa os dados das férias de um ficheiro CSV
     public function import(Request $request)
     {
         $file = $request->file('file');
@@ -387,6 +388,7 @@ class VacationController extends Controller
         return redirect()->back()->with('success', 'Férias importadas com sucesso.');
     }
 
+    //Método export- exporta os dados das férias para um ficheiro CSV
     public function export()
     {
 
@@ -401,7 +403,7 @@ class VacationController extends Controller
         // Cria um buffer para armazenar o conteúdo CSV temporariamente
         $output = fopen('php://temp', 'r+');
 
-        fputcsv($output, ['Id_Utilizador', 'Id_Estado_Aprovacao_Falta', 'Aprovado_Por', 'Data_Comeco', 'Data_Fim', 'Criado_A', 'Atualizado_A']); // Add more headers as needed
+        fputcsv($output, ['Id_Utilizador', 'Id_Estado_Aprovacao_Ferias', 'Aprovado_Por', 'Data_Comeco', 'Data_Fim', 'Criado_A', 'Atualizado_A']); // Add more headers as needed
 
         //Percorre o vetor com as férias e escreve no ficheiro
         foreach ($vacations as $vacation) {
