@@ -141,11 +141,23 @@ class WorkShiftController extends Controller
         //
 
         $user_shifts = User_Shift::where('work_shift_id', $work_shift->id)->get();
-        foreach ($user_shifts as $user_shift) {
-            $user_shift->end_date = Carbon::now();
-            $user_shift->save();
+
+        // Se o turno estiver associado a um utilizador não é possível apagar
+
+        if($user_shifts->count() > 0){
+            return redirect('work-shifts')->with('error', 'Não é possível apagar este turno, pois está associado a um utilizador');
+        }
+        else{
+
+            // Percorre todos os usershifts associados ao turno e atualiza a data de fim
+            foreach ($user_shifts as $user_shift) {
+                $user_shift->end_date = Carbon::now();
+                $user_shift->save();
+            }
+
         }
 
+        // Apaga o turno
         $work_shift->delete();
 
         return redirect('work-shifts')->with('success', 'Turno apagado com sucesso');
@@ -196,15 +208,17 @@ class WorkShiftController extends Controller
         foreach ($weekDays as $day) {
 
             $userShifts = User_Shift::all()->where('user_id', $userId);
+
             $ver =false;
 
             foreach ($userShifts as $userShift){
 
                 // Se encontrar um usershift em que o dia da semana esteja entre o start_date e o end_date adiciona ao array
                 if (Carbon::parse($userShift->start_date)->format('Y-m-d') <= $day && Carbon::parse($userShift->end_date)->format('Y-m-d') >= $day) {
-                    $workShift = Work_Shift::find($userShift->work_shift_id);
-                    array_push($weekWorkShifts, $workShift->id);
+
+                    array_push($weekWorkShifts, $userShift->work_shift_id);
                     $ver = true;
+
                 }
 
 
@@ -245,7 +259,7 @@ class WorkShiftController extends Controller
 
         $weekDays = ['Segunda','Terca','Quarta','Quinta','Sexta'];
         $counter = 0;
-        $workShifts = Work_Shift::all();
+        $workShifts = Work_Shift::withTrashed()->get();
 
         // Imprime os dados do horário por cada dia da semana
         foreach ($weekDays as $day){
