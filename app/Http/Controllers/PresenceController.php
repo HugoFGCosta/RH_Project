@@ -69,20 +69,17 @@ class PresenceController extends Controller
     }
 
 
-    //Metodo store - Guarda as presenças de cada user logado.
     public function store(Request $request)
     {
         $user = auth()->user();
-        $today = Carbon::today()->toDateString();
-
+        $today = Carbon::today();
 
         // Buscar o turno de trabalho mais recente para o utilizador
         $userShift = User_Shift::where('user_id', $user->id)
             ->where(function ($query) use ($today) {
                 $query->whereNull('end_date')
-                    ->orWhereDate('end_date', '>=', $today);
+                    ->orWhere('end_date', '>=', $today);
             })
-            ->whereDate('start_date', '<=', $today)
             ->orderBy('start_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->first();
@@ -91,53 +88,79 @@ class PresenceController extends Controller
             Log::error('User shift not found for user', ['user_id' => $user->id]);
             return response()->json(['error' => 'User shift not found.'], 404);
         }
+
         $workShift = Work_Shift::find($userShift->work_shift_id);
+        Log::info('Work shift found', ['work_shift' => $workShift]);
 
-
-        // VERIFICA se existe um registro de presença para user hoje
+        // Verifica se existe um registro de presença para o usuário hoje ou se a presença de ontem não foi completada
         $presence = Presence::where('user_id', $user->id)
-            ->whereDate('created_at', Carbon::today())
+            ->where(function ($query) {
+                $query->whereDate('created_at', Carbon::today())
+                    ->orWhere(function ($subQuery) {
+                        $subQuery->whereDate('created_at', Carbon::yesterday())
+                            ->whereNull('second_end');
+                    });
+            })
             ->first();
 
+        $currentTime = Carbon::now();
+        $start_hour = Carbon::parse($workShift->start_hour);
+        $break_start = Carbon::parse($workShift->break_start);
+        $break_end = Carbon::parse($workShift->break_end);
+        $end_hour = Carbon::parse($workShift->end_hour);
 
-        // VERIFICA se todos os 4 registros já foram preenchidos
-        if ($presence && $presence->first_start && $presence->first_end && $presence->second_start && $presence->second_end) {
-            return response()->json(['error' => 'Já existe um registro de presença completo para hoje.'], 400);
+        // Ajuste para considerar o `break_start`, `break_end`, e `end_hour` no dia seguinte, se necessário
+        if ($break_start->lt($start_hour)) {
+            $break_start->addDay();
+        }
+        if ($break_end->lt($break_start)) {
+            $break_end->addDay();
+        }
+        if ($end_hour->lt($start_hour)) {
+            $end_hour->addDay();
         }
 
+        Log::info('Calculated shift times', [
+            'current_time' => $currentTime,
+            'start_hour' => $start_hour,
+            'break_start' => $break_start,
+            'break_end' => $break_end,
+            'end_hour' => $end_hour
+        ]);
 
-        // Verificar se o utilizador tem uma falta no primeiro turno
-        $absenceFirstShift = Absence::where('user_id', $user->id)
-            ->where('absence_types_id', 1)
-            ->whereDate('absence_start_date', Carbon::today())
-            ->first();
-
-
-        //Se houver uma falta no primeiro turno  e nao existir presença cria a presença no segundo turno
-        if ($absenceFirstShift && !$presence) {
+        if (!$presence) {
             $presence = new Presence;
             $presence->user_id = $user->id;
-            $presence->second_start = Carbon::now()->addHour();
-        } elseif ($absenceFirstShift && $presence && is_null($presence->second_start)) {
-            $presence->second_start = Carbon::now()->addHour();
-        } elseif ($absenceFirstShift && $presence && is_null($presence->second_end)) {
-            $presence->second_end = Carbon::now()->addHour();
-        } else {
-            if (!$presence) {
-                $presence = new Presence;
-                $presence->user_id = $user->id;
-                $presence->first_start = Carbon::now()->addHour();
-            } elseif (is_null($presence->first_end)) {
-                $presence->first_end = Carbon::now()->addHour();
-            } elseif (is_null($presence->second_start)) {
-                $presence->second_start = Carbon::now()->addHour();
+
+            // Se a hora atual for após o break_start e first_start for nulo, registrar no second_start
+            if ($currentTime->gte($break_start) && is_null($presence->first_start)) {
+                $presence->second_start = $currentTime;
+                Log::info('Registering second_start as first_start is null after break_start', ['time' => $currentTime]);
             } else {
-                $presence->second_end = Carbon::now()->addHour();
+                $presence->first_start = $currentTime;
+                Log::info('Registering first_start', ['time' => $currentTime]);
+            }
+        } else {
+            Log::info('Presence already exists', ['presence' => $presence]);
+
+            // Fechar first_start se estiver preenchido e first_end estiver nulo
+            if (!is_null($presence->first_start) && is_null($presence->first_end)) {
+                $presence->first_end = $currentTime;
+                Log::info('Updating first_end', ['time' => $currentTime]);
+            } elseif (!is_null($presence->first_end) && is_null($presence->second_start)) {
+                // Atualizar second_start se first_end estiver preenchido e second_start estiver nulo
+                $presence->second_start = $currentTime;
+                Log::info('Updating second_start', ['time' => $currentTime]);
+            } elseif (!is_null($presence->second_start) && is_null($presence->second_end)) {
+                $presence->second_end = $currentTime;
+                Log::info('Updating second_end', ['time' => $currentTime]);
+            } else {
+                Log::error('Todos os horários já estão preenchidos', ['time' => $currentTime]);
+                return response()->json(['error' => 'Todos os horários já estão preenchidos.'], 400);
             }
         }
 
-
-        // CALCULA a diferença em minutos e guarda em $presence->effective_hour
+        // Calcula a diferença em minutos e guarda em $presence->effective_hour
         $effective_hour = 0;
         if ($presence->first_start && $presence->first_end) {
             $first_start = Carbon::parse($presence->first_start);
@@ -151,19 +174,19 @@ class PresenceController extends Controller
         }
         $effective_hour /= 60;
 
-
         // PEGA a hora começo/fim do turno
         $start_hour = Carbon::parse($workShift->start_hour);
-        $end_hour = Carbon::parse($workShift->end_hour);
-
+        $end_hour = Carbon::parse($workShift->end_hour)->addDay($workShift->end_hour < $workShift->start_hour ? 1 : 0);
 
         // CALCULA hora extra para quem entra antes da hora do turno
         $extra_hours = 0;
-        $first_start = Carbon::parse($presence->first_start);
-        if ($first_start->lt($start_hour)) {
-            $extra_hours_early = $first_start->diffInMinutes($start_hour) / 60;
-            if ($extra_hours_early >= 1) {
-                $extra_hours += $extra_hours_early;
+        if ($presence->first_start) {
+            $first_start = Carbon::parse($presence->first_start);
+            if ($first_start->lt($start_hour)) {
+                $extra_hours_early = $first_start->diffInMinutes($start_hour) / 60;
+                if ($extra_hours_early >= 1) {
+                    $extra_hours += $extra_hours_early;
+                }
             }
         }
         if ($presence->second_end && Carbon::parse($presence->second_end)->gt($end_hour)) {
@@ -176,7 +199,6 @@ class PresenceController extends Controller
         }
         $presence->extra_hour = $extra_hours;
 
-
         // Se hora efetiva for menor que 0, atribui valor 0. Caso contrario subtrai as horas extras da hora efetiva.
         if (($effective_hour - $extra_hours) < 0) {
             $presence->effective_hour = 0;
@@ -184,54 +206,49 @@ class PresenceController extends Controller
             $presence->effective_hour = $effective_hour - $extra_hours;
         }
 
+        Log::info('Presence to be saved', ['presence' => $presence]);
+
         $presence->save();
         return response()->json(['success' => 'Presença registrada com sucesso.']);
     }
 
-
-    // Metodo getStatus - Determina se está entrando ou saindo do turno
     public function getStatus()
     {
         $user = auth()->user();
-        $user_id = $user->id;
-        $presence = Presence::where('user_id', $user_id)->whereDate('created_at', Carbon::today())->first();
+        $presence = Presence::where('user_id', $user->id)
+            ->where(function ($query) {
+                $query->whereDate('created_at', Carbon::today())
+                    ->orWhere(function ($subQuery) {
+                        $subQuery->whereDate('created_at', Carbon::yesterday())
+                            ->whereNull('second_end');
+                    });
+            })
+            ->first();
 
-        // Se não há registro de presença, o status é 'out'
+        // Verifica se há um registro de presença existente
         if (!$presence) {
             return response()->json(['status' => 'out']);
         }
 
-        // Verifica se há uma ausência no primeiro turno
-        $absenceFirstShift = Absence::where('user_id', $user_id)
-            ->where('absence_types_id', 1)
-            ->whereDate('absence_start_date', Carbon::today())
-            ->first();
-
-        // Se houve falta no primeiro turno, a próxima ação deve ser no segundo turno
-        if ($absenceFirstShift) {
-            if (is_null($presence->second_start)) {
-                return response()->json(['status' => 'out', 'shift' => 'second']);
-            } elseif (is_null($presence->second_end)) {
+        // Lógica para verificar o estado dos registros de presença
+        if (!is_null($presence->second_start)) {
+            if (is_null($presence->second_end)) {
                 return response()->json(['status' => 'in', 'shift' => 'second']);
             } else {
                 return response()->json(['status' => 'completed']);
             }
-        }
-
-        // Verifica o estado dos registros de presença para determinar o status
-        if (is_null($presence->first_start)) {
-            return response()->json(['status' => 'out', 'shift' => 'first']);
-        } elseif (is_null($presence->first_end)) {
-            return response()->json(['status' => 'in', 'shift' => 'first']);
-        } elseif (is_null($presence->second_start)) {
-            return response()->json(['status' => 'out', 'shift' => 'second']);
-        } elseif (is_null($presence->second_end)) {
-            return response()->json(['status' => 'in', 'shift' => 'second']);
         } else {
-            return response()->json(['status' => 'completed']);
+            if (is_null($presence->first_start)) {
+                return response()->json(['status' => 'out', 'shift' => 'first']);
+            } elseif (is_null($presence->first_end)) {
+                return response()->json(['status' => 'in', 'shift' => 'first']);
+            } elseif (is_null($presence->second_start)) {
+                return response()->json(['status' => 'out', 'shift' => 'second']);
+            }
         }
-    }
 
+        return response()->json(['status' => 'completed']);
+    }
 
     public function show(Presence $presence)
     {
@@ -296,25 +313,25 @@ class PresenceController extends Controller
                 return redirect()->back()->with('error', 'Certifique-se que os campos de horas extra e efetivas são válidos.');
             }
 
-            if($data[1] != ""){
+            if ($data[1] != "") {
                 if (!strtotime($data[1])) {
                     return redirect()->back()->with('error', 'Certifique-se que as datas estão no formato correto.');
                 }
             }
 
-            if($data[2] != ""){
+            if ($data[2] != "") {
                 if (!strtotime($data[2])) {
                     return redirect()->back()->with('error', 'Certifique-se que as datas estão no formato correto.');
                 }
             }
 
-            if($data[3] != ""){
+            if ($data[3] != "") {
                 if (!strtotime($data[3])) {
                     return redirect()->back()->with('error', 'Certifique-se que as datas estão no formato correto.');
                 }
             }
 
-            if($data[4] != ""){
+            if ($data[4] != "") {
                 if (!strtotime($data[4])) {
                     return redirect()->back()->with('error', 'Certifique-se que as datas estão no formato correto.');
                 }
@@ -339,54 +356,50 @@ class PresenceController extends Controller
             $verSecondStart = false;
             $verSecondEnd = false;
 
-            foreach ($usersShifts as $usersShift){
+            foreach ($usersShifts as $usersShift) {
 
-                if(date("Y-m-d H:i:s", $firstStartDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $firstStartDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                if (date("Y-m-d H:i:s", $firstStartDate) >= $usersShift->start_date && date("Y-m-d H:i:s", $firstStartDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                    $verFirstStart = true;
+                } elseif (date("Y-m-d H:i:s", $firstStartDate) >= $usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]) {
                     $verFirstStart = true;
                 }
-                elseif(date("Y-m-d H:i:s", $firstStartDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
-                    $verFirstStart = true;
-                }
 
-                if(date("Y-m-d H:i:s", $firstEndDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $firstEndDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                if (date("Y-m-d H:i:s", $firstEndDate) >= $usersShift->start_date && date("Y-m-d H:i:s", $firstEndDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
                     $verFirstEnd = true;
-                }
-                elseif(date("Y-m-d H:i:s", $firstEndDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+                } elseif (date("Y-m-d H:i:s", $firstEndDate) >= $usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]) {
                     $verFirstEnd = true;
                 }
 
-                if(date("Y-m-d H:i:s", $secondStartDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $secondStartDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                if (date("Y-m-d H:i:s", $secondStartDate) >= $usersShift->start_date && date("Y-m-d H:i:s", $secondStartDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
                     $verSecondStart = true;
-                }
-                elseif(date("Y-m-d H:i:s", $secondStartDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+                } elseif (date("Y-m-d H:i:s", $secondStartDate) >= $usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]) {
                     $verSecondStart = true;
                 }
 
-                if(date("Y-m-d H:i:s", $secondEndDate)>=$usersShift->start_date && date("Y-m-d H:i:s", $secondEndDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
+                if (date("Y-m-d H:i:s", $secondEndDate) >= $usersShift->start_date && date("Y-m-d H:i:s", $secondEndDate) <= $usersShift->end_date && $usersShift->user_id == $data[0]) {
                     $verSecondEnd = true;
-                }
-                elseif(date("Y-m-d H:i:s", $secondEndDate)>=$usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]){
+                } elseif (date("Y-m-d H:i:s", $secondEndDate) >= $usersShift->start_date && $usersShift->end_date == null && $usersShift->user_id == $data[0]) {
                     $verSecondEnd = true;
                 }
 
             }
 
             //Se alguma data estiver vazia a validação é feita a true
-            if($data[1] == ""){
+            if ($data[1] == "") {
                 $verFirstStart = true;
             }
-            if($data[2] == ""){
+            if ($data[2] == "") {
                 $verFirstEnd = true;
             }
-            if($data[3] == ""){
+            if ($data[3] == "") {
                 $verSecondStart = true;
             }
-            if($data[4] == ""){
+            if ($data[4] == "") {
                 $verSecondEnd = true;
             }
 
             //Caso nao exista um horario para o utilizador na altura da presaença, é mostrada uma mensagem de erro
-            if($verFirstStart == false || $verFirstEnd == false ||  $verSecondStart == false || $verSecondEnd == false){
+            if ($verFirstStart == false || $verFirstEnd == false || $verSecondStart == false || $verSecondEnd == false) {
                 return redirect()->back()->with('error', 'Certifique-se que os utilizadores têm um horário na altura de todas as presenças.');
             }
 
@@ -419,40 +432,34 @@ class PresenceController extends Controller
             $presence->user_id = $data[0];
 
             // Se existirem datas vazias, atribui null
-            if($data[1] != ""){
+            if ($data[1] != "") {
                 $presence->first_start = $data[1];
-            }
-            else {
+            } else {
                 $presence->first_start = null;
             }
             if ($data[2] != "") {
                 $presence->first_end = $data[2];
-            }
-            else {
+            } else {
                 $presence->first_end = null;
             }
             if ($data[3] != "") {
                 $presence->second_start = $data[3];
-            }
-            else {
+            } else {
                 $presence->second_start = null;
             }
             if ($data[4] != "") {
                 $presence->second_end = $data[4];
-            }
-            else {
+            } else {
                 $presence->second_end = null;
             }
-            if($data[5] != ""){
+            if ($data[5] != "") {
                 $presence->extra_hour = $data[5];
-            }
-            else {
+            } else {
                 $presence->extra_hour = null;
             }
-            if($data[6] != ""){
+            if ($data[6] != "") {
                 $presence->effective_hour = $data[6];
-            }
-            else {
+            } else {
                 $presence->effective_hour = null;
             }
             $presence->save();
